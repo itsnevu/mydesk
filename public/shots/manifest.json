@@ -1,0 +1,145 @@
+[
+  {
+    "key": "winfaith",
+    "url": "https://winfaithindonesia.com/",
+    "desktop": "shots/winfaith.webp",
+    "mobile": "shots/winfaith-m.webp",
+    "bytes": 123516,
+    "desktopBytes": 78158,
+    "mobileBytes": 45358,
+    "ok": true,
+    "note": "apex domain serves the hosting provider's default \"website telah aktif\" placeholder; real site is on https://www.winfaithindonesia.com/ (captured from there)"
+  },
+  {
+    "key": "flora-indonesia",
+    "url": "https://floraindonesia.com/",
+    "desktop": "shots/flora-indonesia.webp",
+    "mobile": "shots/flora-indonesia-m.webp",
+    "bytes": 73084,
+    "desktopBytes": 35118,
+    "mobileBytes": 37966,
+    "ok": true,
+    "note": ""
+  },
+  {
+    "key": "miniatur-kapal",
+    "url": "https://miniaturkapal.com/",
+    "desktop": null,
+    "mobile": null,
+    "bytes": 0,
+    "desktopBytes": 0,
+    "mobileBytes": 0,
+    "ok": false,
+    "note": "domain expired: resolves to Hostinger parking page \"Your domain is expired\""
+  },
+  {
+    "key": "dams-garage",
+    "url": "https://damsgarage.id/",
+    "desktop": "shots/dams-garage.webp",
+    "mobile": "shots/dams-garage-m.webp",
+    "bytes": 91476,
+    "desktopBytes": 39490,
+    "mobileBytes": 51986,
+    "ok": true,
+    "note": ""
+  },
+  {
+    "key": "yukti-rasa-mitrabumi",
+    "url": "https://yrm.co.id/",
+    "desktop": "shots/yukti-rasa-mitrabumi.webp",
+    "mobile": "shots/yukti-rasa-mitrabumi-m.webp",
+    "bytes": 159524,
+    "desktopBytes": 95132,
+    "mobileBytes": 64392,
+    "ok": true,
+    "note": ""
+  },
+  {
+    "key": "nf-optical",
+    "url": "https://nfopticalofficial.com/",
+    "desktop": "shots/nf-optical.webp",
+    "mobile": "shots/nf-optical-m.webp",
+    "bytes": 79152,
+    "desktopBytes": 38238,
+    "mobileBytes": 40914,
+    "ok": true,
+    "note": ""
+  },
+  {
+    "key": "gajah-terbang-kreatif",
+    "url": "https://godjahstudio.com/",
+    "desktop": null,
+    "mobile": null,
+    "bytes": 0,
+    "desktopBytes": 0,
+    "mobileBytes": 0,
+    "ok": false,
+    "note": "domain expired: resolves to Hostinger parking page \"Your domain is expired\""
+  },
+  {
+    "key": "gracia-box",
+    "url": "https://graciabox.id/",
+    "desktop": "shots/gracia-box.webp",
+    "mobile": "shots/gracia-box-m.webp",
+    "bytes": 45416,
+    "desktopBytes": 23206,
+    "mobileBytes": 22210,
+    "ok": true,
+    "note": "floating scroll-to-top button hidden for the shot"
+  },
+  {
+    "key": "orthobone",
+    "url": "https://orthobone.store/",
+    "desktop": "shots/orthobone.webp",
+    "mobile": "shots/orthobone-m.webp",
+    "bytes": 104836,
+    "desktopBytes": 52374,
+    "mobileBytes": 52462,
+    "ok": true,
+    "note": ""
+  },
+  {
+    "key": "rameinaja",
+    "url": "https://rameinaja.com/",
+    "desktop": null,
+    "mobile": null,
+    "bytes": 0,
+    "desktopBytes": 0,
+    "mobileBytes": 0,
+    "ok": false,
+    "note": "domain expired: Hostinger parking page \"Your domain is expired\""
+  },
+  {
+    "key": "recon",
+    "url": "https://reconstruction.id/",
+    "desktop": "shots/recon.webp",
+    "mobile": "shots/recon-m.webp",
+    "bytes": 100246,
+    "desktopBytes": 56678,
+    "mobileBytes": 43568,
+    "ok": true,
+    "note": ""
+  },
+  {
+    "key": "airon",
+    "url": "https://airon.site/",
+    "desktop": null,
+    "mobile": null,
+    "bytes": 0,
+    "desktopBytes": 0,
+    "mobileBytes": 0,
+    "ok": false,
+    "note": "NXDOMAIN: airon.site does not resolve (domain not registered / lapsed)"
+  },
+  {
+    "key": "izzi",
+    "url": "https://izzi-bsd.com/",
+    "desktop": "shots/izzi.webp",
+    "mobile": "shots/izzi-m.webp",
+    "bytes": 128670,
+    "desktopBytes": 71406,
+    "mobileBytes": 57264,
+    "ok": true,
+    "note": ""
+  }
+]

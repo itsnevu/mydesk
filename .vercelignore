@@ -1,0 +1,6 @@
+_to_delete
+dist
+node_modules
+*.blend
+*.blend1
+scripts/*.py

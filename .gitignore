@@ -1,0 +1,7 @@
+node_modules
+dist
+_to_delete
+.vercel
+*.blend1
+.claude
+.vercel
