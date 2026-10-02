@@ -25,11 +25,12 @@ export const SITE = {
   note: ['full-stack dev', 'Informatics, UMN', 'builds ERP & web'],
   headline: ["Hi, I'm Navy,", 'full-stack developer.'],
   screen: ['ERP systems in Go + Next.js', '13 live sites, 10+ industries'], // the smaller lines under the headline
-  // the lamp prints these on the desk: three groups, four items each at most
+  // the lamp prints these on the desk: four groups, four items each at most
   skills: [
     { group: 'Frontend', items: ['Next.js / React', 'TypeScript', 'Tailwind CSS', 'Figma'] },
     { group: 'Backend & data', items: ['Go (Golang)', 'Node.js', 'PostgreSQL / MySQL', 'Docker'] },
     { group: 'WordPress', items: ['Custom themes', 'WooCommerce', 'Elementor', 'PHP'] },
+    { group: 'Web3', items: ['Solidity', 'Smart contracts', 'Wallet integration', 'dApp frontends'] },
   ],
 };
 
