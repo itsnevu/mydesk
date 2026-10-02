@@ -88,7 +88,7 @@ async function boot() {
     if (typeof go === 'function') go(); else xp.activate(go);
   });
 
-  state.on((next) => { document.title = next === S.GATE ? `${SITE.name} | ${SITE.role}` : `${SITE.name} | ${next.toLowerCase()}`; });
+  state.on((next) => { document.title = SITE.name; });
 }
 
 boot();
