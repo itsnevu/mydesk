@@ -28,6 +28,8 @@ body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="enter
 #guide .quick strong { font-weight: 800; }
 #quick-btn { position: absolute; left: 160px; bottom: calc(30px + var(--safe-b, 0px)); z-index: 40; padding: 13px 18px; border: 0; border-radius: 999px; background: var(--accent, #d9a05b); color: #1a140d; font: 700 14px/1 var(--sans, system-ui); letter-spacing: 0.03em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .5s, transform .2s; }
 #quick-btn:hover { transform: translateY(-1px); }
+/* the two corner buttons stand the same height side by side on a desktop */
+@media (min-width: 761px) and (pointer: fine), (min-width: 1025px) { #guide-btn, #quick-btn { box-sizing: border-box; height: 48px; } #quick-btn { display: flex; align-items: center; padding: 0 22px; } }
 body:not([data-state="loading"]):not([data-state="entering"]):not([data-state="detail"]) #quick-btn { opacity: 1; pointer-events: auto; }
 body[data-state="gate"] #quick-btn { left: 50%; bottom: 7%; transform: translateX(-50%); padding: 16px 26px; font-size: 16px; z-index: 70; }
 /* inside a world or the gallery the way out is the world's own button: the shortcut steps aside (important: the rule that
