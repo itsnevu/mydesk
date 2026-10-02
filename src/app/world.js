@@ -718,7 +718,9 @@ function makeNoteTexture() {
     ctx.fillStyle = '#24170b'; ctx.font = `700 24px ${MONO}`;   // dark enough to stay legible under the desk lamp
     ctx.fillText('about me', 26, 48);
     ctx.font = `500 19px ${MONO}`; ctx.fillStyle = '#2e1f10';
-    SITE.note.forEach((line, i) => ctx.fillText('> ' + line, 26, 92 + i * 26));
-    ctx.strokeStyle = 'rgba(160,72,24,0.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(26, 150); ctx.lineTo(214, 146); ctx.stroke();
+    // a long line is written a little smaller so it stays on the paper; the pen stroke underlines the last one
+    SITE.note.forEach((line, i) => { let f = 19; do { ctx.font = `400 ${f}px ${MONO}`; } while (ctx.measureText('> ' + line).width > w - 46 && --f > 12); ctx.fillText('> ' + line, 26, 92 + i * 26); });
+    const uy = 92 + (SITE.note.length - 1) * 26 + 6;
+    ctx.strokeStyle = 'rgba(160,72,24,0.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(26, uy); ctx.lineTo(214, uy - 4); ctx.stroke();
   });
 }

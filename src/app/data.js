@@ -22,7 +22,7 @@ export const SITE = {
   // the About panel's "at a glance" chips: one fact each, short enough to scan
   facts: ['Informatics · UMN', 'GPA 3.7 / 4.00', '13 live client sites', 'Leads GodPlan ERP'],
   // printed on objects, so the length is fixed: the paper note fits ~16 characters a line, the monitor ~25
-  note: ['full-stack dev', 'Informatics, UMN', 'builds ERP & web'],
+  note: ['full-stack dev', 'Informatics, UMN', 'loves to build', 'smart contract addict', 'AI tools researcher'],
   headline: ["Hi, I'm Navy,", 'full-stack developer.'],
   screen: ['ERP systems in Go + Next.js', '13 live sites, 10+ industries'], // the smaller lines under the headline
   // the lamp prints these on the desk: four groups, four items each at most
