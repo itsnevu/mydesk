@@ -546,3 +546,6 @@ body[data-story] #kbd-hints, body[data-story] #nav-hints { opacity: 0 !important
   body #guide dl { gap: 5px 16px; font-size: 14px; }
   body #guide .close { margin-top: 16px; padding: 12px; }
 }
+
+/* the corner names the owner, nothing more (the name itself still opens About) */
+#identity .id-role, #identity .id-cta { display: none; }
