@@ -1,6 +1,8 @@
 // A plain-language guide for visitors who don't know where to start: a "? Guide" button that is always in the corner
 // (and the G key, and the button drawn on the portfolio screen), opening a panel that says what to click for what, where
 // every row is itself a button that takes you there.
+import { initHints, showHints } from 'app/hints';
+
 const ROWS = [
   ['See my work', 'Click the right screen ("Hi, I\'m Navy") or a glowing key', 'W', 'monitor'],
   ['Who I am', 'Click the paper note on the desk', 'A', 'note'],
@@ -98,6 +100,7 @@ export function initGuide(xp) {
     <h2 id="guide-title">How to look around</h2>
     <p class="lead">This portfolio is a desk you can explore. Pick what you'd like to see and I'll take you there.</p>
     <button class="quick" type="button" data-go="work">In a hurry? <strong>Show me the work →</strong></button>
+    <button class="row hints-row" type="button" data-go="hints"><div class="what"><strong>What can I ${touch ? 'tap' : 'click'}?</strong><span>A label on everything in view that opens something</span></div><span class="go">SHOW →</span></button>
     <div class="rows">${ROWS.map(([t, how, key, id]) => `<button class="row" type="button" data-go="${id}"><div class="what"><strong>${t}</strong><span>${verb(how)}</span></div>${key ? `<kbd>${key}</kbd>` : ''}<span class="go">GO →</span></button>`).join('')}</div>
     <h3>Moving around</h3>
     <dl>${CONTROLS.map(([a, b]) => `<dt>${a}</dt><dd>${verb(b)}</dd>`).join('')}</dl>
@@ -116,7 +119,10 @@ export function initGuide(xp) {
     open = false; panel.classList.remove('open'); panel.inert = true;
     if (panel.contains(document.activeElement) || document.activeElement === document.body) { if (getComputedStyle(btn).pointerEvents !== 'none') btn.focus({ preventScroll: true }); else document.activeElement?.blur?.(); }
   };
-  btn.addEventListener('click', show);
+  // on the desk the button first labels everything that can be clicked (the bar under the labels opens this card);
+  // anywhere else (an object up close, a world) it opens the card
+  initHints(xp, () => show());
+  btn.addEventListener('click', () => { btn.classList.remove('pulse'); if (document.body.dataset.state === 'desk') showHints(); else show(); });
   panel.querySelector('.close').addEventListener('click', hide);
   panel.addEventListener('click', (e) => { if (e.target === panel) hide(); });
   // back to the start view from anywhere: leave an object, a page or a world first, then fly back to where the visit began
@@ -129,7 +135,7 @@ export function initGuide(xp) {
     if (['focus', 'overview', 'detail', 'project'].includes(st())) xp.back();
     fly();
   };
-  panel.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { hide(); setTimeout(() => (b.dataset.go === 'home' ? goHome() : xp.activate(b.dataset.go)), 250); }));
+  panel.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { hide(); setTimeout(() => (b.dataset.go === 'home' ? goHome() : b.dataset.go === 'hints' ? (document.body.dataset.state === 'desk' ? showHints() : (goHome(), setTimeout(showHints, 1900))) : xp.activate(b.dataset.go)), 250); }));
   // G opens it; Esc closes it before the scene sees it
   window.addEventListener('keydown', (e) => {
     // while the guide is open it is modal: no key reaches the scene behind it (Tab moves through the card and wraps around at

@@ -443,6 +443,25 @@ export const story = {
 
 // ---------- the keyboard as a map: while it has the focus, every district and story key carries a small label (a button)
 let mapEl = null, mapPick = null;
+/** Keep a set of absolutely placed labels from overlapping: in order, each one that hits an earlier one moves up a step at a
+ *  time (a few tries), and one that still overlaps waits hidden until the view gives it room. Works on the labels' boxes. */
+export function declutter(els, gap = 4, reach = 64, obstacles = []) {
+  const placed = [...obstacles];   // (boxes nothing may cover: the HUD)
+  for (const el of els) {
+    if (el.classList.contains('off')) continue;
+    el.style.translate = ''; el.classList.remove('crowded');
+    let r = el.getBoundingClientRect(), dy = 0, ok = false;
+    for (let tries = 0; tries < 4; tries++) {
+      const hit = placed.find((p) => r.left < p.right + gap && r.right > p.left - gap && r.top + dy < p.bottom + gap && r.bottom + dy > p.top - gap);
+      if (!hit) { ok = true; break; }
+      dy = hit.top - gap - r.bottom + dy;   // just above what it hit
+    }
+    if (!ok || r.top + dy < 0 || -dy > reach) { el.classList.add('crowded'); el.style.translate = '0 0'; el.style.visibility = 'hidden'; continue; }
+    el.style.visibility = ''; if (dy) el.style.translate = `0 ${Math.round(dy)}px`;
+    placed.push({ left: r.left, right: r.right, top: r.top + dy, bottom: r.bottom + dy });
+  }
+}
+
 export const kbMap = {
   show(items, onPick) {
     if (!mapEl) {
@@ -460,6 +479,8 @@ export const kbMap = {
     b.style.left = `${Math.round(x)}px`; b.style.top = `${Math.round(y)}px`; b.classList.toggle('off', !on);
   },
   hide() { if (!mapEl) return; if (mapEl.contains(document.activeElement)) document.activeElement.blur(); mapEl.classList.remove('visible'); },
+  // after every pin is placed: zoomed out the districts crowd together, so pins that would overlap step aside (the story first)
+  declutter() { if (!mapEl) return; const pins = [...mapEl.querySelectorAll('.km-pin')]; declutter([...pins.filter((p) => p.classList.contains('km-story')), ...pins.filter((p) => !p.classList.contains('km-story'))]); },
   get visible() { return !!mapEl?.classList.contains('visible'); },
 };
 

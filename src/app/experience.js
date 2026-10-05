@@ -20,10 +20,10 @@ import * as ui from 'app/ui';
 const STORE_KEY = 'kw.found';
 const PORTALS = WORLDS.map((w) => projectByKey(w.project));
 // the letters onKeyDown binds (via their alias keys): the hover tip shows them so the shortcut is learned by pointing
-const SHORTCUTS = { note: 'A', lamp: 'S', mouse: 'C', monitor: 'W', clock: 'P' };
+export const SHORTCUTS = { note: 'A', lamp: 'S', mouse: 'C', monitor: 'W', clock: 'P' };
 // objects whose origin sits low get their hover title lifted clear of the top
 // (measured against each object's on-screen top from the home view and the zoomed-out views)
-const TIP_LIFT = { cat: 4.6, catbed: 2.6, catbowl: 1.8, pc: 12.5, speaker: 8.4, bike: 26, medals: 11, watches: 4.3, mouse: 3.5, monitor: 9.5, desklamp: 2.6, note: 0.9, chair: 66, neon: 7.8, katana: 5.6, pullup: 53, satoshi: 24.5 };
+export const TIP_LIFT = { cat: 4.6, catbed: 2.6, catbowl: 1.8, pc: 12.5, speaker: 8.4, bike: 26, medals: 11, watches: 4.3, mouse: 3.5, monitor: 9.5, desklamp: 2.6, note: 0.9, chair: 66, neon: 7.8, katana: 5.6, pullup: 53, satoshi: 24.5 };
 
 export class Experience {
   constructor(canvas) {
@@ -881,6 +881,7 @@ export class Experience {
     const mapOn = this.sceneName === 'desk' && state.is(S.FOCUS) && this.focus?.id === 'keyboard' && !this.flight;
     if (mapOn !== ui.kbMap.visible) { if (mapOn) ui.kbMap.show(this.mapItems(), (id) => this.activate(id)); else ui.kbMap.hide(); }
     if (mapOn) for (const it of this.mapItems()) { const m = this.world.keyById[it.id]; if (!m) continue; const wp = m.getWorldPosition([0, 0, 0]); wp[1] += it.lift; const nd = this.camera.project(wp); ui.kbMap.place(it.id, (nd[0] * 0.5 + 0.5) * innerWidth, (-nd[1] * 0.5 + 0.5) * innerHeight, nd[2] < 1); }
+    if (mapOn) ui.kbMap.declutter();
     // a story left behind by a jump elsewhere (a world entered, a page opened) is put away
     if (this.story && !state.is(S.FOCUS)) this.stopStory();
     // anchored UI follows the world
