@@ -1,5 +1,5 @@
 // The keyboard's districts, built so each one reads as what it stands for. The Blender shells (the stone steps a district
-// stands on) stay; what stands on them is made here. The client street is thirteen shops, one per live client site, each
+// stands on) stay; what stands on them is made here. The client street is sixteen shops, one per live client site, each
 // with its trade on the roof (glasses over the optician, a ship over the model maker, a flying elephant over Gajah Terbang)
 // and its name over the door; point at one and it names itself, click it and its project page opens.
 // Units are the keyboard's own (1 = one key pitch); y = 0 is the plate the removed caps stood on, the district's origin.
@@ -86,6 +86,7 @@ const STEPS = [
   { y: 0.16, x0: -0.63, x1: 1.38, z0: -1.5 },
   { y: 0.08, x0: -1.38, x1: 0.63, z0: -0.5 },
   { y: 0.03, x0: -0.88, x1: 1.13, z0: 0.5 },
+  { y: 0.16, x0: -1.61, x1: -0.65, z0: -1.5 },   // the lot at the top of the street, where the R key was (its slab is built below)
 ];
 const SHOPS = [
   [
@@ -95,10 +96,11 @@ const SHOPS = [
     { key: 'gajah-terbang-kreatif', sign: ['GAJAH TERBANG'], w: 0.55, h: 0.58, wall: '#c9b48a', awn: '#4d3822', trade: 'elephant' },
   ],
   [
-    { key: 'nf-optical', sign: ['NF OPTICAL'], w: 0.46, h: 0.4, wall: '#d6c7ab', awn: '#2e2418', trade: 'glasses' },
-    { key: 'yukti-rasa-mitrabumi', sign: ['YUKTI RASA'], w: 0.46, h: 0.42, wall: '#6f6a4a', awn: '#b8622c', trade: 'flask' },
-    { key: 'orthobone', sign: ['ORTHOBONE'], w: 0.46, h: 0.38, wall: '#e7ddc8', awn: '#4a5236', trade: 'cross' },
-    { key: 'izzi', sign: ['IZZI'], w: 0.45, h: 0.4, wall: '#8a5a34', awn: '#e7ddc8', trade: 'bag' },
+    { key: 'nf-optical', sign: ['NF OPTICAL'], w: 0.36, h: 0.4, wall: '#d6c7ab', awn: '#2e2418', trade: 'glasses' },
+    { key: 'yukti-rasa-mitrabumi', sign: ['YUKTI RASA'], w: 0.36, h: 0.42, wall: '#6f6a4a', awn: '#b8622c', trade: 'flask' },
+    { key: 'orthobone', sign: ['ORTHOBONE'], w: 0.36, h: 0.38, wall: '#e7ddc8', awn: '#4a5236', trade: 'cross' },
+    { key: 'izzi', sign: ['IZZI'], w: 0.36, h: 0.4, wall: '#8a5a34', awn: '#e7ddc8', trade: 'bag' },
+    { key: 'little-aivy', sign: ['LITTLE', 'AIVY'], w: 0.36, h: 0.4, wall: '#e9c9c0', awn: '#b8622c', trade: 'dress' },
   ],
   [
     { key: 'flora-indonesia', sign: ['FLORA'], w: 0.358, h: 0.32, wall: '#e9dfcd', awn: '#66703e', trade: 'flower' },
@@ -106,6 +108,10 @@ const SHOPS = [
     { key: 'gracia-box', sign: ['GRACIA BOX'], w: 0.358, h: 0.3, wall: '#a8865a', awn: '#4d3822', trade: 'boxes' },
     { key: 'winfaith', sign: ['WINFAITH'], w: 0.358, h: 0.34, wall: '#5a4330', awn: '#2e2418', trade: 'factory' },
     { key: 'miniatur-kapal', sign: ['MINIATUR', 'KAPAL'], w: 0.358, h: 0.3, wall: '#4a4a40', awn: '#d6c7ab', trade: 'ship' },
+  ],
+  [
+    { key: 'fortunarack', sign: ['FORTUNARACK'], w: 0.44, h: 0.46, wall: '#3b3a33', awn: '#8a7a66', trade: 'rack' },
+    { key: 'fls-group-indonesia', sign: ['FLS GROUP'], w: 0.44, h: 0.44, wall: '#7a2e1e', awn: '#d9a05b', trade: 'vase' },
   ],
 ];
 const DEPTH = 0.4, GAP = 0.04;
@@ -191,7 +197,7 @@ function drawStreetSign(ctx, c, W, H, glow) {
   if (!glow) { ctx.fillStyle = '#1b130c'; ctx.fillRect(0, 0, W, H); ctx.strokeStyle = '#b08a52'; ctx.lineWidth = 3; ctx.strokeRect(3, 3, W - 6, H - 6); }
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillStyle = glow ? '#ffd29a' : '#f1e2c8'; const s = fit(ctx, 'CLIENT WEBSITES', W * 0.86, H * 0.36, 700, SANS, 2); ctx.font = `700 ${s}px ${SANS}`; ctx.fillText('CLIENT WEBSITES', W / 2, H * 0.4);
-  ctx.fillStyle = glow ? '#a8682a' : '#d9a05b'; ctx.font = `500 ${Math.round(s * 0.5)}px ${MONO}`; ctx.letterSpacing = '3px'; ctx.fillText('13 LIVE SITES, EVERY SHOP IS REAL', W / 2, H * 0.74);
+  ctx.fillStyle = glow ? '#a8682a' : '#d9a05b'; ctx.font = `500 ${Math.round(s * 0.5)}px ${MONO}`; ctx.letterSpacing = '3px'; ctx.fillText('16 LIVE SITES, EVERY SHOP IS REAL', W / 2, H * 0.74);
 }
 
 // each trade on its shop's roof (origin: the roof's centre), built small and in the room's palette
@@ -215,6 +221,29 @@ function trade(g, s, top, live) {
       for (const x of [0.045, 0.075]) put(g, box(0.02, 0.07, 0.004), plain('#8a7a66', 0.6), [x, top + 0.055, 0.041]);
       put(g, box(0.006, 0.03, 0.006), BRONZE(), [0.1, top + 0.015, 0]);
       put(g, box(0.03, 0.05, 0.14), plain('#efe4cf', 0.5), [w / 2 + 0.016, top - 0.2, 0]);   // the split unit, on the side wall
+      break;
+    }
+    case 'dress': {   // kids' party dress rental: a little dress on a stand
+      put(g, cylinder(0.004, 0.004, 0.05, 5), BRONZE(), [0, top + 0.025, 0]);
+      put(g, cylinder(0.012, 0.06, 0.08, 14), plain('#e9b8c0', 0.7), [0, top + 0.075, 0]);
+      put(g, cylinder(0.016, 0.012, 0.04, 10), plain('#efe4cf', 0.7), [0, top + 0.135, 0]);
+      put(g, sphere(0.01, 8, 6), plain('#8e6a3d', 0.5), [0, top + 0.163, 0]);
+      put(g, fuse([[sphere(0.012, 6, 4), [-0.012, 0, 0]], [sphere(0.012, 6, 4), [0.012, 0, 0]]]), plain('#d9a05b', 0.6), [0, top + 0.128, 0.016]);
+      break;
+    }
+    case 'rack': {   // server and network racks: a cabinet on the roof, its lights on
+      put(g, box(0.09, 0.18, 0.08), plain('#1c1712', 0.4, 0.4), [-0.05, top + 0.09, 0]);
+      for (let i = 0; i < 6; i++) put(g, box(0.06, 0.008, 0.002), GLOW(), [-0.05, top + 0.03 + i * 0.026, 0.041]).castShadow = false;
+      put(g, box(0.07, 0.12, 0.07), plain('#2b2520', 0.4, 0.4), [0.07, top + 0.06, -0.01]);
+      put(g, box(0.008, 0.008, 0.12), plain('#b8622c', 0.6), [0.01, top + 0.15, 0]);
+      break;
+    }
+    case 'vase': {   // feng shui porcelain and lamps: a tall vase and a red lantern
+      put(g, fuse([[sphere(0.04, 12, 8), [0, 0.05, 0], null, [1, 1.2, 1]], [cylinder(0.018, 0.024, 0.04, 10), [0, 0.115, 0]], [cylinder(0.026, 0.018, 0.012, 10), [0, 0.138, 0]]]), plain('#efe4cf', 0.3), [-0.06, top, 0]);
+      put(g, cylinder(0.042, 0.042, 0.012, 12), plain('#2b4a6e', 0.4), [-0.06, top + 0.05, 0]);
+      put(g, box(0.004, 0.12, 0.004), BRONZE(), [0.08, top + 0.06, 0]);
+      put(g, sphere(0.032, 12, 8), M('lantern', { color: [0.8, 0.12, 0.06], emissive: color('#ff5a2a'), emissiveIntensity: 1.4, roughness: 0.6 }), [0.08, top + 0.09, 0.03], null, [1, 0.85, 1]).castShadow = false;
+      put(g, cylinder(0.02, 0.02, 0.008, 10), BRASS(), [0.08, top + 0.118, 0.03]);
       break;
     }
     case 'orb': {    // (unused now) a lit core turning inside a brass ring, on a plinth
@@ -353,7 +382,7 @@ function clientRow() {
       s.atlasMat = atlasMat; s.board = board;
       trade(g, s, s.h + 0.02, live);
       // the click volume: the shop and what stands on its roof
-      const h = hitBox(g, [-s.w / 2, 0, -DEPTH / 2], [s.w / 2, s.h + (['dish', 'billboard', 'elephant', 'orb'].includes(s.trade) ? 0.26 : 0.14), DEPTH / 2 + 0.05], { shop: s.key, interactive: true, glow: 0, targetGlow: 0, tipAt: null });
+      const h = hitBox(g, [-s.w / 2, 0, -DEPTH / 2], [s.w / 2, s.h + (['dish', 'billboard', 'elephant', 'orb', 'rack', 'dress', 'vase'].includes(s.trade) ? 0.26 : 0.14), DEPTH / 2 + 0.05], { shop: s.key, interactive: true, glow: 0, targetGlow: 0, tipAt: null });
       shops.push({ s, g, h, top: s.h + 0.3 });
       // a lamp post at every other gap
       if (i % 2 === 0 && i < row.length - 1) lampPost(root, [x - GAP / 2, y, zf + 0.07]);
@@ -391,20 +420,16 @@ function clientRow() {
     put(root, box(0.52, 0.17, 0.012), plain('#2b1a10', 0.7), [sx, fy + 0.19, sz - 0.004]);
     put(root, panel(0.5, 0.15, street.uv), atlasMat, [sx, fy + 0.19, sz + 0.003]).castShadow = false;
   }
-  // the empty lot at the top of the street, where the R key was: fenced, staked out, its sign asking for the next client
+  // the slab at the top of the street, where the R key was (Fortunarack and FLS stand on it), and at the far end of the front
+  // street a staked-out plot whose sign asks for the next client
+  put(root, box(0.98, 0.16, 0.98), plain('#2a2117', 0.95), [-1.13, 0.08, -1.0]);
   const lots = [];
   {
-    const g = new Node('lot'); g.position = [-1.13, 0, -1.0]; root.add(g);
-    put(g, box(0.98, 0.16, 0.98), plain('#2a2117', 0.95), [0, 0.08, 0]);
-    put(g, box(0.84, 0.01, 0.6), plain('#4a3624', 1), [0, 0.165, -0.08]);
-    const fence = plain('#8e6a3d', 0.8);
-    for (let i = 0; i <= 6; i++) { const fx = -0.42 + i * 0.14; put(g, box(0.008, 0.06, 0.008), fence, [fx, 0.19, -0.38]); put(g, box(0.008, 0.06, 0.008), fence, [fx, 0.19, 0.22]); }
-    for (const fz of [-0.38, 0.22]) put(g, box(0.85, 0.006, 0.006), fence, [0, 0.205, fz]);
-    for (const fx of [-0.42, 0.42]) put(g, box(0.006, 0.006, 0.6), fence, [fx, 0.205, -0.08]);
-    for (const [sx, sz] of [[-0.3, -0.25], [0.28, -0.25], [-0.3, 0.1], [0.28, 0.1]]) put(g, box(0.006, 0.04, 0.006), plain('#b8622c', 0.7), [sx, 0.185, sz]);
-    for (let i = 0; i < 3; i++) put(g, box(0.06, 0.025, 0.035), plain('#a0583a', 0.9), [0.28 + (i % 2) * 0.02, 0.18 + i * 0.026, -0.3]);
-    nameBoard(g, -0.05, 0.16, 0.36, 0.44, 0.16, lotSign.uv, atlasMat);
-    lots.push({ g, h: hitBox(g, [-0.46, 0.1, -0.42], [0.46, 0.42, 0.42], { lot: true, interactive: true, glow: 0, targetGlow: 0 }), top: 0.48 });
+    const g = new Node('lot'); g.position = [front.x1 - 0.26, front.y, front.z0 + 0.86]; root.add(g);
+    put(g, box(0.4, 0.008, 0.18), plain('#4a3624', 1), [0, 0.004, -0.02]);
+    for (const [sx, sz] of [[-0.18, -0.1], [0.18, -0.1], [-0.18, 0.06], [0.18, 0.06]]) put(g, box(0.006, 0.04, 0.006), plain('#b8622c', 0.7), [sx, 0.02, sz]);
+    nameBoard(g, 0, 0, 0.12, 0.44, 0.16, lotSign.uv, atlasMat);
+    lots.push({ g, h: hitBox(g, [-0.24, 0, -0.14], [0.24, 0.32, 0.16], { lot: true, interactive: true, glow: 0, targetGlow: 0 }), top: 0.38 });
   }
   return { root, live, subs: [...shops.map((q) => ({ g: q.g, h: q.h, top: q.top })), ...lots], shops: shops.map((q) => q.s.key) };
 }

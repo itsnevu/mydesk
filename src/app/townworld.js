@@ -1,5 +1,5 @@
 // Worlds 02 (Client Websites) and 03 (JAKASN), built in code: the same district that stands on the keyboard (app/kbtown), at a
-// world's size, so going in through the key lands in the place the key showed. The client street is its thirteen shops, each with
+// world's size, so going in through the key lands in the place the key showed. The client street is its sixteen shops, each with
 // its trade on the roof and its name over the door; JAKASN is the civic hall between the OJS press and BKNPEDIA. The world's
 // places to inspect are the district's own buildings.
 import { Node, Mesh } from 'engine/scene';
