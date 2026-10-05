@@ -396,7 +396,7 @@ export class Experience {
       case 'timeline': this.discover(id); audio.tick(); this.world.clockBody.userData.spin = 1; this.focusObject(id, () => { ui.panel.timeline((p) => { const wi = WORLDS.findIndex((w) => w.project === p.key); if (wi >= 0) this.enterWorldVia(wi, WORLDS[wi].trigger); else this.openDetail(p); }); this.anchorPanel(this.world.clockBody, [-1.7, 1.2, 0.4]); }); return;
       // the note is the about page: one click picks it up and the camera reads it (exitToDesk puts it back down)
       case 'about': this.discover(id); audio.paper(); this.world.note.userData.lift = 1; this.focusObject(id, () => { ui.panel.about(); this.anchorPanel(this.world.note, [1.4, 1.4, 0]); }); return;
-      case 'machine': { this.discover(id); audio.powerOn(); const hit = this.world.targets[id].mesh; this.focusObject(id, () => { ui.panel.discovery(t.title, t.sub, t.body); this.anchorPanel(hit, [5.5, 4, 0]); }); return; }
+      case 'machine': { this.discover(id); audio.powerOn(); const hit = this.world.targets[id].mesh; this.focusObject(id, () => { if (t.stack) ui.panel.machine(t); else ui.panel.discovery(t.title, t.sub, t.body); this.anchorPanel(hit, [5.5, 4, 0]); }); return; }
       // the bike on the wall: the camera steps back to take it in whole, and nothing but a line at the bottom covers it
       case 'bike': case 'medals': this.discover(id); audio.hover(); this.focusObject(id, () => ui.hud.toast(t.toast, 2800)); return;
       // the curtains: drawn across the window or opened again, right where you are (no camera move)

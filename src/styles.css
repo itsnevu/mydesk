@@ -584,3 +584,22 @@ body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1
 .shot-thumb.on { opacity: 1; border-color: var(--accent); }
 .detail-media.has-shot:has(.shot-thumbs) { margin-bottom: 0; }
 .shot-stage .shot-d { aspect-ratio: auto; height: auto; }   /* the whole page as it was captured, never cropped at its sides */
+
+/* ---------- the machine (app/ui panel.machine): the stack as a spec sheet, a row per layer, every tool a chip with a status light
+   that comes on in turn as the panel opens */
+.mc-sheet { margin: 14px 0 0; border-top: 1px solid var(--line); }
+.mc-row { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.mc-layer { padding-top: 6px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); }
+.mc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.mc-chips li { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px 5px 8px; border: 1px solid rgba(199,163,106,0.24); border-radius: 999px; background: rgba(231,221,200,0.04); font-size: 13px; color: var(--paper); opacity: 0; transform: translateY(4px); animation: mc-on 0.4s var(--ease) forwards; animation-delay: calc(0.25s + var(--i) * 0.045s); }
+.mc-chips li i { width: 6px; height: 6px; border-radius: 50%; background: rgba(217,160,91,0.3); animation: mc-led 0.5s ease forwards; animation-delay: calc(0.35s + var(--i) * 0.045s); }
+.mc-chips li:hover { border-color: var(--accent); }
+@keyframes mc-on { to { opacity: 1; transform: none; } }
+@keyframes mc-led { 60% { background: #ffd79a; box-shadow: 0 0 10px 2px rgba(255,200,120,0.85); } 100% { background: var(--accent); box-shadow: 0 0 6px rgba(217,160,91,0.65); } }
+.mc-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+.mc-count { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-dim); }
+.mc-count b { color: var(--paper); font-weight: 600; }
+.mc-git { text-decoration: none; }
+.mc-foot + .sp-hint { margin-top: 16px; }
+@media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) { .mc-row { grid-template-columns: 1fr; gap: 6px; } .mc-layer { padding-top: 0; font-size: 11px; } .mc-chips li { font-size: 14px; } }
+@media (prefers-reduced-motion: reduce) { .mc-chips li, .mc-chips li i { animation-duration: 0.01s; animation-delay: 0s; } }

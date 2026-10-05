@@ -313,6 +313,14 @@ export const panel = {
     const html = SITE.skills.map((g) => `<div class="sp-group"><span class="sp-group-title mono">${g.group}</span><ul class="sp-skills">${g.items.map((i) => `<li>${i}</li>`).join('')}</ul></div>`).join('');
     showPanel(`${SITE.name} / skills`, 'SKILLS', html, 'right');
   },
+  // the PC: what the work runs on, as a spec sheet. One row per layer, each tool a chip with a small status light; the chips
+  // come on one after another, like a machine booting, and the count and the GitHub link sit under them
+  machine(t) {
+    let n = 0; const total = t.stack.reduce((a, r) => a + r.items.length, 0);
+    const rows = t.stack.map((r) => `<div class="mc-row"><span class="mc-layer mono">${esc(r.layer)}</span><ul class="mc-chips">${r.items.map((i) => `<li style="--i:${n++}"><i aria-hidden="true"></i>${esc(i)}</li>`).join('')}</ul></div>`).join('');
+    const foot = `<div class="mc-foot"><span class="mc-count mono"><b>${total}</b> tools · <b>${t.stack.length}</b> layers</span>${t.github ? `<a class="ov-btn mono sp-go mc-git" href="${t.github}" target="_blank" rel="noopener">the code on GitHub ↗</a>` : ''}</div>`;
+    showPanel(t.sub, t.title.toUpperCase(), `<p>${t.body}</p><div class="mc-sheet">${rows}</div>${foot}${leaveHint()}`, 'right');
+  },
   contact() {
     showPanel(`${SITE.name} / contact`, 'SAY HELLO', `
       ${linksRow()}
