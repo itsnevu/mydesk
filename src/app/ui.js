@@ -345,11 +345,12 @@ export const panel = {
     showPanel(`${SITE.name} / timeline`, 'TIMELINE', '', 'left');
     $('sp-body').appendChild(wrap);
   },
+  // an object's panel explains the object, so its eyebrow is the object's own line (no name in front of it, unlike About)
   // o (the target, when there is one): `badge` prints a small pill over the text, `code` + `file` an editor snippet above it
   discovery(title, sub, body, o = {}) {
     const badge = o.badge ? `<p class="sp-badges"><span class="sp-badge mono">${esc(o.badge)}</span></p>` : '';
     const code = o.code ? codeBlock(o.file || sub, o.code) : '';
-    showPanel(`${SITE.name} / ${o.code ? title.toLowerCase() : sub}`, title.toUpperCase(), `${badge}${code}<p>${body}</p>${leaveHint()}`, 'right');
+    showPanel(o.code ? title.toLowerCase() : sub, title.toUpperCase(), `${badge}${code}<p>${body}</p>${leaveHint()}`, 'right');
   },
   hotspot(project, h) {
     showPanel(`${project.title} / ${h.title.toLowerCase()}`, h.title.toUpperCase(), `<p>${h.body}</p>`, 'right');
