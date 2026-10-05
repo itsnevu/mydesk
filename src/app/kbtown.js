@@ -971,3 +971,6 @@ export function lowerParts(json, test, factor, baseY) {
     return { ...me, positions: Q };
   }) };
 }
+
+// the same small kit for the worlds built in code (app/godworld): materials, primitives, the atlas, the icons
+export const KIT = { M, plain, BRASS, BRONZE, LAMP, GLOW, LINE, HIT, put, fuse, panel, hitBox, atlas, fit, ICON, signBand, windows, gable };
