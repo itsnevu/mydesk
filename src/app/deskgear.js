@@ -123,7 +123,8 @@ export function buildDeskGear() {
   put(mb, roundedBox({ w: 0.1, h: 0.1, d: 0.7, r: 0.04, seg: 1 }), M.seam, [-MW / 2 - 0.01, FEET + 0.16, -3.6]);   // MagSafe
   put(mb, cylinder(0.08, 0.08, 0.1, 10), M.seam, [MW / 2 + 0.01, FEET + 0.16, -3.2], [0, 0, Math.PI / 2]);        // headphone jack
   for (const [sx, sz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) put(mb, cylinder(0.32, 0.32, FEET, 12), M.rubber, [sx * (MW / 2 - 1.3), FEET / 2, sz * (MD / 2 - 1.3)]);
-  const logo = put(mb, box(1.5, 0.004, 1.8), M.logo, [0, FEET + 0.582, 0]); logo.castShadow = false; logo.renderOrder = 6;
+  const logo = put(mb, box(1.5, 0.03, 1.8), M.logo, [0, FEET + 0.58 + 0.015, 0]);   // (a hair proud of the lid: flush, the two flickered)
+  logo.castShadow = false; logo.renderOrder = 6;
   // ---------- by the MacBook: a heavy round glass ashtray with a lit cigarette resting in a notch, two stubs and ash; a plain
   // pack with two cigarettes showing, and a chrome lighter. The ember glows and flickers, a thin smoke rises (see update)
   const ash = new Node('ashtray'); ash.position = [...ASHTRAY_POS]; ash.rotation[1] = 0.4; root.add(ash);

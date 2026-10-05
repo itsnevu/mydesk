@@ -343,7 +343,8 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
   // it lies on the bare desk right of the mat, clear of the mouse, the pencil and the ruler
   const nb = new Node('notebook'); nb.position = [19.6, 0, 9.6]; nb.rotation[1] = -0.22; root.add(nb);
   const nbCover = new Mesh(roundedBox({ w: 4.2, h: 0.5, d: 5.6, r: 0.08, seg: 2 }), new Material({ color: color('#2a1c11'), roughness: 0.7 })); nbCover.position[1] = 0.25; nb.add(nbCover);
-  const nbPages = new Mesh(box(4.0, 0.34, 5.3), new Material(MAT.paper)); nbPages.position = [0.1, 0.25, 0]; nb.add(nbPages);
+  const nbPages = new Mesh(box(4.06, 0.34, 5.3), new Material(MAT.paper)); nbPages.position = [0.1, 0.25, 0];   // (the page edge stands a hair proud of the cover: flush, they flickered)
+  nb.add(nbPages);
   const spine = new Mesh(box(0.22, 0.54, 5.6), new Material(MAT.bronzeDark)); spine.position = [-2.05, 0.27, 0]; nb.add(spine);
   const band = new Mesh(box(0.35, 0.56, 5.65), new Material({ color: color('#3a1f10'), roughness: 0.8 })); band.position = [1.2, 0.27, 0]; nb.add(band);
 

@@ -106,7 +106,8 @@ export function buildSatoshi() {
   // ---------- the plinth: a plain granite block on a wider foot, the name cut into its front
   add(roundedBox({ w: 15, h: 2, d: 15, r: 0.3, seg: 2 }), M.stone, [0, 1, 0]);
   add(roundedBox({ w: 12.5, h: 32, d: 12.5, r: 0.2, seg: 2 }), M.stone, [0, 18, 0]);
-  { const l = add(box(12.4, 12.4, 0.01), M.letters, [0, 22, 6.255]); l.castShadow = false; l.renderOrder = 6; }
+  { const l = add(box(12.4, 12.4, 0.01), M.letters, [0, 22, 6.285]);   // (0.03 off the stone: at 0.01 the name flickered from across the room)
+    l.castShadow = false; l.renderOrder = 6; }
   add(roundedBox({ w: 13.5, h: 1.2, d: 13.5, r: 0.25, seg: 2 }), M.stone, [0, 34.4, 0]);
   const Y = 35;
   // ---------- the bust: broad sloping shoulders over a chest flatter at the front, the hoodie's front seam

@@ -474,7 +474,7 @@ export function buildWatchBox() {
   lb.into(lid, 'watch-box-lid');
   // the watches, 12 o'clock toward the hinge
   const path = pillowPath(PY, PD / 2, PH / 2, PR, 1.9);
-  const top = PY + PH / 2 - 1.0;
+  const top = PY + PH / 2 - 0.4;   // (sat 1 mm into the pillow, a clasp face lay 0.2 mm off its top and flickered)
   const rel = path.map(([z, y]) => [z, y - top]), floor = FLOOR + 4 - top;
   const watches = [nautilus(M, rel, floor), santos(M, rel, floor), aquaracer(M, rel, floor)];
   watches.forEach((wt, k) => { wt.node.position = [(k - 1) * (SLOT + DIV), top, 0]; mm.add(wt.node); wt.node.traverse((n) => { if (n.material?.transparent) n.castShadow = false; }); for (const h of Object.values(wt.hands)) h.userData.dynamic = true; });

@@ -98,8 +98,9 @@ export function buildPC() {
   const add = (geo, mat, p, r, parent = root) => { const m = new Mesh(geo, mat); m.position = p; if (r) m.rotation = r; parent.add(m); return m; };
   const L = -W / 2, R = W / 2, F = D / 2, B = -D / 2;
   // ---------- shell: tray wall, back, top, floor, feet, a thin frame around the two glass panels
-  add(box(0.4, H, D), M.inner, [L + 0.2, H / 2, 0]);
-  add(box(W, H, 0.4), M.inner, [0, H / 2, B + 0.2]);
+  // (the inner walls stop under the top panel: sharing its top face, the two flickered against each other)
+  add(box(0.4, H - 0.62, D), M.inner, [L + 0.2, (H - 0.62) / 2, 0]);
+  add(box(W, H - 0.62, 0.4), M.inner, [0, (H - 0.62) / 2, B + 0.2]);
   add(roundedBox({ w: W, h: 0.6, d: D, r: 0.18, seg: 2 }), M.shell, [0, H - 0.3, 0]);
   add(roundedBox({ w: W, h: 0.7, d: D, r: 0.18, seg: 2 }), M.shell, [0, 0.95, 0]);
   for (const [x, z] of [[L + 1.4, B + 1.6], [R - 1.4, B + 1.6], [L + 1.4, F - 1.6], [R - 1.4, F - 1.6]]) add(cylinder(0.75, 0.9, 0.6, 16), M.shell, [x, 0.3, z]);
@@ -133,7 +134,7 @@ export function buildPC() {
   for (let k = -8; k <= 8; k++) add(box(W - 2, 0.05, 0.25), M.heatsink, [0, H + 0.02, k * 1.15]).castShadow = false;
   // ---------- PSU shroud (y 1.3–5.2) with three intake fans standing on it
   const shroudY = 5.2;
-  add(box(W - 0.4, shroudY - 1.3, D - 0.4), M.shell, [0.2, 1.3 + (shroudY - 1.3) / 2, 0]);
+  add(box(W - 0.65, shroudY - 1.3, D - 0.4), M.shell, [0.075, 1.3 + (shroudY - 1.3) / 2, 0]);   // (its right side stays inside the rail's face, not on it)
   add(box(W - 0.6, 0.06, 0.12), M.led, [0.2, shroudY - 0.1, F - 0.3]).castShadow = false;
   add(box(3.2, 0.03, 1.2), M.trim, [-2.6, shroudY + 0.01, 7.6]).castShadow = false;            // the brand plate on the shroud
   const fans = [];
@@ -202,8 +203,9 @@ export function buildPC() {
   add(box(0.1, 0.1, D - 1.2), M.led, [L + 0.5, H - 0.75, 0]).castShadow = false;
   add(box(0.1, 0.1, D - 1.2), M.led, [R - 0.7, shroudY + 0.05, 0]).castShadow = false;
   // ---------- glass: front and side, meeting at the corner
-  const gf = add(box(W - 0.2, H - 1.6, 0.12), M.glass, [-0.1, H / 2 + 0.6, F - 0.06]); gf.castShadow = false; gf.renderOrder = 10;
-  const gs = add(box(0.12, H - 1.6, D - 0.2), M.glass, [R - 0.06, H / 2 + 0.6, 0.1]); gs.castShadow = false; gs.renderOrder = 10;
+  // (set in behind the frame's outer faces: flush with them, the glass's sheen shimmered over the dark frame as the camera moved)
+  const gf = add(box(W - 0.2, H - 1.6, 0.12), M.glass, [-0.1, H / 2 + 0.6, F - 0.2]); gf.castShadow = false; gf.renderOrder = 10;
+  const gs = add(box(0.12, H - 1.6, D - 0.2), M.glass, [R - 0.2, H / 2 + 0.6, 0.1]); gs.castShadow = false; gs.renderOrder = 10;
   // ---------- hover / click volume
   const hit = add(box(W + 0.8, H + 0.8, D + 0.8), new Material({ color: [0, 0, 0], opacity: 0, transparent: true, unlit: true, depthWrite: false }), [0, H / 2, 0]);
   hit.castShadow = false; hit.pickable = true; hit.name = 'pc-hit';

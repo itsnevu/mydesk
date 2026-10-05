@@ -390,8 +390,7 @@ export class Experience {
       // Tupac: from anywhere else the camera first goes over to the chair and the feeder, then the click wakes the cat
       case 'cat': {
         this.discover(id);
-        const credit = '<small>3D cat by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0)</small>';   // the scan's licence asks for this
-        const poke = () => { const r = this.world.cat.poke(); ui.hud.toast(({ woke: '<b>mrrp?</b> Tupac wakes up and goes to find food', eating: 'Tupac is <b>eating</b>, give it a minute', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>') + credit, 3200); };
+        const poke = () => { const r = this.world.cat.poke(); ui.hud.toast(({ woke: '<b>mrrp?</b> Tupac wakes up and goes to find food', eating: 'Tupac is <b>eating</b>, give it a minute', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>'), 3200); };
         if (this.focus?.id === 'cat' || this.focus?.id === 'catbowl') poke(); else this.focusObject(id, poke);
         return;
       }

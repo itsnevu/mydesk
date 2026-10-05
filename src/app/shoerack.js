@@ -546,7 +546,8 @@ function contactShadows(list) {
       const base = pos.length / 3;
       for (const [x, z] of [[x0, a], [x1, a], [x1, b], [x0, b]]) {
         const dx = x - C[0], dz = z - C[1];
-        pos.push(x, y + 0.012, z); nor.push(0, 1, 0); uv.push(0.5 + (dx * ax[0] + dz * ax[1]) / (2 * hx), 0.5 + (dx * az[0] + dz * az[1]) / (2 * hz));
+        pos.push(x, y + 0.035, z); nor.push(0, 1, 0);   // (0.035 over the wood: closer, the shade flickered on it from across the room)
+        uv.push(0.5 + (dx * ax[0] + dz * ax[1]) / (2 * hx), 0.5 + (dx * az[0] + dz * az[1]) / (2 * hz));
       }
       idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
     }

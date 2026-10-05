@@ -195,8 +195,9 @@ export function buildWallDecor() {
   add(box(BW, BH, 0.3), M.board, [BX, BY, Z(0.45)]);
   for (const s of [-1, 1]) { add(roundedBox({ w: BW + 1.2, h: 0.6, d: 0.9, r: 0.2, seg: 2 }), M.alu, [BX, BY + s * (BH / 2 + 0.3), Z(0.45)]); add(roundedBox({ w: 0.6, h: BH, d: 0.9, r: 0.2, seg: 2 }), M.alu, [BX + s * (BW / 2 + 0.3), BY, Z(0.45)]); }
   add(box(12, 0.25, 1.6), M.alu, [BX - 6, BY - BH / 2 - 0.9, Z(0.9)]); add(box(12, 0.6, 0.15), M.alu, [BX - 6, BY - BH / 2 - 0.7, Z(1.65)]);
-  [[M.markerB, -9.5], [M.markerR, -7.6], [M.markerK, -5.7]].forEach(([m, x]) => { add(cylinder(0.32, 0.32, 3.4, 12), m, [BX + x, BY - BH / 2 - 0.45, Z(1.0)], [0, 0, Math.PI / 2]); add(cylinder(0.33, 0.33, 1.0, 12), M.white, [BX + x + 1.1, BY - BH / 2 - 0.45, Z(1.0)], [0, 0, Math.PI / 2]); });
-  add(roundedBox({ w: 3.2, h: 1.0, d: 1.2, r: 0.2, seg: 2 }), M.black, [BX - 2.4, BY - BH / 2 - 0.3, Z(1.05)]);
+  // three markers end to end along the tray (they used to overlap one another, and their colours flickered where they did)
+  [[M.markerB, -10.6], [M.markerR, -7.6], [M.markerK, -4.6]].forEach(([m, x]) => { add(cylinder(0.32, 0.32, 2.6, 12), m, [BX + x, BY - BH / 2 - 0.45, Z(1.0)], [0, 0, Math.PI / 2]); add(cylinder(0.37, 0.37, 0.8, 12), M.white, [BX + x + 1.0, BY - BH / 2 - 0.45, Z(1.0)], [0, 0, Math.PI / 2]); });
+  add(roundedBox({ w: 3.2, h: 1.0, d: 1.2, r: 0.2, seg: 2 }), M.black, [BX - 1.9, BY - BH / 2 - 0.3, Z(1.05)]);
   const sticky = (x, y, rot, text, bg) => { const m = new Material({ color: [1, 1, 1], map: stickyTexture(text, bg), roughness: 0.8, emissive: [0.03, 0.03, 0.02] }); add(box(4.2, 4.2, 0.05), m, [x, y, Z(0.64)], [0, 0, rot]); };
   sticky(BX + 11.5, BY + 6.0, -0.08, 'deadline\nFRIDAY', '#ffe46b');
   sticky(BX + 12.6, BY - 6.4, 0.07, 'call\nclient', '#ff9fb2');
