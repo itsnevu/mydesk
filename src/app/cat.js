@@ -266,7 +266,8 @@ export function buildCat() {
 
   const lerp = (a, b, k) => a + (b - a) * k;
   const angle = (a) => Math.atan2(Math.sin(a), Math.cos(a));
-  api.update = (dt, t, cam) => {
+  let frame = 0;
+  api.update = (dt, t, cam, camera) => {
     now = t; dt = Math.min(dt, 0.05);
     // the next step of her plan
     if (!st.step && st.plan.length) { st.step = st.plan.shift(); st.t0 = t; st.from = [st.x, st.y, st.z]; if (st.step.pose) { st.pose = st.step.pose; st.blend = st.step.blend; } if (st.step.turn) st.step.to = st.step.turn(); }
@@ -326,7 +327,19 @@ export function buildCat() {
     body.rotation = [-roll * Math.PI / 2, 0, 0];
     body.position = [0, roll * 0.125 + Math.sin(roll * Math.PI) * 0.12 + P.lift + (st.moving ? Math.abs(Math.sin(st.phase)) * 0.006 : 0), roll * 0.3];
     cat.position = [st.x, st.y, st.z]; cat.rotation = [0, st.heading, 0];
-    if (skin) pose(Q);
+    // the skin is the one costly part (22k vertices): skipped while Tupac is out of view, and while asleep and settled (only the
+    // breath moves) it is redone every third frame
+    frame++;
+    if (skin) {
+      let seen = true;
+      if (camera) {
+        const p = camera.position, g = camera.target, fx = g[0] - p[0], fy = g[1] - p[1], fz = g[2] - p[2], fl = Math.hypot(fx, fy, fz) || 1;
+        const cx = st.x - p[0], cy = st.y + 6 - p[1], cz = st.z - p[2], d = Math.hypot(cx, cy, cz) || 1;
+        seen = (cx * fx + cy * fy + cz * fz) / (d * fl) > Math.cos(((camera.fov || 40) * Math.PI) / 180 * 0.5 * Math.max(1, camera.aspect || 1) + 0.35);
+      }
+      const settled = st.pose === 'sleep' && !hovered && Math.abs(P.roll - 1) < 0.01;
+      if (seen && (!settled || frame % 3 === 0)) pose(Q);
+    }
     kibble.visible = st.food > 0.04; kibble.scale = [1, Math.max(0.25, st.food), 1];
   };
   return api;

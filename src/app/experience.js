@@ -20,7 +20,7 @@ import * as ui from 'app/ui';
 const STORE_KEY = 'kw.found';
 const PORTALS = WORLDS.map((w) => projectByKey(w.project));
 // the letters onKeyDown binds (via their alias keys): the hover tip shows them so the shortcut is learned by pointing
-export const SHORTCUTS = { note: 'A', lamp: 'S', mouse: 'C', monitor: 'W', clock: 'P' };
+export const SHORTCUTS = { note: 'A', lamp: 'S', mouse: 'C', monitor: 'W', clock: 'P', cat: 'K' };
 // objects whose origin sits low get their hover title lifted clear of the top
 // (measured against each object's on-screen top from the home view and the zoomed-out views)
 export const TIP_LIFT = { cat: 7, catbowl: 4, pc: 12.5, speaker: 8.4, bike: 26, medals: 11, watches: 4.3, mouse: 3.5, monitor: 9.5, desklamp: 2.6, note: 0.9, chair: 66, neon: 7.8, katana: 5.6, pullup: 53, satoshi: 24.5 };
@@ -153,6 +153,8 @@ export class Experience {
       else this._hintTimer = setTimeout(() => { if (state.is(S.DESK)) ui.hud.toast(ui.isTouch ? '<b>tap</b> anything to see what it is. the <b>note</b> is about me' : '<b>hover</b> anything to see what it is. <b>A</b> opens about me'); }, 3200);
       // a little later, once: the keyboard can tell its own story (unless the visitor has already found it)
       if (!direct) this._storyHint = setTimeout(() => { if (state.is(S.DESK) && !this.flight && !this.found.has('art4')) ui.hud.toast(ui.isTouch ? 'the <b>orange bookmark key</b> tells the story, stop by stop' : '<b>T</b> or the <b>orange bookmark key</b>: the keyboard tells its story', 3400); }, 16000);
+      // later still, once: the cat on the chair is out of the desk view, so say so (unless Tupac has been found already)
+      if (!direct) this._catHint = setTimeout(() => { if (state.is(S.DESK) && !this.flight && !this.found.has('cat')) ui.hud.toast(ui.isTouch ? '<b>zzz</b>. Tupac the cat is asleep on the chair behind you: find Tupac under <b>room</b> in discoveries' : '<b>zzz</b>. Tupac the cat is asleep on the chair behind you: <b>K</b> to go and see', 3600); }, 42000);
     } });
   }
 
@@ -219,16 +221,18 @@ export class Experience {
     this.pointer.moved = false;
     if (this.pointer.down || !this.canHover()) { this.setHovered(null); return; }
     const ray = rayFromCamera(this.camera, this.pointer.ndcX, this.pointer.ndcY);
-    const candidates = state.is(S.GATE) ? this.world.gatePickables : this.sceneName === 'project' ? this.world3.hotspots.map((h) => h.mesh) : this.world.pickables;
+    const candidates = state.is(S.GATE) ? this.world.gatePickables : this.sceneName === 'project' ? this.worldPicks() : this.world.pickables;
     const hit = pick(ray, candidates);
     this.setHovered(hit ? this.ownerOf(hit.mesh) : null);
     // a cursor moving over cloth keeps stirring it (app/room's curtains read the count)
     if (this.hovered?.userData.curtain) this.hovered.userData.brush = (this.hovered.userData.brush || 0) + 1;
   }
+  /** What can be pointed at inside a world: its places, and on the client street every shop. */
+  worldPicks() { const d = this.world3; return (d.pickList ??= [...d.hotspots.map((h) => h.mesh), ...(d.picks || [])]); }
   canHover() { return state.is(S.DESK, S.FOCUS, S.OVERVIEW, S.PROJECT, S.GATE) && !this.flight; }
   /** What a picked part stands for: its owner (the key, the district it belongs to), except a building in a district that has
    *  the focus: then each one is its own target (a client's shop opens its page, a module of the ERP its note). */
-  ownerOf(m) { const u = m.userData; if ((u.shop || u.note || u.lot) && state.is(S.FOCUS) && this.focus?.id === u.ownerKey?.userData.keyId) return m; return u.ownerKey || m; }
+  ownerOf(m) { const u = m.userData; if (this.sceneName === 'project') return m; if ((u.shop || u.note || u.lot) && state.is(S.FOCUS) && this.focus?.id === u.ownerKey?.userData.keyId) return m; return u.ownerKey || m; }
 
   setHovered(mesh) {
     if (mesh === this.hovered) { if (mesh) this.placeTip(mesh); return; }
@@ -291,10 +295,10 @@ export class Experience {
   click() {
     if (this.flight) return;
     if (state.is(S.OVERVIEW)) { this.exitToDesk(); return; }
-    if (!this.hovered && this.canHover()) { const ray = rayFromCamera(this.camera, this.pointer.ndcX, this.pointer.ndcY); const hit = pick(ray, state.is(S.GATE) ? this.world.gatePickables : this.sceneName === 'project' ? this.world3.hotspots.map((h) => h.mesh) : this.world.pickables); if (hit) this.setHovered(this.ownerOf(hit.mesh)); }
+    if (!this.hovered && this.canHover()) { const ray = rayFromCamera(this.camera, this.pointer.ndcX, this.pointer.ndcY); const hit = pick(ray, state.is(S.GATE) ? this.world.gatePickables : this.sceneName === 'project' ? this.worldPicks() : this.world.pickables); if (hit) this.setHovered(this.ownerOf(hit.mesh)); }
     const m = this.hovered; if (!m) return;
     if (state.is(S.GATE)) { if (m.userData.gate) { this.physical.add(m.userData.keyId); m.userData.targetPress = 1; this.enter({ music: m.userData.keyId === 'gate-enter', direct: this.pendingDirect }); } return; }
-    if (this.sceneName === 'project') { if (m.userData.hotspot) this.inspect(m.userData.hotspot); return; }
+    if (this.sceneName === 'project') { if (m.userData.hotspot) this.inspect(m.userData.hotspot); else if (m.userData.shop) this.openShop(m); return; }
     if (m.userData.book) { this.openBook(m.userData.book); return; }
     if (m.userData.shop) { this.openShop(m); return; }
     if (m.userData.note) { this.openNote(m); return; }
@@ -383,9 +387,14 @@ export class Experience {
         this.focusObject(id, () => { ui.panel.discovery(t.title, t.sub, t.body, t); this.anchorPanel(hit, [1.6, 1.4, 0]); }); return;
       }
       case 'story': this.startStory(); return;
-      // the cat and her corner: no camera move, she answers where she is
-      case 'cat': { this.discover(id); const r = this.world.cat.poke(); const credit = '<small>3D cat by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0)</small>';   // the scan's licence asks for this
-        ui.hud.toast(({ woke: '<b>mrrp?</b> Tupac wakes up and goes to find food', eating: 'Tupac is <b>eating</b>, give it a minute', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>') + credit, 3200); return; }
+      // Tupac: from anywhere else the camera first goes over to the chair and the feeder, then the click wakes the cat
+      case 'cat': {
+        this.discover(id);
+        const credit = '<small>3D cat by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0)</small>';   // the scan's licence asks for this
+        const poke = () => { const r = this.world.cat.poke(); ui.hud.toast(({ woke: '<b>mrrp?</b> Tupac wakes up and goes to find food', eating: 'Tupac is <b>eating</b>, give it a minute', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>') + credit, 3200); };
+        if (this.focus?.id === 'cat' || this.focus?.id === 'catbowl') poke(); else this.focusObject(id, poke);
+        return;
+      }
       case 'catbowl': { const r = this.world.cat.feed(); audio.paper(); ui.hud.toast(r === 'woke' ? 'bowl <b>filled</b>. Tupac heard it and is on the way' : 'bowl <b>filled</b>', 2000); return; }
       case 'keyboard': {
         this.discover(id); audio.keyPress(0.9);
@@ -834,6 +843,8 @@ export class Experience {
       if (k === 'b' || k === 'B') this.activate('bike');
       // T tells the keyboard's story, stop by stop
       if (k === 't' || k === 'T') this.activate('art4');
+      // K goes to Tupac, asleep on the chair behind you
+      if (k === 'k' || k === 'K') this.activate('cat');
     }
   }
   onKeyUp(e) { const id = this._keyMap(e.key); if (id) { const held = this.physical.delete(id); const m = this.world.keyById[id]; if (held && m && state.is(S.DESK, S.FOCUS, S.OVERVIEW)) audio.keyRelease?.(1, this.keyVoice(m)); if (m && this.hovered !== m && this.focus?.id !== id) m.userData.targetPress = 0; } }
@@ -869,7 +880,7 @@ export class Experience {
     this.controls.update(dt);
     this.updateHover();
     if (this.sceneName === 'desk') {
-      this.world.update(dt, t, this.camera.position);
+      this.world.update(dt, t, this.camera.position, this.camera);
       const d = this.room.dim, r = this.renderer;
       r.hemi.sky = DESK_LIGHTS.hemi.sky.map((c) => c * (0.35 + 0.65 * d)); r.hemi.ground = DESK_LIGHTS.hemi.ground.map((c) => c * d);
       r.dir.color = DESK_LIGHTS.dir.color.map((c) => c * (0.25 + 0.75 * d));

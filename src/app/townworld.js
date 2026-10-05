@@ -6,6 +6,7 @@ import { Node, Mesh } from 'engine/scene';
 import { box } from 'engine/geometry';
 import { color } from 'engine/math';
 import { KIT, buildDistrictWorld } from 'app/kbtown';
+import { projectByKey } from 'app/data';
 
 const { M, plain } = KIT;
 const K = 11;          // keyboard units to world units: a 0.4-wide shop becomes 4.4
@@ -14,7 +15,7 @@ const Y = 1.16;        // the plinth's top
 // where each world's hotspots are: a shop (by key), a building (by the note it carries), or a box of its own (district-local)
 const PLAN = {
   'market-district': {
-    district: 'market',
+    district: 'market', shopClicks: true,
     // the three stone steps of the street (from the keyboard's shell): top, x extent, z extent
     steps: [[0.16, -0.63, 1.38, -1.5, -0.5], [0.08, -1.38, 0.63, -0.5, 0.5], [0.03, -0.88, 1.13, 0.5, 1.5]],
     hotspots: {
@@ -59,12 +60,20 @@ export function buildTownWorld(root, O, key, mini = false) {
       [mn, mx] = bounds((h.first ? subs.slice(0, 1) : subs).map((q) => q.h));
     }
     const size = [0, 1, 2].map((k) => mx[k] - mn[k]), center = [0, 1, 2].map((k) => (mn[k] + mx[k]) / 2);
-    const hit = new Mesh(box(size[0], size[1], size[2]), M('hsHit', { color: [0, 0, 0], opacity: 0.01, transparent: true, depthWrite: false }));
-    hit.position = center; hit.castShadow = false; root.add(hit);
-    hs[id] = { mesh: hit, anchor: [center[0], mx[1] + 0.9, center[2]], center, size };
+    // a place that is a row of shops is clicked by its pin (a box round the marker over the roofs): the shops under it are each their own click
+    const byPin = !!(h.shops && plan.shopClicks), anchor = [center[0], mx[1] + 0.9, center[2]];
+    const hit = new Mesh(byPin ? box(1.2, 1.2, 1.2) : box(size[0], size[1], size[2]), M('hsHit', { color: [0, 0, 0], opacity: 0.01, transparent: true, depthWrite: false }));
+    hit.position = byPin ? [anchor[0], anchor[1] + 0.25, anchor[2]] : center; hit.castShadow = false; root.add(hit);
+    hs[id] = { mesh: hit, anchor, center, size };
   }
-  // the district's own click volumes have no part in a world (its places are the hotspots above)
-  for (const q of d.subs) q.h.pickable = false;
+  // the district's own click volumes have no part in a world (its places are the hotspots above), except on the client street,
+  // where every shop opens its client's page as it does on the keyboard
+  const picks = [];
+  for (const q of d.subs) {
+    const u = q.h.userData;
+    if (plan.shopClicks && u.shop) { u.project = projectByKey(u.shop) || null; if (u.project) { q.h.pickable = true; picks.push(q.h); continue; } }
+    q.h.pickable = false;
+  }
   const lights = mini ? [] : plan.lights.map(([x, y, z], i) => ({ id: 'town' + i, position: [O[0] + x * K, Y + y * K, O[2] + z * K], color: color('#ffd6a3'), intensity: 3.6, distance: 20, base: 3.6 }));
   // everything that glows wakes as the visitor arrives; the moving parts (smoke, the orb, the flying elephant, the crane) keep moving
   const emissives = d.mats.filter((mt) => mt.emissiveIntensity > 0 && Math.max(...mt.emissive) > 0).map((mt) => ({ mat: mt, base: mt.emissiveIntensity }));
@@ -75,5 +84,5 @@ export function buildTownWorld(root, O, key, mini = false) {
     if (!mini) for (const f of d.live) f(t);
     for (const l of lights) l.intensity = l.base * state.wake;
   };
-  return { hs, lights, update, wake: state };
+  return { hs, lights, update, wake: state, picks };
 }

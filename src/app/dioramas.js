@@ -465,7 +465,7 @@ export function buildDiorama(project, origin = DIORAMA_ORIGIN) {
   O = origin;
   const def = DIORAMAS[project.key];
   const root = new Node('diorama:' + project.key); root.position = [...O]; root.visible = false;
-  const { hs, lights, update, wake } = BUILDERS[def.kind](root, project, def);
+  const { hs, lights, update, wake, picks = [] } = BUILDERS[def.kind](root, project, def);
   if (DISTRICTS[def.kind]) DISTRICTS[def.kind](root, hs, lights, false);
   const pinMat = m({ color: [1, 1, 1], emissive: color(T.amber), emissiveIntensity: 0.9, unlit: true });
   const ringMat = m({ ...MAT.bronze });
@@ -483,7 +483,7 @@ export function buildDiorama(project, origin = DIORAMA_ORIGIN) {
   });
   const view = { position: [O[0] + 10.5, 22.8, 36.5], target: [O[0] - 1, 1.5, -3] };
   const d = {
-    root, project, def, hotspots, lights, wake: wake || { wake: 1, target: 1 }, origin: [...O], introAt: -1, outroAt: -1,
+    root, project, def, hotspots, picks, lights, wake: wake || { wake: 1, target: 1 }, origin: [...O], introAt: -1, outroAt: -1,
     // `camera` is the pose that lines up with the miniature on the key (the swap happens there); `view` is where the visitor settles, a breath closer
     camera: { position: [O[0] + 12, 24, 40], target: [O[0] - 1, 1.5, -3] }, view,
     // inspecting: the subject fills the left of the frame, a little low to clear the HUD, and the panel takes the space to its right; where the panel

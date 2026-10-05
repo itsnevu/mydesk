@@ -428,7 +428,7 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
   const objMesh = { monitor: screen, clock: clockBody, note, lamp: head, mouse: mouseBody, mug, keyboard: caseMesh, pc: room.pc, bike: room.bike, medals: room.medals, curtains: room.curtains, lights: room.lights, door: room.door, aircon: room.aircon, floorlamp: room.floorlamp, speaker: room.speakers[0], watches: watchBox.hit, desklamp: clampLamp.hit, chair: room.chair, guide: guideHit, work: screen, neon: leftWall.neonHit, pullup: leftWall.towerHit, katana: leftWall.katanaHit, satoshi: satoshi.hit, ...deskHits };
   objMesh.mandarin = mandarin.hit;
   // the cat: the chair and her feeder in one view, from the front left of the room, above them
-  objStage.cat = [{ position: [-60, 34, 82], target: [-8, -29, 36] }]; objStage.catbowl = objStage.cat;
+  objStage.cat = [{ position: [-62, 32, 88], target: [-9, -31, 39], minDistance: 25, maxDistance: 140 }]; objStage.catbowl = objStage.cat;
   objMesh.cat = cat.hits.cat; objMesh.catbowl = cat.hits.bowl;
   for (const id of Object.keys(TARGETS)) {
     const t = TARGETS[id];
@@ -501,7 +501,7 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
   world.setLightLevel(0);
 
   // ---------- per-frame
-  world.update = (dt, time, cam) => {
+  world.update = (dt, time, cam, camera) => {
     world.t = time;
     const lam = 1 - Math.exp(-14 * dt);
     const slow = 1 - Math.exp(-3.5 * dt);
@@ -566,7 +566,7 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
     screenTex.tick(time); monitors.update(time); guideHit._hidden = screenTex.mode !== 'home';
     // the room: the PC's breathing lights, the speakers (they follow world.musicOn), a book sliding out of the shelf
     room.update(dt, time, world);
-    cat.update(dt, time, cam);
+    cat.update(dt, time, cam, camera);
     watchBox.update(dt); clampLamp.update(dt, world.lightLevel); leftWall.update(dt, time, world.lightLevel); deskGear.update(dt, time);
   };
   return world;

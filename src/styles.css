@@ -605,3 +605,5 @@ body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1
 .mc-foot + .sp-hint { margin-top: 16px; }
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) { .mc-row { grid-template-columns: 1fr; gap: 6px; } .mc-layer { padding-top: 0; font-size: 11px; } .mc-chips li { font-size: 14px; } }
 @media (prefers-reduced-motion: reduce) { .mc-chips li, .mc-chips li i { animation-duration: 0.01s; animation-delay: 0s; } }
+/* the plain-text version of the page (index.html): read by search engines and screen readers, never drawn over the desk */
+.seo-text { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
