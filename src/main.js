@@ -8,6 +8,7 @@ import { PROJECTS, SITE, WORLDS, projectByKey } from 'app/data';
 import { parseRoute, onRoute, setRoute } from 'app/router';
 import * as ui from 'app/ui';
 import { initGuide } from 'app/guide';
+import { initLikes } from 'app/likes';
 
 applyMotionToCSS();
 applyThemeToCSS();
@@ -60,6 +61,7 @@ async function boot() {
   // ---------- UI wiring
   ui.menu.build((m) => xp.activate(m.target));
   initGuide(xp);
+  initLikes();
   ui.hud.identity(() => xp.activate('note'));
   ui.detail.build({
     onBack: () => xp.back(),

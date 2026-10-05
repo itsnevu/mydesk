@@ -549,3 +549,28 @@ body[data-story] #kbd-hints, body[data-story] #nav-hints { opacity: 0 !important
 
 /* the corner names the owner, nothing more (the name itself still opens About) */
 #identity .id-role, #identity .id-cta { display: none; }
+
+/* ---------- the like counter (app/likes): a heart and a real count, stacked just above the sound toggle in the same quiet
+   style; a like fills the heart in the accent and gives it one small beat */
+#like-btn { position: absolute; right: 40px; bottom: calc(66px + var(--safe-b)); display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55); opacity: 0; pointer-events: none; transition: opacity var(--d-base), color var(--d-fast); }
+body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1; pointer-events: auto; }
+#like-btn:hover, #like-btn[aria-pressed="true"] { color: var(--paper); }
+#like-btn svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; transition: fill var(--d-fast), stroke var(--d-fast); overflow: visible; }
+#like-btn[aria-pressed="true"] svg { fill: var(--accent); stroke: var(--accent); }
+#like-btn b { font-weight: 600; font-variant-numeric: tabular-nums; }
+#like-btn.pop svg { animation: like-pop 0.5s var(--ease); }
+@keyframes like-pop { 0% { transform: scale(1); } 35% { transform: scale(1.45); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { #like-btn.pop svg { animation: none; } }
+@media (min-width: 1025px) { #like-btn { zoom: var(--ui, 1); } }
+/* a phone: the row above "? Guide" and the sound toggle, on the right; it steps aside with the guide button while something
+   else owns the screen (an object's sheet, a world, a project page) */
+@media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
+  #like-btn { right: 20px; bottom: calc(136px + var(--safe-b)); font-size: 12px; }
+  #like-btn svg { width: 15px; height: 15px; }
+  #like-btn::before { content: ""; position: absolute; inset: -15px -10px; }
+  body[data-state="focus"] #like-btn, body[data-state="project"] #like-btn, body[data-state="gallery"] #like-btn,
+  body[data-state="switching"] #like-btn, body[data-state="detail"] #like-btn { opacity: 0 !important; pointer-events: none !important; }
+}
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
+  #like-btn { right: calc(20px + var(--safe-r)); bottom: calc(118px + var(--safe-b)); }
+}

@@ -64,7 +64,8 @@
       "app/audio": "./src/app/audio.js",
       "app/experience": "./src/app/experience.js",
       "app/ui": "./src/app/ui.js",
-      "app/router": "./src/app/router.js"
+      "app/router": "./src/app/router.js",
+      "app/likes": "./src/app/likes.js"
     }
   }
   </script>
@@ -144,6 +145,7 @@
     <button id="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><span></span><span></span><span></span></button>
     <nav id="site-menu" aria-hidden="true"></nav>
     <button id="back-btn" aria-label="Back"><span></span><span></span></button>
+    <button type="button" id="like-btn" class="mono hidden" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.6 7.6 3.9 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.3 0 5.6 3.1 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4z"/></svg><b id="like-count">0</b><span id="like-word">likes</span></button>
     <button id="sound-toggle" class="mono" aria-pressed="false"><span class="sound-bars"><i></i><i></i><i></i><i></i></span><span id="sound-text">sound off</span></button>
     <div id="kbd-hints" class="mono"></div>
     <div id="world-nav" role="group" aria-label="Switch world"><button type="button" id="world-prev" aria-label="Previous world"><i aria-hidden="true">‹</i></button><button type="button" id="world-next" aria-label="Next world"><i aria-hidden="true">›</i></button></div>

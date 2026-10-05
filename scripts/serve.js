@@ -13,6 +13,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.PORT || 5173);
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.map': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.md': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.otf': 'font/otf', '.wasm': 'application/wasm', '.kwb': 'application/octet-stream', '.bin': 'application/octet-stream', '.glb': 'model/gltf-binary' };
 const compressible = /^(text\/|application\/(json|javascript|wasm)|image\/svg)/;
+let devLikes = 0;
 const packed = new Map(); // file+encoding → { key: mtime|size|encoding, body }: one compressed version kept per file
 
 function encode(file, st, data, enc) {
@@ -26,6 +27,21 @@ function encode(file, st, data, enc) {
 http.createServer((req, res) => {
   let p;
   try { p = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch { res.writeHead(400); return res.end(); }
+  // the like counter (server/likes.js on the VPS): kept in memory here, so the heart works locally and resets with the server
+  if (p === '/api/likes') {
+    const reply = (status, body) => { res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(body)); };
+    if (req.method === 'GET') return reply(200, { count: devLikes });
+    if (req.method !== 'POST') return reply(405, { error: 'method' });
+    let raw = '';
+    req.on('data', (c) => { raw += c; });
+    req.on('end', () => {
+      let op; try { op = JSON.parse(raw).op; } catch {}
+      if (op !== 'like' && op !== 'unlike') return reply(400, { error: 'op' });
+      devLikes = Math.max(0, devLikes + (op === 'like' ? 1 : -1));
+      reply(200, { count: devLikes });
+    });
+    return;
+  }
   if (p.endsWith('/')) p += 'index.html';
   const file = path.join(root, p);
   if (file !== root && !file.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }

@@ -28,6 +28,9 @@ npx vercel          # first time: log in, link the project, preview deploy
 npx vercel --prod   # production
 ```
 
+The like counter (the heart above the sound toggle) is the one server piece, and it lives on the VPS, not on Vercel: see
+`server/README.md`. If it is down the heart simply stays hidden. `npm run dev` keeps a pretend count in memory.
+
 Or push the folder to GitHub and import it at vercel.com/new (framework preset "Other"; the build settings come from `vercel.json`).
 
 ## The experience
