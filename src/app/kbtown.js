@@ -55,10 +55,11 @@ function bush(parent, pos, s = 1, seed = 0) {
 
 // ---------- a texture atlas drawn once: every shop front, the billboard and the street sign in one image (one material, one draw)
 const PPU = 640;   // canvas pixels per keyboard unit
+let RES = 1;       // more pixels per unit while a district is built at a world's size (buildDistrictWorld)
 function atlas(cells, draw, maxW = 1536) {
   let x = 0, y = 0, rowH = 0, W = 0; const pad = 6;
   for (const c of cells) {
-    c.pw = Math.round(c.w * PPU); c.ph = Math.round(c.h * PPU);
+    c.pw = Math.round(c.w * PPU * RES); c.ph = Math.round(c.h * PPU * RES);
     if (x + c.pw > maxW) { x = 0; y += rowH + pad; rowH = 0; }
     c.px = x; c.py = y; x += c.pw + pad; rowH = Math.max(rowH, c.ph); W = Math.max(W, x);
   }
@@ -974,3 +975,13 @@ export function lowerParts(json, test, factor, baseY) {
 
 // the same small kit for the worlds built in code (app/godworld): materials, primitives, the atlas, the icons
 export const KIT = { M, plain, BRASS, BRONZE, LAMP, GLOW, LINE, HIT, put, fuse, panel, hitBox, atlas, fit, ICON, signBand, windows, gable };
+
+/** A district built again at a world's size (app/townworld scales its root): the same buildings, its texts drawn sharper.
+ *  Returns { root, mats, live: [fn(t)], subs: [{ g, h, top }] }, merged like the keyboard's, without the pin. */
+export function buildDistrictWorld(id, res = 3) {
+  const make = BUILDERS[id]; if (!make) return null;
+  RES = res; let d; try { d = make(); } finally { RES = 1; }
+  flatten(d.root, `townworld:${id}`);
+  const mats = atlasMerge(d.root, `townworld:${id}`);
+  return { root: d.root, mats, live: d.live, subs: d.subs };
+}

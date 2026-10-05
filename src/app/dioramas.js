@@ -8,6 +8,7 @@ import { T, C, MAT } from 'app/theme';
 import * as A from 'app/assets';
 import { buildAsset } from 'engine/assets';
 import { buildGodWorld } from 'app/godworld';
+import { buildTownWorld, townWorldHere } from 'app/townworld';
 import { MOTION } from 'app/motion';
 
 export const DIORAMA_ORIGIN = [400, 0, 0];
@@ -427,6 +428,8 @@ function buildAssetWorld(root, project, def, mini) {
   plinth(root, def, accent, mini);
   // GodPlan's world is built in code (app/godworld): the floor of the company that runs on it, not the Blender export
   if (def.world.key === 'signal-garden') return buildGodWorld(root, O, mini);
+  // the client street and JAKASN: the keyboard's districts at a world's size (app/townworld)
+  if (townWorldHere(def.world.key)) return buildTownWorld(root, O, def.world.key, mini);
   const json = def.world.__json; if (!json) return { hs: {}, lights: [], update: () => {} };
   const parts = mini ? [] : LIVE[def.world.asset] || [], meshes = prepMeshes(json, DROP[def.world.asset], parts), grp = (n) => (/^live:/.test(n) ? n : 'all');
   const a = buildAsset(meshes === json.meshes ? json : { ...json, meshes }, { name: 'world:' + def.world.key, group: grp });
