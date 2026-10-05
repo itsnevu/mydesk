@@ -385,8 +385,8 @@ export class Experience {
       case 'story': this.startStory(); return;
       // the cat and her corner: no camera move, she answers where she is
       case 'cat': { this.discover(id); const r = this.world.cat.poke(); const credit = '<small>3D cat by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0)</small>';   // the scan's licence asks for this
-        ui.hud.toast(({ woke: '<b>mrrp?</b> she wakes up and goes to find her food', eating: 'she is <b>eating</b>, let her finish', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>') + credit, 3200); return; }
-      case 'catbowl': { const r = this.world.cat.feed(); audio.paper(); ui.hud.toast(r === 'woke' ? 'bowl <b>filled</b>. she heard it: here she comes' : 'bowl <b>filled</b>', 2000); return; }
+        ui.hud.toast(({ woke: '<b>mrrp?</b> Tupac wakes up and goes to find food', eating: 'Tupac is <b>eating</b>, give it a minute', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>') + credit, 3200); return; }
+      case 'catbowl': { const r = this.world.cat.feed(); audio.paper(); ui.hud.toast(r === 'woke' ? 'bowl <b>filled</b>. Tupac heard it and is on the way' : 'bowl <b>filled</b>', 2000); return; }
       case 'keyboard': {
         this.discover(id); audio.keyPress(0.9);
         this.focusObject(id, () => { for (const k of this.world.navKeys) { k.userData.targetGlow = 1; tween.delayed(1.2, () => { if (this.hovered !== k) k.userData.targetGlow = 0; }); } });

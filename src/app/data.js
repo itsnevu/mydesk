@@ -210,8 +210,8 @@ export const TARGETS = {
   note: { kind: 'about', hint: 'About me', label: { title: 'About', sub: 'who I am' }, discover: 'About me' },
   lamp: { kind: 'skills', hint: 'Skills', label: { title: 'Skills', sub: 'what the lamp lights up' }, discover: 'Skills' },
   // the cat (app/cat): asleep on the desk chair; click her and she wakes and goes to her bowl, click the bowl and she comes to eat
-  cat: { kind: 'cat', hint: 'The cat · wake her up', label: { title: 'The cat', sub: 'asleep on my chair' }, discover: 'The cat' },
-  catbowl: { kind: 'catbowl', hint: 'Her bowl · fill it' },
+  cat: { kind: 'cat', hint: 'Tupac the cat · wake up', label: { title: 'Tupac', sub: 'my cat, asleep on my chair' }, discover: 'Tupac' },
+  catbowl: { kind: 'catbowl', hint: "Tupac's bowl · fill it" },
   mouse: { kind: 'world', world: 8, label: { title: 'Contact', sub: 'say hello' }, discover: 'Contact' },
   clock: { kind: 'timeline', hint: 'Timeline', label: { title: 'Timeline', sub: 'every project, in order' }, discover: 'Timeline' },
   mug: { kind: 'coffee', hint: 'Coffee', label: { title: 'Coffee', sub: 'still warm' }, discover: 'Coffee' },
