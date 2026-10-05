@@ -179,6 +179,8 @@ body:not([data-state="loading"]):not([data-state="gate"]) #sound-toggle { opacit
 #toast { position: absolute; left: 50%; top: calc(110px + var(--safe-t)); transform: translate(-50%, -10px); padding: 10px 16px; border: 1px solid var(--line); background: rgba(18,15,10,0.75); backdrop-filter: blur(8px); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0; transition: opacity var(--d-fast), transform var(--d-fast) var(--ease); pointer-events: none; }
 #toast.visible { opacity: 1; transform: translate(-50%, 0); }
 #toast b { color: var(--accent); font-weight: 600; }
+#toast small { display: block; margin-top: 5px; font-size: 9px; letter-spacing: 0.06em; text-transform: none; opacity: 0.6; }
+#toast small a { color: inherit; }
 
 /* ---------- switching scenes */
 #switching { position: absolute; inset: 0; z-index: 40; background: var(--bg); display: grid; place-items: center; grid-template-rows: auto 1fr auto; opacity: 0; pointer-events: none; transition: opacity 0.5s var(--ease-io); }

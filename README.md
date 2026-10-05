@@ -252,3 +252,7 @@ gets a generated study card (`studyTexture` in `src/app/gallery.js`), so there i
 - **The story** (`STORY` in data.js): the orange bookmark key, T, the menu's Story or `#story` walks the board in time order with a caption card; the keys between two stops light up as if typed. The last stop ends on "say hello".
 - **The map**: while the keyboard has the focus, a label floats over each district (numbers only on a phone).
 - Checks without a browser: `npm run smoke`.
+
+## Credits
+
+- The cat (`public/cat/`) is "Medium poly Cat In Motion 3d Model Free" by [iRahulRajput](https://sketchfab.com/rt699448) on [Sketchfab](https://sketchfab.com/3d-models/medium-poly-cat-in-motion-3d-model-free-5c31c77904de4e458d434c167ea0f4bc), licensed [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/). Changed here: repacked and rigged in code (`app/cat`), texture cleaned of flat pale bake patches and downsized to 1024 px.

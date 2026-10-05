@@ -1110,5 +1110,7 @@ export function buildRoom(root) {
   setLevel(0);
   // the camera keeps clear of the bike on the front wall (it stands ~30 out from it), and the target may reach the bike and the medals
   const bounds = { camera: { min: [LEFT + 6, 1.2, -24.5], max: [RIGHT - 6, TOP - 6, FRONT - 33] }, target: { min: [-118, -4, -20], max: [118, 70, FRONT - 8] } };
-  return { root: room, pc: pcHit, bike: bikeHit, chair: chairHit, medals: medalHit, curtains: curtains[0].mesh, lights: switchHit, door: door.hit, aircon: aircon.hit, speakers: speakers.map((s) => s.node), books, pickables, bounds, setLevel, update, toggleCurtains, toggleLights, toggleDoor, toggleAircon: aircon.toggle, toggleFloorLamp, floorlamp: lamp.hit };
+  // things built outside the room (the cat, her feeder) that should dim and wake with it
+  const dimLater = (mat, key = 'emissive') => { dim(mat, key); setLevel(level); return mat; };
+  return { root: room, pc: pcHit, bike: bikeHit, chair: chairHit, medals: medalHit, curtains: curtains[0].mesh, lights: switchHit, door: door.hit, aircon: aircon.hit, speakers: speakers.map((s) => s.node), books, pickables, bounds, setLevel, update, toggleCurtains, toggleLights, toggleDoor, toggleAircon: aircon.toggle, toggleFloorLamp, floorlamp: lamp.hit, dim: dimLater };
 }

@@ -209,9 +209,8 @@ export const TARGETS = {
   garden: { kind: 'micro', title: 'The sunken garden', sub: 'a pond under the ; key', body: 'A pine, a pond and four stepping stones, sunk into the cap so the water stays level when the key is pressed.', discover: 'Garden' },
   note: { kind: 'about', hint: 'About me', label: { title: 'About', sub: 'who I am' }, discover: 'About me' },
   lamp: { kind: 'skills', hint: 'Skills', label: { title: 'Skills', sub: 'what the lamp lights up' }, discover: 'Skills' },
-  // the desk cat (app/cat): point at her and she purrs, click her and she reacts; her bowl feeds her, her bed sends her to sleep
-  cat: { kind: 'cat', hint: 'The cat · pet her', label: { title: 'The cat', sub: 'she lives on the desk' }, discover: 'The cat' },
-  catbed: { kind: 'catbed', hint: 'Her bed · time for a nap' },
+  // the cat (app/cat): asleep on the desk chair; click her and she wakes and goes to her bowl, click the bowl and she comes to eat
+  cat: { kind: 'cat', hint: 'The cat · wake her up', label: { title: 'The cat', sub: 'asleep on my chair' }, discover: 'The cat' },
   catbowl: { kind: 'catbowl', hint: 'Her bowl · fill it' },
   mouse: { kind: 'world', world: 8, label: { title: 'Contact', sub: 'say hello' }, discover: 'Contact' },
   clock: { kind: 'timeline', hint: 'Timeline', label: { title: 'Timeline', sub: 'every project, in order' }, discover: 'Timeline' },
@@ -244,8 +243,8 @@ export const DISCOVERY_TOTAL = DISCOVERY_ORDER.length;
 // belongs to exactly one; the HUD files any id missing here under the desk.
 export const DISCOVERY_GROUPS = [
   { id: 'keys', label: 'keys', title: 'On the keyboard', hint: 'keys that look different, and the tiny worlds built into them', ids: ['signal', 'market', 'lab', 'o', 'x', 'rbr', 'f8', 'enter', 'mechbay', 'mech', 'sapling', 'stairs', 'plaza', 'garden', 'secret', 'keyboard', 'esc', 'art4'] },
-  { id: 'desk', label: 'desk', title: 'On the desk', hint: 'the screens, the lamp and everything lying around the keyboard', ids: ['monitor', 'note', 'lamp', 'clock', 'mouse', 'mug', 'notebook', 'mandarin', 'model', 'plant', 'watches', 'pc', 'cat'] },
-  { id: 'room', label: 'room', title: 'Around the room', hint: 'the walls, the corners and the chair you would sit in', ids: ['chair', 'katana', 'pullup', 'satoshi', 'bike', 'medals'] },
+  { id: 'desk', label: 'desk', title: 'On the desk', hint: 'the screens, the lamp and everything lying around the keyboard', ids: ['monitor', 'note', 'lamp', 'clock', 'mouse', 'mug', 'notebook', 'mandarin', 'model', 'plant', 'watches', 'pc'] },
+  { id: 'room', label: 'room', title: 'Around the room', hint: 'the walls, the corners and the chair you would sit in', ids: ['chair', 'cat', 'katana', 'pullup', 'satoshi', 'bike', 'medals'] },
 ];
 
 

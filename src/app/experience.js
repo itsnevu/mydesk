@@ -23,7 +23,7 @@ const PORTALS = WORLDS.map((w) => projectByKey(w.project));
 export const SHORTCUTS = { note: 'A', lamp: 'S', mouse: 'C', monitor: 'W', clock: 'P' };
 // objects whose origin sits low get their hover title lifted clear of the top
 // (measured against each object's on-screen top from the home view and the zoomed-out views)
-export const TIP_LIFT = { cat: 4.6, catbed: 2.6, catbowl: 1.8, pc: 12.5, speaker: 8.4, bike: 26, medals: 11, watches: 4.3, mouse: 3.5, monitor: 9.5, desklamp: 2.6, note: 0.9, chair: 66, neon: 7.8, katana: 5.6, pullup: 53, satoshi: 24.5 };
+export const TIP_LIFT = { cat: 7, catbowl: 4, pc: 12.5, speaker: 8.4, bike: 26, medals: 11, watches: 4.3, mouse: 3.5, monitor: 9.5, desklamp: 2.6, note: 0.9, chair: 66, neon: 7.8, katana: 5.6, pullup: 53, satoshi: 24.5 };
 
 export class Experience {
   constructor(canvas) {
@@ -384,9 +384,9 @@ export class Experience {
       }
       case 'story': this.startStory(); return;
       // the cat and her corner: no camera move, she answers where she is
-      case 'cat': { this.discover(id); const r = this.world.cat.poke(); ui.hud.toast({ angry: '<b>hiss!</b> she has had enough: off to her bed', woke: '<b>yawn</b>: you woke her up', eating: 'she is <b>eating</b>, let her finish', ran: '<b>mrrp!</b> she trots off' }[r] || '<b>mrrp</b>', 2000); return; }
-      case 'catbed': { this.world.cat.toBed(); audio.paper(); ui.hud.toast('<b>nap time</b>: she heads for her bed', 1800); return; }
-      case 'catbowl': { const was = this.world.cat.feed(); audio.paper(); ui.hud.toast(was === 'sleep' ? 'bowl <b>filled</b>. she might wake up for it' : 'bowl <b>filled</b>. here she comes', 1800); return; }
+      case 'cat': { this.discover(id); const r = this.world.cat.poke(); const credit = '<small>3D cat by <a href="https://sketchfab.com/rt699448" target="_blank" rel="noopener">iRahulRajput</a> (CC BY 4.0)</small>';   // the scan's licence asks for this
+        ui.hud.toast(({ woke: '<b>mrrp?</b> she wakes up and goes to find her food', eating: 'she is <b>eating</b>, let her finish', busy: '<b>mrrp</b>' }[r] || '<b>mrrp</b>') + credit, 3200); return; }
+      case 'catbowl': { const r = this.world.cat.feed(); audio.paper(); ui.hud.toast(r === 'woke' ? 'bowl <b>filled</b>. she heard it: here she comes' : 'bowl <b>filled</b>', 2000); return; }
       case 'keyboard': {
         this.discover(id); audio.keyPress(0.9);
         this.focusObject(id, () => { for (const k of this.world.navKeys) { k.userData.targetGlow = 1; tween.delayed(1.2, () => { if (this.hovered !== k) k.userData.targetGlow = 0; }); } });
