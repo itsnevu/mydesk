@@ -888,7 +888,9 @@ export class Experience {
     else if (state.is(S.OVERVIEW)) ui.hud.sceneLabelPos(innerWidth * 0.5, innerHeight * 0.72);
     // depth of field follows the camera's subject: sharp on the target, softening with distance from it; never so strong that detail is lost
     { const po = this.renderer.post; const f = V3.dist(this.camera.position, this.camera.target); po.focus += (f - po.focus) * (1 - Math.exp(-6 * dt));
-      const close = Math.max(0, Math.min(1, (14 - f) / 12)); po.range = 6 + f * 0.9; po.maxBlur = 2.2 + close * 2.6; po.vignette = state.is(S.GATE, S.ENTERING) ? 0.5 : 0.3;
+      // zoomed out (the whole desk, the room) everything is sharp: the blur fades out between a close look (35) and the home view (~63)
+      const close = Math.max(0, Math.min(1, (14 - f) / 12)), far = Math.max(0, Math.min(1, (f - 35) / 25)), wide = far * far * (3 - 2 * far);
+      po.range = 6 + f * 0.9; po.maxBlur = (2.2 + close * 2.6) * (1 - wide); po.vignette = state.is(S.GATE, S.ENTERING) ? 0.5 : 0.3;
       // the near plane rides with the camera's distance: depth precision goes where the eye is, so thin layers (book spines, screens
       // on their bezels, prints on the wall) stop shimmering when the room is seen from across it
       this.camera.near = Math.min(0.6, Math.max(0.1, f * 0.02)); }
