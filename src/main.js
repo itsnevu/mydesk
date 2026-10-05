@@ -9,10 +9,13 @@ import { parseRoute, onRoute, setRoute } from 'app/router';
 import * as ui from 'app/ui';
 import { initGuide } from 'app/guide';
 import { initLikes } from 'app/likes';
+import { initSite, openSite } from 'app/simplesite';
 
 applyMotionToCSS();
 applyThemeToCSS();
 document.body.dataset.state = 'loading';
+// #site is the plain website: it opens at once, over the loading screen, so a shared link needs no 3D
+if (location.hash === '#site') openSite();
 
 async function boot() {
   const canvas = document.getElementById('canvas');
@@ -48,6 +51,7 @@ async function boot() {
   const openPage = (p) => () => { if (state.is(S.OVERVIEW)) xp.exitToDesk(); if (state.is(S.DETAIL)) { ui.detail.show(p); return; } xp.openDetail(p); };
   const directFor = (route) => {
     if (!route) return null;
+    if (route.type === 'target' && route.slug === 'site') return () => openSite();
     if (route.type === 'project') {
       const wi = WORLDS.findIndex((w) => w.project === route.slug); if (wi >= 0) return openWorld(wi);
       const p = projectByKey(route.slug); return PROJECTS.includes(p) ? openPage(p) : null;
@@ -56,12 +60,13 @@ async function boot() {
     if (route.type === 'target') { const alias = { tab: 'note' }; const id = alias[route.slug] || route.slug; if (xp.world.targets[id] || xp.resolveTarget(id)) return id; }
     return null;
   };
-  xp.pendingDirect = directFor(initial);
+  xp.pendingDirect = initial?.slug === 'site' ? null : directFor(initial);   // (#site is already open)
 
   // ---------- UI wiring
   ui.menu.build((m) => xp.activate(m.target));
   initGuide(xp);
   initLikes();
+  initSite(xp);
   ui.hud.identity(() => xp.activate('note'));
   ui.detail.build({
     onBack: () => xp.back(),

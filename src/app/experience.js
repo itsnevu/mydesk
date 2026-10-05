@@ -14,6 +14,7 @@ import { audio } from 'app/audio';
 import { PROJECTS, TARGETS, DISCOVERY_ORDER, WORLDS, STORY, CHAPTERS, projectByKey, projectIndex } from 'app/data';
 import { DESK_LIGHTS, GALLERY_LIGHTS, C } from 'app/theme';
 import { setRoute } from 'app/router';
+import { openSite } from 'app/simplesite';
 import * as ui from 'app/ui';
 
 const STORE_KEY = 'kw.found';
@@ -355,7 +356,8 @@ export class Experience {
         this.flyTo(target.stages[0], { duration: MOTION.dur.cameraLong, ease: MOTION.ease.cameraSoft, lift: 3, swing: -4, onComplete: () => { this.controls.enabled = true; this.controls.sync(); } });
         this.updateHints(); setRoute(id); return;
       // on a phone held upright the screen zoom only shows a slice of the monitor: the projects open as pages instead
-      case 'projects': this.discover(id); if (innerWidth < 760 && innerWidth < innerHeight) { this.activate('work'); return; } this.openMonitor(this.lastWorld || 0); return;
+      // the screen opens the plain website (app/simplesite): the work as an ordinary page, for anyone who'd rather read than explore
+      case 'projects': this.discover(id); audio.powerOn(); openSite(); return;
       case 'world': {
         this.discover(id);
         // a trigger that is not a keycap (the mouse) has no keycap to settle on: it is a door straight into its world
