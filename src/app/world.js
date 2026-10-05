@@ -18,6 +18,7 @@ import { buildSatoshi } from 'app/satoshi';
 import { flatten, atlasMerge } from 'app/bake';
 import { buildMouse } from 'app/mouse';
 import { buildMandarinBook } from 'app/mandarin';
+import { buildCat } from 'app/cat';
 import { buildDistrict, builtHere, buildKeyMini, keyBuiltHere, lowerParts } from 'app/kbtown';
 const add =(parent, mesh, pos, rot, scale) => { if (pos) mesh.position = pos; if (rot) mesh.rotation = rot; if (scale) mesh.scale = scale; parent.add(mesh); return mesh; };
 // the owner's name as the screens print it
@@ -153,6 +154,8 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
   const deskGear = buildDeskGear(); root.add(deskGear.root);
   // a Mandarin course book and two flashcards on the free right front of the desk; clicked, the cover opens (app/mandarin)
   const mandarin = buildMandarinBook(); root.add(mandarin.root); world.pickables.push(mandarin.hit, mandarin.cardsHit); world.mandarin = mandarin;
+  // the desk cat, her bed and her bowls on the free front left of the desk (app/cat): she keeps her own day
+  const cat = buildCat(); root.add(cat.root); world.pickables.push(cat.hits.cat, cat.hits.bed, cat.hits.bowl); world.cat = cat;
   // a 1:18 G 63 in its case on the bookshelf (between the stacked books and the plant), Satoshi on a pedestal by the right wall
   const g63 = buildGWagon(); g63.root.position = [82.5, 20, -22]; root.add(g63.root);
   const satoshi = buildSatoshi(); root.add(satoshi.root); world.pickables.push(satoshi.hit);
@@ -423,6 +426,9 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
   objStage.mandarin = mandarin.stages;
   const objMesh = { monitor: screen, clock: clockBody, note, lamp: head, mouse: mouseBody, mug, keyboard: caseMesh, pc: room.pc, bike: room.bike, medals: room.medals, curtains: room.curtains, lights: room.lights, door: room.door, aircon: room.aircon, floorlamp: room.floorlamp, speaker: room.speakers[0], watches: watchBox.hit, desklamp: clampLamp.hit, chair: room.chair, guide: guideHit, work: screen, neon: leftWall.neonHit, pullup: leftWall.towerHit, katana: leftWall.katanaHit, satoshi: satoshi.hit, ...deskHits };
   objMesh.mandarin = mandarin.hit;
+  // the cat corner: her own view, from the front left, low enough to meet her eyes
+  objStage.cat = [{ position: [-10, 13, 38], target: [-16, 3, 14] }]; objStage.catbed = objStage.cat; objStage.catbowl = objStage.cat;
+  objMesh.cat = cat.hits.cat; objMesh.catbed = cat.hits.bed; objMesh.catbowl = cat.hits.bowl;
   for (const id of Object.keys(TARGETS)) {
     const t = TARGETS[id];
     if (t.kind === 'alias') continue;
@@ -559,6 +565,7 @@ export function buildWorld({ keyboardBody = null, keyAssets = {}, deskProps = nu
     screenTex.tick(time); monitors.update(time); guideHit._hidden = screenTex.mode !== 'home';
     // the room: the PC's breathing lights, the speakers (they follow world.musicOn), a book sliding out of the shelf
     room.update(dt, time, world);
+    cat.update(dt, time, cam);
     watchBox.update(dt); clampLamp.update(dt, world.lightLevel); leftWall.update(dt, time, world.lightLevel); deskGear.update(dt, time);
   };
   return world;
