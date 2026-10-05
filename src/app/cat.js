@@ -23,10 +23,20 @@ const node = (parent, pos, rot) => { const n = new Node(); n.position = pos || [
 
 // the coat: ginger with darker rings round the body and a cream belly (the body spheres lie along z, so their latitude rings are stripes)
 function tabby() {
+  // (u runs round the body: the belly is at u 0.25, the spine at 0.75; v runs nose to tail) the stripes come down from the spine
+  // and thin out on the flanks, never reaching the cream belly
   const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256; const c = cv.getContext('2d');
   c.fillStyle = '#c9773a'; c.fillRect(0, 0, 256, 256);
-  for (let i = 0; i < 8; i++) { const y = 40 + i * 24; c.fillStyle = 'rgba(130,64,26,0.22)'; c.beginPath(); for (let x = 0; x <= 256; x += 8) c.lineTo(x, y + Math.sin(x * 0.05 + i) * 4); for (let x = 256; x >= 0; x -= 8) c.lineTo(x, y + 4 + Math.sin(x * 0.07 + i * 2) * 2); c.fill(); }
-  const g = c.createLinearGradient(0, 0, 256, 0); g.addColorStop(0.08, 'rgba(240,226,200,0)'); g.addColorStop(0.18, 'rgba(240,226,200,1)'); g.addColorStop(0.32, 'rgba(240,226,200,1)'); g.addColorStop(0.42, 'rgba(240,226,200,0)');
+  const back = c.createLinearGradient(0, 0, 256, 0); back.addColorStop(0.55, 'rgba(150,72,28,0)'); back.addColorStop(0.75, 'rgba(150,72,28,0.35)'); back.addColorStop(0.95, 'rgba(150,72,28,0)');
+  c.fillStyle = back; c.fillRect(0, 0, 256, 256);   // a darker saddle along the spine
+  for (let i = 0; i < 7; i++) {
+    const v = 50 + i * 26 + (i % 2) * 4;
+    for (const side of [-1, 1]) {
+      c.beginPath(); c.moveTo(192, v - 5); c.quadraticCurveTo(192 + side * 26, v + 2, 192 + side * 46, v + 10 + (i % 3) * 3); c.quadraticCurveTo(192 + side * 26, v + 6, 192, v + 3); c.closePath();
+      c.fillStyle = 'rgba(118,54,20,0.55)'; c.fill();
+    }
+  }
+  const g = c.createLinearGradient(0, 0, 256, 0); g.addColorStop(0.06, 'rgba(240,226,200,0)'); g.addColorStop(0.17, 'rgba(240,226,200,1)'); g.addColorStop(0.33, 'rgba(240,226,200,1)'); g.addColorStop(0.44, 'rgba(240,226,200,0)');
   c.fillStyle = g; c.fillRect(0, 0, 256, 256);
   return new Texture(cv, {});
 }
@@ -176,6 +186,8 @@ export function buildCat() {
     /** off to bed */
     toBed() { st.tired = 1.2; go('bed', 'sleep', 1); },
     get mode() { return st.mode; },
+    /** (for checking her poses) hold one where she stands */
+    pose(mode, secs = 30) { begin(mode, now); st.until = now + secs; },
   };
   const lerp = (a, b, k) => a + (b - a) * k;
   api.update = (dt, t, cam) => {
