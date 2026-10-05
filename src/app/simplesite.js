@@ -57,6 +57,22 @@ const CSS = `
 #site .s-sites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 #site .s-site { display: block; border: 1px solid rgba(199,163,106,0.18); border-radius: 16px; overflow: hidden; background: #17130e; transition: border-color .2s, transform .2s; }
 #site .s-site:hover { border-color: rgba(217,160,91,0.6); transform: translateY(-2px); }
+#site button.s-site { width: 100%; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
+#site .s-site-more { display: inline-block; margin-top: 10px; font: 600 13px var(--sans, system-ui); color: var(--accent, #d9a05b); }
+#site .s-detail { position: fixed; inset: 0; z-index: 3; overflow: auto; overscroll-behavior: contain; background: var(--bg, #120f0a); opacity: 0; pointer-events: none; transition: opacity .25s; }
+#site .s-detail.open { opacity: 1; pointer-events: auto; }
+#site .s-detail .s-wrap { padding-top: 28px; padding-bottom: 72px; }
+#site .s-back { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid rgba(199,163,106,0.3); border-radius: 999px; background: none; color: rgba(231,221,200,0.85); font: 600 14px var(--sans, system-ui); cursor: pointer; }
+#site .s-back:hover { border-color: var(--accent, #d9a05b); color: var(--paper, #e7ddc8); }
+#site .s-d-head { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: end; margin: 36px 0 28px; }
+#site .s-d-head h2 { margin: 10px 0 12px; }
+#site .s-d-head p { margin: 0; font-size: 17px; line-height: 1.7; color: rgba(231,221,200,0.82); }
+#site .s-d-facts { display: grid; gap: 14px; padding: 20px 22px; border: 1px solid rgba(199,163,106,0.18); border-radius: 16px; background: #17130e; }
+#site .s-d-facts dt { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(231,221,200,0.5); }
+#site .s-d-facts dd { margin: 4px 0 0; font-size: 15px; color: rgba(231,221,200,0.9); }
+#site .s-d-shots { display: grid; gap: 16px; }
+#site .s-d-shots img { display: block; width: 100%; border: 1px solid rgba(199,163,106,0.18); border-radius: 14px; background: #211a11; }
+#site .s-d-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
 #site .s-shot { display: block; aspect-ratio: 16 / 10; width: 100%; object-fit: cover; object-position: top; background: #211a11; }
 #site .s-ph { display: flex; flex-direction: column; justify-content: center; gap: 8px; aspect-ratio: 16 / 10; padding: 24px; background: radial-gradient(ellipse at 30% 20%, rgba(217,160,91,0.16), transparent 60%), #1c1610; border-bottom: 1px solid rgba(199,163,106,0.14); }
 #site .s-ph b { font-size: 24px; line-height: 1.15; color: var(--paper, #e7ddc8); }
@@ -76,6 +92,7 @@ const CSS = `
 @media (max-width: 900px) {
   #site .s-skills { grid-template-columns: repeat(2, 1fr); }
   #site .s-feature, #site .s-sites { grid-template-columns: repeat(2, 1fr); }
+  #site .s-d-head { grid-template-columns: 1fr; }
   #site .s-about, #site .s-contact { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
@@ -138,10 +155,10 @@ function html() {
       <span class="s-eyebrow s-mono">work</span><h2>Selected projects</h2>
       <div class="s-feature">${featured.map((p) => `<div class="s-card"><span class="s-meta s-mono">${esc(p.date)} · ${esc(p.industry)}</span><h3>${esc(p.title)}</h3><span class="s-stack s-mono">${esc(p.stack)}</span><p>${esc(p.description)}</p><button type="button" class="s-link" data-world="${worldOf(p)}">Explore it in 3D →</button></div>`).join('')}</div>
       <h3 class="s-sub">Live client websites</h3>
-      <div class="s-sites">${sites.map((p) => `<a class="s-site" href="${esc(p.url)}" ${ext}>${GALLERY[p.key] || SHOTS.includes(p.key)
+      <div class="s-sites">${sites.map((p) => `<button type="button" class="s-site" data-site="${esc(p.key)}" aria-label="${esc(p.title)}: details">${GALLERY[p.key] || SHOTS.includes(p.key)
         ? `<img class="s-shot" src="${GALLERY[p.key] ? `shots/gallery/${p.key}-1.webp` : `shots/${p.key}.webp`}" alt="${esc(p.title)} website" loading="lazy" decoding="async">`
         : `<span class="s-ph" aria-hidden="true"><b>${esc(p.title)}</b><small>${esc(new URL(p.url).hostname.replace(/^www\./, ''))}</small></span>`}
-        <div class="s-site-body"><h4>${esc(p.title)}</h4><span>${esc(p.industry)} · ${esc(p.stack)}</span></div></a>`).join('')}</div>
+        <div class="s-site-body"><h4>${esc(p.title)}</h4><span>${esc(p.industry)} · ${esc(p.stack)}</span><br><b class="s-site-more">Details →</b></div></button>`).join('')}</div>
     </div></section>
     <section id="s-contact"><div class="s-wrap">
       <span class="s-eyebrow s-mono">contact</span><h2>Say hello</h2>
@@ -151,8 +168,31 @@ function html() {
       </div>
     </div></section>
   </main>
+  <div class="s-detail" role="dialog" aria-modal="true" aria-label="Project details" tabindex="-1"></div>
   <footer><div class="s-wrap"><span>© ${esc(SITE.year)} ${esc(SITE.name)}</span><button type="button" class="s-3d" data-close>Explore the 3D desk</button></div></footer>`;
 }
+
+// one client site, on its own page: what it is, what it is built with, every screenshot, and only then the way out to it
+const shotsOf = (p) => GALLERY[p.key] ? Array.from({ length: GALLERY[p.key] }, (_, i) => `shots/gallery/${p.key}-${i + 1}.webp`) : SHOTS.includes(p.key) ? [`shots/${p.key}.webp`] : [];
+function detailHtml(p) {
+  const host = new URL(p.url).hostname.replace(/^www\./, '');
+  return `<div class="s-wrap">
+    <button type="button" class="s-back" data-back>← All websites</button>
+    <div class="s-d-head">
+      <div><span class="s-eyebrow s-mono">client website</span><h2>${esc(p.title)}</h2><p>${esc(p.description || '')}</p>
+        <div class="s-d-cta"><a class="s-btn fill" href="${esc(p.url)}" ${ext}>${p.date === 'live' ? `Visit ${esc(host)}` : `${esc(host)} today (the redesign)`} ↗</a></div></div>
+      <dl class="s-d-facts"><div><dt>Business</dt><dd>${esc(p.industry)}</dd></div><div><dt>Built with</dt><dd>${esc(p.stack)}</dd></div><div><dt>Status</dt><dd>${esc(p.date === 'live' ? 'Live' : p.date)}</dd></div></dl>
+    </div>
+    <div class="s-d-shots">${shotsOf(p).map((src, i) => `<img src="${src}" alt="${esc(p.title)}, screenshot ${i + 1}" loading="lazy" decoding="async">`).join('')}</div>
+  </div>`;
+}
+let detailFrom = null;
+function openDetail(key) {
+  const p = PROJECTS.find((q) => q.key === key); if (!p) return;
+  const d = el.querySelector('.s-detail'); detailFrom = document.activeElement;
+  d.innerHTML = detailHtml(p); d.scrollTop = 0; d.classList.add('open'); d.focus({ preventScroll: true });
+}
+function closeDetail() { const d = el?.querySelector('.s-detail.open'); if (!d) return false; d.classList.remove('open'); try { detailFrom?.focus({ preventScroll: true }); } catch {} return true; }
 
 let el = null, xp = null, lastFocus = null;
 
@@ -162,7 +202,9 @@ function build() {
   el = document.createElement('div'); el.id = 'site'; el.tabIndex = -1; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `${SITE.name}, portfolio`);
   el.inert = true; el.setAttribute('aria-hidden', 'true'); el.innerHTML = html(); document.body.appendChild(el);
   el.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-close],[data-jump],[data-top],[data-world]'); if (!t) return;
+    const t = e.target.closest('[data-close],[data-jump],[data-top],[data-world],[data-site],[data-back]'); if (!t) return;
+    if (t.hasAttribute('data-site')) { e.preventDefault(); openDetail(t.dataset.site); return; }
+    if (t.hasAttribute('data-back')) { e.preventDefault(); closeDetail(); return; }
     if (t.hasAttribute('data-close')) { e.preventDefault(); closeSite(); return; }
     if (t.hasAttribute('data-top')) { e.preventDefault(); el.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     if (t.hasAttribute('data-jump')) { e.preventDefault(); el.querySelector(t.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }); return; }
@@ -175,7 +217,7 @@ function build() {
   window.addEventListener('keydown', (e) => {
     if (!isSiteOpen()) return;
     e.stopImmediatePropagation();
-    if (e.key === 'Escape') { e.preventDefault(); closeSite(); }
+    if (e.key === 'Escape') { e.preventDefault(); if (!closeDetail()) closeSite(); }
   }, true);
   window.addEventListener('keyup', (e) => { if (isSiteOpen()) e.stopImmediatePropagation(); }, true);
   // the browser's back button closes it
@@ -194,7 +236,7 @@ export function openSite() {
 }
 export function closeSite(fromHistory = false) {
   if (!isSiteOpen()) return;
-  el.classList.remove('open'); el.inert = true; el.setAttribute('aria-hidden', 'true');
+  closeDetail(); el.classList.remove('open'); el.inert = true; el.setAttribute('aria-hidden', 'true');
   if (!fromHistory && location.hash === '#site') setRoute('');
   if (lastFocus?.focus) try { lastFocus.focus({ preventScroll: true }); } catch {}
 }

@@ -86,8 +86,10 @@ export const PROJECTS = [
     description: 'Company profile for a flavour and fragrance manufacturer, on WordPress.' },
   { key: 'nf-optical', title: 'NF Optical', date: 'live', industry: 'Retail & medical', stack: 'WordPress · PHP · Custom UI', url: 'https://nfopticalofficial.com/', hue: 40,
     description: 'Company profile for an optical retailer, on WordPress with a custom interface.' },
-  { key: 'gajah-terbang-kreatif', title: 'PT. Gajah Terbang Kreatif', date: 'live', industry: 'Creative ecosystem', stack: 'WordPress · PHP · Creative theme', url: 'https://gajahterbangkreatif.id/', hue: 34,
-    description: 'The public site of the company behind GodPlan ERP. The same client twice: a WordPress site anyone can open, and the internal platform.' },
+  { key: 'godjah-studio', title: 'Godjah Studio', date: 'live', industry: 'Creative agency', stack: 'Next.js · custom build', url: 'https://gajahterbangkreatif.id/', hue: 262,
+    description: 'The redesign of PT. Gajah Terbang Kreatif\'s site, rebuilt from WordPress as a custom Next.js site: one studio presenting its three brands (Godjah for photo and video, Godtive for social media, Godweb for websites), with a motion-led intro and a four-step way to start a project.' },
+  { key: 'gajah-terbang-kreatif', title: 'PT. Gajah Terbang Kreatif', date: 'previous design', industry: 'Creative ecosystem', stack: 'WordPress · PHP · Creative theme', url: 'https://gajahterbangkreatif.id/', hue: 34,
+    description: 'The public site of the company behind GodPlan ERP, as it was before the redesign: a WordPress site anyone can open, beside the internal platform. Its address now serves the Next.js redesign, Godjah Studio.' },
   { key: 'gracia-box', title: 'Gracia Box', date: 'live', industry: 'Industrial packaging', stack: 'WordPress · PHP', url: 'https://graciabox.id/', hue: 18,
     description: 'Company profile for an industrial packaging business, on WordPress.' },
   { key: 'rameinaja', title: 'RameinAja', date: 'live', industry: 'Digital marketing', stack: 'WordPress · PHP', url: 'https://rameinaja.com/', hue: 26,
@@ -109,7 +111,7 @@ export const PROJECTS = [
 // page shows them in a browser frame; projects without one keep their generated card.
 // More screenshots per project, from Navy (public/shots/gallery/<key>-<n>.webp, n from 1): the project page shows them in its browser
 // frame with a row of thumbnails under it; GALLERY_PHONE is a phone screenshot for a project without a live one (GodPlan is internal)
-export const GALLERY = { 'godplan-erp': 1, 'client-websites': 6, winfaith: 5, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
+export const GALLERY = { 'godjah-studio': 4, 'godplan-erp': 1, 'client-websites': 6, winfaith: 5, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
 export const GALLERY_PHONE = { 'godplan-erp': 'shots/gallery/godplan-erp-m.webp', 'client-websites': 'shots/little-aivy-m.webp' };
 // what the browser frame's address bar says for a project with no single address of its own
 export const SHOT_HOST = { 'client-websites': 'sixteen live sites' };
