@@ -574,3 +574,13 @@ body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
   #like-btn { right: calc(20px + var(--safe-r)); bottom: calc(118px + var(--safe-b)); }
 }
+
+/* the project page's screenshots: the window and its phone stand together, the other pages sit in a row under them */
+.shot-stage { position: relative; }
+.shot-thumbs { display: flex; gap: 12px; margin-top: calc(8% + 8px); overflow-x: auto; padding-bottom: 4px; }
+.shot-thumb { flex: 0 0 auto; width: min(24%, 220px); padding: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; opacity: 0.55; background: #0d0b08; cursor: pointer; transition: opacity var(--d-fast), border-color var(--d-fast); }
+.shot-thumb img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: top; }
+.shot-thumb:hover, .shot-thumb:focus-visible { opacity: 0.85; }
+.shot-thumb.on { opacity: 1; border-color: var(--accent); }
+.detail-media.has-shot:has(.shot-thumbs) { margin-bottom: 0; }
+.shot-stage .shot-d { aspect-ratio: auto; height: auto; }   /* the whole page as it was captured, never cropped at its sides */

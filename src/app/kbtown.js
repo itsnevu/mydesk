@@ -90,7 +90,7 @@ const STEPS = [
 const SHOPS = [
   [
     { key: 'recon', sign: ['RECON'], w: 0.42, h: 0.5, wall: '#4d4a3f', awn: '#6b5a48', trade: 'dish' },
-    { key: 'airon', sign: ['AIRON'], w: 0.42, h: 0.46, wall: '#2a2420', awn: '#8e6a3d', trade: 'orb' },
+    { key: 'airon', sign: ['AIRON'], w: 0.42, h: 0.46, wall: '#5c6a6e', awn: '#e7ddc8', trade: 'aircon' },
     { key: 'rameinaja', sign: ['RAMEINAJA'], w: 0.44, h: 0.48, wall: '#7a3f22', awn: '#d9a05b', trade: 'billboard' },
     { key: 'gajah-terbang-kreatif', sign: ['GAJAH TERBANG'], w: 0.55, h: 0.58, wall: '#c9b48a', awn: '#4d3822', trade: 'elephant' },
   ],
@@ -206,7 +206,18 @@ function trade(g, s, top, live) {
       put(g, sphere(0.008, 6, 4), M('beacon', { color: [1, 0.2, 0.08], emissive: [1, 0.12, 0.04], emissiveIntensity: 4 }), [0.13, top + 0.225, -0.08]).castShadow = false;
       break;
     }
-    case 'orb': {    // the AI platform: a lit core turning inside a brass ring, on a plinth
+    case 'aircon': {   // air-conditioning service: an outdoor unit with its turning fan, and a split unit on the front
+      put(g, box(0.16, 0.11, 0.08), plain('#e7ddc8', 0.6), [-0.04, top + 0.055, 0]);
+      put(g, torus(0.034, 0.005, 16, 4), plain('#3b3a33', 0.5, 0.4), [-0.07, top + 0.055, 0.041], [Math.PI / 2, 0, 0]);
+      const fan = new Node('fan'); fan.position = [-0.07, top + 0.055, 0.042]; fan.userData.dynamic = true; g.add(fan);
+      put(fan, fuse([[box(0.06, 0.012, 0.004)], [box(0.012, 0.06, 0.004)]]), plain('#3b3a33', 0.5, 0.4), [0, 0, 0]);
+      live.push((t) => { fan.rotation[2] = t * 6; });
+      for (const x of [0.045, 0.075]) put(g, box(0.02, 0.07, 0.004), plain('#8a7a66', 0.6), [x, top + 0.055, 0.041]);
+      put(g, box(0.006, 0.03, 0.006), BRONZE(), [0.1, top + 0.015, 0]);
+      put(g, box(0.03, 0.05, 0.14), plain('#efe4cf', 0.5), [w / 2 + 0.016, top - 0.2, 0]);   // the split unit, on the side wall
+      break;
+    }
+    case 'orb': {    // (unused now) a lit core turning inside a brass ring, on a plinth
       put(g, box(0.1, 0.03, 0.1), plain('#3b2b1d', 0.6), [0, top + 0.015, 0]);
       const orb = new Node('orb'); orb.position = [0, top + 0.12, 0]; orb.userData.dynamic = true; g.add(orb);
       put(orb, sphere(0.045, 4, 2), M('orb', { color: [1, 0.85, 0.6], emissive: color('#ffcf8a'), emissiveIntensity: 2.4, roughness: 0.2 }), [0, 0, 0]).castShadow = false;

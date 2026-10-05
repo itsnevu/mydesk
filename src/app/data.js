@@ -91,8 +91,8 @@ export const PROJECTS = [
     description: 'Company profile for a digital marketing business, on WordPress.' },
   { key: 'recon', title: 'Recon', date: 'live', industry: 'Tech research', stack: 'WordPress · PHP', url: 'https://reconstruction.id/', hue: 38,
     description: 'Company profile for a tech research company, on WordPress.' },
-  { key: 'airon', title: 'Airon', date: 'live', industry: 'AI tech platform', stack: 'WordPress · PHP · Modern UI', url: 'https://airon.site/', hue: 30,
-    description: 'Site for an AI tech platform, on WordPress with a modern interface.' },
+  { key: 'airon', title: 'Airon', date: 'live', industry: 'AC service & installation', stack: 'WordPress · PHP · Modern UI', url: 'https://airon.site/', hue: 30,
+    description: 'Site for an air-conditioning service: cleaning, repairs and installation, on WordPress with a modern interface.' },
   { key: 'izzi', title: 'Izzi', date: 'live', industry: 'Lifestyle brand', stack: 'WordPress · PHP', url: 'https://izzi-bsd.com/', hue: 56,
     description: 'Company profile for a lifestyle brand, on WordPress.' },
 ];
@@ -100,6 +100,10 @@ export const PROJECTS = [
 // The who-I-am worlds (04–09) need a record to live in; they stay out of the project list, the timeline and the monitor.
 // Real screenshots of the live sites, desktop and phone (public/shots/<key>.webp and <key>-m.webp, captured 2 Oct 2026). The project
 // page shows them in a browser frame; projects without one keep their generated card.
+// More screenshots per project, from Navy (public/shots/gallery/<key>-<n>.webp, n from 1): the project page shows them in its browser
+// frame with a row of thumbnails under it; GALLERY_PHONE is a phone screenshot for a project without a live one (GodPlan is internal)
+export const GALLERY = { 'godplan-erp': 1, winfaith: 3, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
+export const GALLERY_PHONE = { 'godplan-erp': 'shots/gallery/godplan-erp-m.webp' };
 export const SHOTS = ['winfaith', 'flora-indonesia', 'dams-garage', 'yukti-rasa-mitrabumi', 'nf-optical', 'gracia-box', 'orthobone', 'recon', 'izzi'];
 
 // The keyboard read as a story, in the order it happened. Each stop is a place on the board (its target id), when it was, and a

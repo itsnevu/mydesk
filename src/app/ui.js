@@ -1,5 +1,5 @@
 // All HTML layers: gate, HUD, menu, switching, gallery cards, detail page, overlays.
-import { PROJECTS, SITE, FACTS, projectIndex, MENU, TARGETS, DISCOVERY_GROUPS, WORLDS, SHOTS } from 'app/data';
+import { PROJECTS, SITE, FACTS, projectIndex, MENU, TARGETS, DISCOVERY_GROUPS, WORLDS, SHOTS, GALLERY, GALLERY_PHONE } from 'app/data';
 import { studyTexture } from 'app/gallery';
 import { MOTION } from 'app/motion';
 
@@ -208,7 +208,7 @@ export const detail = {
     PROJECTS.forEach((p) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.key = p.key;
       // a live site's thumbnail is its real screenshot; the file is only asked for when the page first opens (data-src), not at boot
-      if (SHOTS.includes(p.key)) { const im = document.createElement('img'); im.dataset.src = `shots/${p.key}.webp`; im.alt = ''; im.decoding = 'async'; im.onerror = () => im.replaceWith(cardCanvas(p, 240, 152)); b.appendChild(im); }
+      if (GALLERY[p.key] || SHOTS.includes(p.key)) { const im = document.createElement('img'); im.dataset.src = GALLERY[p.key] ? `shots/gallery/${p.key}-1.webp` : `shots/${p.key}.webp`; im.alt = ''; im.decoding = 'async'; im.onerror = () => im.replaceWith(cardCanvas(p, 240, 152)); b.appendChild(im); }
       else b.appendChild(cardCanvas(p, 240, 152));
       const s = document.createElement('span'); s.textContent = `${projectIndex(p)} ${p.title}`; b.appendChild(s);
       b.addEventListener('click', () => detail.show(p));
@@ -227,15 +227,20 @@ export const detail = {
     if (p.url) { live.href = p.url; live.textContent = `visit ${new URL(p.url).hostname.replace(/^www\./, '')} →`; }
     const media = $('detail-media'); media.innerHTML = ''; media.classList.remove('has-shot');
     for (const im of $('detail-strip').querySelectorAll('img[data-src]')) { im.src = im.dataset.src; im.removeAttribute('data-src'); }
-    if (SHOTS.includes(p.key) && p.url) {
-      // the live site as it looks today: a browser window with its address, and the phone version standing in front of it
-      const host = new URL(p.url).hostname.replace(/^www\./, '');
+    const shots = GALLERY[p.key] ? Array.from({ length: GALLERY[p.key] }, (_, i) => `shots/gallery/${p.key}-${i + 1}.webp`) : SHOTS.includes(p.key) && p.url ? [`shots/${p.key}.webp`] : [];
+    if (shots.length) {
+      // the site as it looks: a browser window with its address, the phone version standing in front of it, and when there are
+      // more pages, a row of them under the window (a click puts that page in the window)
+      const host = p.url ? new URL(p.url).hostname.replace(/^www\./, '') : `${p.title} · internal`;
+      const phone = GALLERY_PHONE[p.key] || (SHOTS.includes(p.key) ? `shots/${p.key}-m.webp` : null);
       media.classList.add('has-shot');
-      media.innerHTML = `<div class="shot-frame"><div class="shot-bar" aria-hidden="true"><i></i><i></i><i></i><span>${host}</span></div><img class="shot-d" alt="${p.title}: the live site" decoding="async"></div><img class="shot-m" alt="${p.title} on a phone" decoding="async">`;
+      media.innerHTML = `<div class="shot-stage"><div class="shot-frame"><div class="shot-bar" aria-hidden="true"><i></i><i></i><i></i><span>${host}</span></div><img class="shot-d" alt="${p.title}: the site" decoding="async"></div>${phone ? `<img class="shot-m" alt="${p.title} on a phone" decoding="async">` : ''}</div>` +
+        (shots.length > 1 ? `<div class="shot-thumbs">${shots.map((src, i) => `<button type="button" class="shot-thumb${i ? '' : ' on'}" data-i="${i}" aria-label="${p.title}, page ${i + 1} of ${shots.length}"><img src="${src}" alt="" decoding="async" loading="lazy"></button>`).join('')}</div>` : '');
       const d = media.querySelector('.shot-d'), m = media.querySelector('.shot-m');
       d.onerror = () => { media.classList.remove('has-shot'); media.innerHTML = ''; media.appendChild(cardCanvas(p, 1280, 720)); };
-      m.onerror = () => m.remove();
-      d.src = `shots/${p.key}.webp`; m.src = `shots/${p.key}-m.webp`;
+      if (m) { m.onerror = () => m.remove(); m.src = phone; }
+      d.src = shots[0];
+      media.querySelector('.shot-thumbs')?.addEventListener('click', (e) => { const b = e.target.closest('.shot-thumb'); if (!b) return; d.src = shots[+b.dataset.i]; for (const t of media.querySelectorAll('.shot-thumb')) t.classList.toggle('on', t === b); });
     } else media.appendChild(cardCanvas(p, 1280, 720));
     const strip = $('detail-strip'); for (const b of strip.children) b.classList.toggle('active', b.dataset.key === p.key);
     // the active thumbnail slides to the middle of the strip (scrollIntoView could also scroll the page under it)
