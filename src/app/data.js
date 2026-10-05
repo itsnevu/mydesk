@@ -108,8 +108,10 @@ export const PROJECTS = [
 // page shows them in a browser frame; projects without one keep their generated card.
 // More screenshots per project, from Navy (public/shots/gallery/<key>-<n>.webp, n from 1): the project page shows them in its browser
 // frame with a row of thumbnails under it; GALLERY_PHONE is a phone screenshot for a project without a live one (GodPlan is internal)
-export const GALLERY = { 'godplan-erp': 1, winfaith: 5, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
-export const GALLERY_PHONE = { 'godplan-erp': 'shots/gallery/godplan-erp-m.webp' };
+export const GALLERY = { 'godplan-erp': 1, 'client-websites': 6, winfaith: 5, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
+export const GALLERY_PHONE = { 'godplan-erp': 'shots/gallery/godplan-erp-m.webp', 'client-websites': 'shots/little-aivy-m.webp' };
+// what the browser frame's address bar says for a project with no single address of its own
+export const SHOT_HOST = { 'client-websites': 'sixteen live sites' };
 export const SHOTS = ['winfaith', 'flora-indonesia', 'dams-garage', 'yukti-rasa-mitrabumi', 'nf-optical', 'gracia-box', 'orthobone', 'recon', 'izzi', 'little-aivy', 'fortunarack', 'fls-group-indonesia'];
 
 // The keyboard read as a story, in the order it happened. Each stop is a place on the board (its target id), when it was, and a

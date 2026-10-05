@@ -1,5 +1,5 @@
 // All HTML layers: gate, HUD, menu, switching, gallery cards, detail page, overlays.
-import { PROJECTS, SITE, FACTS, projectIndex, MENU, TARGETS, DISCOVERY_GROUPS, WORLDS, SHOTS, GALLERY, GALLERY_PHONE } from 'app/data';
+import { PROJECTS, SITE, FACTS, projectIndex, MENU, TARGETS, DISCOVERY_GROUPS, WORLDS, SHOTS, GALLERY, GALLERY_PHONE, SHOT_HOST } from 'app/data';
 import { studyTexture } from 'app/gallery';
 import { MOTION } from 'app/motion';
 
@@ -231,7 +231,7 @@ export const detail = {
     if (shots.length) {
       // the site as it looks: a browser window with its address, the phone version standing in front of it, and when there are
       // more pages, a row of them under the window (a click puts that page in the window)
-      const host = p.url ? new URL(p.url).hostname.replace(/^www\./, '') : `${p.title} · internal`;
+      const host = p.url ? new URL(p.url).hostname.replace(/^www\./, '') : SHOT_HOST[p.key] || `${p.title} · internal`;
       const phone = GALLERY_PHONE[p.key] || (SHOTS.includes(p.key) ? `shots/${p.key}-m.webp` : null);
       media.classList.add('has-shot');
       media.innerHTML = `<div class="shot-stage"><div class="shot-frame"><div class="shot-bar" aria-hidden="true"><i></i><i></i><i></i><span>${host}</span></div><img class="shot-d" alt="${p.title}: the site" decoding="async"></div>${phone ? `<img class="shot-m" alt="${p.title} on a phone" decoding="async">` : ''}</div>` +
@@ -307,11 +307,11 @@ const linksRow = () => `<div class="contact-links">${SITE.links.map((l) => `<a h
 export const panel = {
   about() {
     const glance = `<div class="sp-group"><span class="sp-group-title mono">at a glance</span><ul class="sp-skills">${SITE.facts.map((f) => `<li>${f}</li>`).join('')}</ul></div>`;
-    showPanel(`${SITE.name} / about`, 'ABOUT', `<p>${SITE.about}</p><p><strong>Currently:</strong> ${SITE.currently}</p>${glance}${linksRow()}`, 'right');
+    showPanel('who I am', 'ABOUT', `<p>${SITE.about}</p><p><strong>Currently:</strong> ${SITE.currently}</p>${glance}${linksRow()}`, 'right');
   },
   skills() {
     const html = SITE.skills.map((g) => `<div class="sp-group"><span class="sp-group-title mono">${g.group}</span><ul class="sp-skills">${g.items.map((i) => `<li>${i}</li>`).join('')}</ul></div>`).join('');
-    showPanel(`${SITE.name} / skills`, 'SKILLS', html, 'right');
+    showPanel('what I work with', 'SKILLS', html, 'right');
   },
   // the PC: what the work runs on, as a spec sheet. One row per layer, each tool a chip with a small status light; the chips
   // come on one after another, like a machine booting, and the count and the GitHub link sit under them
@@ -322,7 +322,7 @@ export const panel = {
     showPanel(t.sub, t.title.toUpperCase(), `<p>${t.body}</p><div class="mc-sheet">${rows}</div>${foot}${leaveHint()}`, 'right');
   },
   contact() {
-    showPanel(`${SITE.name} / contact`, 'SAY HELLO', `
+    showPanel('get in touch', 'SAY HELLO', `
       ${linksRow()}
       <form class="contact-form" id="contact-form">
         <label>name<input name="name" required autocomplete="name" /></label>
@@ -355,7 +355,7 @@ export const panel = {
       li.addEventListener('click', () => onPick(p));
       wrap.appendChild(li);
     }
-    showPanel(`${SITE.name} / timeline`, 'TIMELINE', '', 'left');
+    showPanel('every project, in order', 'TIMELINE', '', 'left');
     $('sp-body').appendChild(wrap);
   },
   // an object's panel explains the object, so its eyebrow is the object's own line (no name in front of it, unlike About)
