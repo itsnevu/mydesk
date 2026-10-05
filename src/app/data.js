@@ -17,14 +17,14 @@ export const SITE = {
     { label: 'X', href: 'https://x.com/itsnevuu' },
     { label: 'Résumé', href: 'https://www.itsnevu.xyz/CV%20ATS%20Navy%20Gibran.pdf' },
   ],
-  about: `I'm Navy Gibran, a full-stack developer and WordPress specialist studying Informatics at Universitas Multimedia Nusantara. I build ERP systems with Go and Next.js, and websites for Indonesian businesses, thirteen of them live today.`,
+  about: `I'm Navy Gibran, a full-stack developer and WordPress specialist studying Informatics at Universitas Multimedia Nusantara. I build ERP systems with Go and Next.js, and websites for Indonesian businesses, sixteen of them live today.`,
   currently: 'leading GodPlan ERP at PT. Gajah Terbang Kreatif.',
   // the About panel's "at a glance" chips: one fact each, short enough to scan
-  facts: ['Informatics · UMN', 'GPA 3.7 / 4.00', '13 live client sites', 'Leads GodPlan ERP'],
+  facts: ['Informatics · UMN', 'GPA 3.7 / 4.00', '16 live client sites', 'Leads GodPlan ERP'],
   // printed on objects, so the length is fixed: the paper note fits ~16 characters a line, the monitor ~25
   note: ['full-stack dev', 'Informatics, UMN', 'loves to build', 'smart contract addict', 'AI tools researcher'],
   headline: ["Hi, I'm Navy,", 'full-stack developer.'],
-  screen: ['ERP systems in Go + Next.js', '13 live sites, 10+ industries'], // the smaller lines under the headline
+  screen: ['ERP systems in Go + Next.js', '16 live sites, 10+ industries'], // the smaller lines under the headline
   // the lamp prints these on the desk: four groups, four items each at most
   skills: [
     { group: 'Frontend', items: ['Next.js / React', 'TypeScript', 'Tailwind CSS', 'Figma'] },
@@ -40,8 +40,8 @@ export const SITE = {
 export const WORLDS = [
   { key: 'signal-garden', num: '01', title: 'GodPlan ERP', sub: 'Enterprise platform', asset: 'world_01', trigger: 'signal', tier: 'world', project: 'godplan-erp', sign: 'GODPLAN ERP', tagline: 'one system, every department',
     hotspots: { screen: { title: 'The dashboard', body: 'Headcount, today\'s attendance, pending tasks and monthly payroll on one screen, with a shortcut into every module. Every corner of this floor is one of them, and the screen answers when something happens there.' }, desk: { title: 'Employees', body: 'The staff roster (who works here), with headcount carried up to the dashboard. One of the core features I built, alongside authentication.' }, papers: { title: 'Payroll', body: 'Monthly outgoings, carried on the dashboard right beside headcount.' }, lamp: { title: 'CRM', body: 'Who the company is talking to: its contacts, one shortcut away from the dashboard.' }, tower: { title: 'The core', body: 'Go and PostgreSQL behind every screen. System health (database state, storage, backups) is reported in the interface instead of buried on a server.' }, greenhouse: { title: 'Attendance & leave', body: 'Daily present/absent tracking, summarised as a rate for the day, with leave handled in the same system.' } } },
-  { key: 'market-district', num: '02', title: 'Client Websites', sub: 'Client work', asset: 'world_02', trigger: 'market', tier: 'world', project: 'client-websites', sign: 'CLIENT WEBSITES', tagline: 'thirteen live sites, no mockups',
-    hotspots: { sign: { title: 'Market street', body: 'Thirteen live websites for Indonesian businesses: car care, manufacturing, florists, optics, packaging, medical, marketing. Every shop on this street is a real client.' }, shelves: { title: 'Company profiles', body: 'Ten WordPress company profiles a client can hand to their own team afterwards: Dams Garage, NF Optical, Gracia Box, Orthobone, Yukti Rasa Mitrabumi and more.' }, counter: { title: 'The checkout', body: 'Two WooCommerce stores: Flora Indonesia, a florist, and Miniatur Kapal, an export-facing craft catalogue. Payments and delivery logistics are part of the build.' }, crate: { title: 'Behind the shops', body: 'A custom theme where the design demands it, Elementor where the client will edit pages themselves, and Next.js with Go when a CMS is the wrong tool, as for Winfaith.' } } },
+  { key: 'market-district', num: '02', title: 'Client Websites', sub: 'Client work', asset: 'world_02', trigger: 'market', tier: 'world', project: 'client-websites', sign: 'CLIENT WEBSITES', tagline: 'sixteen live sites, no mockups',
+    hotspots: { sign: { title: 'Market street', body: 'Sixteen live websites for Indonesian businesses: car care, manufacturing, florists, optics, packaging, medical, marketing, server racks, home decor, children\'s dress rental. Every shop on this street is a real client.' }, shelves: { title: 'Company profiles', body: 'Ten WordPress company profiles a client can hand to their own team afterwards: Dams Garage, NF Optical, Gracia Box, Orthobone, Yukti Rasa Mitrabumi and more.' }, counter: { title: 'The checkout', body: 'Three WooCommerce stores: Flora Indonesia, a florist; Miniatur Kapal, an export-facing craft catalogue; and FLS Group Indonesia, feng shui decor and LED lamps. Payments and delivery logistics are part of the build.' }, crate: { title: 'Behind the shops', body: 'A custom theme where the design demands it, Elementor where the client will edit pages themselves, and Next.js with Go when a CMS is the wrong tool, as for Winfaith.' } } },
   { key: 'tech-lab', num: '03', title: 'JAKASN', sub: 'GovTech · BKN', asset: 'world_03', trigger: 'lab', tier: 'world', project: 'jakasn', sign: 'JAKASN', tagline: 'digital publishing for the civil service',
     hotspots: { monitors: { title: 'The platform', body: 'JAKASN: a journal platform for Pusbangpeg ASN BKN, built on Open Journal Systems with a redesigned interface that fits the institution\'s branding.' }, rings: { title: 'The core', body: 'Front end in HTML, CSS and JavaScript; system integration on the back end in PHP and MySQL.' }, diagram: { title: 'The network', body: 'Work across BKN\'s enterprise-scale systems (OJS, JAKASN and BKNPEDIA) and the legacy integrations between them.' }, device: { title: 'The internship', body: 'Full-stack developer intern in the Information Systems Working Group at BKN, January to June 2025.' } } },
   { key: 'living-archive', num: '04', title: 'Education', sub: 'Informatics · UMN', asset: 'world_04', trigger: 'o', tier: 'discover', project: 'education', sign: 'EDUCATION', tagline: 'since August 2022',
@@ -66,7 +66,7 @@ export const PROJECTS = [
   { key: 'godplan-erp', title: 'GodPlan ERP', date: 'since July 2025', industry: 'HR & workforce', stack: 'Go · Next.js · TypeScript · PostgreSQL', portal: 'f1', hue: 36,
     description: 'One system for the parts of running a company that usually sprawl across four tools and a spreadsheet: employees, attendance and leave, payroll, tasks and CRM. Architecture and full-stack build for PT. Gajah Terbang Kreatif, in production, internal access only, and built for the phone too.' },
   { key: 'client-websites', title: 'Client Websites', date: 'live', industry: '10+ industries', stack: 'WordPress · WooCommerce · Next.js · Go', portal: 'f2', hue: 22,
-    description: 'Thirteen live websites for Indonesian businesses: ten WordPress company profiles, two WooCommerce stores and one Next.js and Go build. None of them is a mockup: every one is listed below and online.' },
+    description: 'Sixteen live websites for Indonesian businesses: twelve WordPress sites, three WooCommerce stores and one Next.js and Go build. None of them is a mockup: every one is listed below and online.' },
   { key: 'jakasn', title: 'JAKASN', date: 'January to June 2025', industry: 'Government (GovTech)', stack: 'PHP · MySQL · OJS · JavaScript', portal: 'f3', hue: 48,
     description: 'A journal platform for Pusbangpeg ASN BKN that integrates Open Journal Systems with a redesigned interface, for accessibility and the institution\'s branding. Front end in HTML, CSS and JavaScript; back-end integration in PHP and MySQL. Built during a full-stack internship.' },
   { key: 'winfaith', title: 'PT. Winfaith Indonesia', date: 'live', industry: 'Industrial manufacturing', stack: 'Next.js · Tailwind · Go · PostgreSQL', url: 'https://www.winfaithindonesia.com/', hue: 14,
@@ -81,7 +81,7 @@ export const PROJECTS = [
     description: 'Company profile for a flavour and fragrance manufacturer, on WordPress.' },
   { key: 'nf-optical', title: 'NF Optical', date: 'live', industry: 'Retail & medical', stack: 'WordPress · PHP · Custom UI', url: 'https://nfopticalofficial.com/', hue: 40,
     description: 'Company profile for an optical retailer, on WordPress with a custom interface.' },
-  { key: 'gajah-terbang-kreatif', title: 'PT. Gajah Terbang Kreatif', date: 'live', industry: 'Creative ecosystem', stack: 'WordPress · PHP · Creative theme', url: 'https://godjahstudio.com/', hue: 34,
+  { key: 'gajah-terbang-kreatif', title: 'PT. Gajah Terbang Kreatif', date: 'live', industry: 'Creative ecosystem', stack: 'WordPress · PHP · Creative theme', url: 'https://gajahterbangkreatif.id/', hue: 34,
     description: 'The public site of the company behind GodPlan ERP. The same client twice: a WordPress site anyone can open, and the internal platform.' },
   { key: 'gracia-box', title: 'Gracia Box', date: 'live', industry: 'Industrial packaging', stack: 'WordPress · PHP', url: 'https://graciabox.id/', hue: 18,
     description: 'Company profile for an industrial packaging business, on WordPress.' },
@@ -95,6 +95,12 @@ export const PROJECTS = [
     description: 'Site for an air-conditioning service: cleaning, repairs and installation, on WordPress with a modern interface.' },
   { key: 'izzi', title: 'Izzi', date: 'live', industry: 'Lifestyle brand', stack: 'WordPress · PHP', url: 'https://izzi-bsd.com/', hue: 56,
     description: 'Company profile for a lifestyle brand, on WordPress.' },
+  { key: 'little-aivy', title: 'Little Aivy', date: 'live', industry: 'Kids\' dress rental', stack: 'WordPress · Elementor', url: 'https://littleaivy.com/', hue: 8,
+    description: 'A rental catalogue for premium children\'s party dresses, on WordPress and Elementor: the collection, the terms, and a WhatsApp button to book.' },
+  { key: 'fortunarack', title: 'Fortunarack', date: 'live', industry: 'Server & network racks', stack: 'WordPress · Elementor', url: 'https://new.fortunarack.co.id/', hue: 210,
+    description: 'Company site for a maker of indoor and outdoor cabinets for server, networking, telecom and power infrastructure, with a product catalogue, on WordPress and Elementor.' },
+  { key: 'fls-group-indonesia', title: 'FLS Group Indonesia', date: 'live', industry: 'Feng shui decor & lighting', stack: 'WordPress · WooCommerce · Elementor', url: 'https://flsgroupindonesia.com/', hue: 42,
+    description: 'An online store on WooCommerce for feng shui porcelain, Chinese cultural art, wall decor and decorative LED lamps: catalogue, cart and checkout.' },
 ];
 
 // The who-I-am worlds (04–09) need a record to live in; they stay out of the project list, the timeline and the monitor.
@@ -104,7 +110,7 @@ export const PROJECTS = [
 // frame with a row of thumbnails under it; GALLERY_PHONE is a phone screenshot for a project without a live one (GodPlan is internal)
 export const GALLERY = { 'godplan-erp': 1, winfaith: 3, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
 export const GALLERY_PHONE = { 'godplan-erp': 'shots/gallery/godplan-erp-m.webp' };
-export const SHOTS = ['winfaith', 'flora-indonesia', 'dams-garage', 'yukti-rasa-mitrabumi', 'nf-optical', 'gracia-box', 'orthobone', 'recon', 'izzi'];
+export const SHOTS = ['winfaith', 'flora-indonesia', 'dams-garage', 'yukti-rasa-mitrabumi', 'nf-optical', 'gracia-box', 'orthobone', 'recon', 'izzi', 'little-aivy', 'fortunarack', 'fls-group-indonesia'];
 
 // The keyboard read as a story, in the order it happened. Each stop is a place on the board (its target id), when it was, and a
 // line or two; the bookmark key (or T) walks it, and the keys between two stops light up as if the story were being typed.
@@ -115,7 +121,7 @@ export const STORY = [
   { at: 'x', when: '2023 to 2024', title: 'Early days', body: 'Field work first: smart TVs carried up the stairs at Pertamina Simprug with a crew of four, then 341 laptops re-imaged in two days for a BNI procurement.' },
   { at: 'lab', when: 'January to June 2025', title: 'JAKASN', body: 'Full-stack developer intern at BKN: JAKASN, a journal platform for the civil service on Open Journal Systems, in PHP and MySQL.' },
   { at: 'signal', when: 'since July 2025', title: 'GodPlan ERP', body: 'At PT. Gajah Terbang Kreatif, leading GodPlan ERP: one system for employees, attendance, payroll and CRM, in Go and Next.js. The crane is still up.' },
-  { at: 'market', when: 'live today', title: 'Client websites', body: 'Thirteen live websites for Indonesian businesses. Every shop on this street is a real client, and the lot at the top is still free.' },
+  { at: 'market', when: 'live today', title: 'Client websites', body: 'Sixteen live websites for Indonesian businesses. Every shop on this street is a real client, and the lot at the top is still free.' },
   { at: 'f8', when: 'the long view', title: 'Career', body: 'From freelance technician to leading an ERP build, one camp at a time. The next camp is not on the map yet.' },
   { at: 'enter', when: 'every day', title: 'The workshop', body: 'Where all of it gets made. Go inside for the rest of who I am, or say hello: WhatsApp is the fastest way to reach me.' },
 ];

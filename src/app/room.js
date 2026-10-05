@@ -715,10 +715,11 @@ export function buildRoom(root) {
   b.put(quad(sw - 3.2, topY - FLOOR), furn('#ffffff', { color: [0.9, 0.88, 0.85], map: shelfBackTexture(), amb: 1.0 }), [sx, (topY + FLOOR) / 2, BACK + 1.15]);
   const stripLed = dim(new Material({ color: [0, 0, 0], emissive: color('#ffd2a0').map((v) => v * 1.6), unlit: true, receiveShadow: false }), 'emissive');
   for (const y of SHELF.rows.slice(1)) { b.put(box(sw - 4.2, 0.3, 0.9), bronze, [sx, y - 1.35, sz + sd / 2 - 1.7]); b.put(box(sw - 4.6, 0.08, 0.6), stripLed, [sx, y - 1.53, sz + sd / 2 - 1.7]); }
-  const bookRows = [SHELF.rows[2], SHELF.rows[1]];
+  // two rows between the same bookends (22 units each): eight books a row at 2.75 apart, closer and a little thinner when there are more
+  const bookRows = [SHELF.rows[2], SHELF.rows[1]], perRow = Math.max(8, Math.ceil(PROJECTS.length / 2)), step = 22 / perRow;
   PROJECTS.forEach((p, i) => {
-    const row = bookRows[Math.floor(i / 8)] ?? bookRows[1]; const k = i % 8; const rr = rng(i * 7 + 3);
-    const t = 1.9 + rr() * 0.7, hgt = 9.5 + rr() * 3, d = 8 + rr() * 0.8;
+    const row = bookRows[Math.floor(i / perRow)] ?? bookRows[1]; const k = i % perRow; const rr = rng(i * 7 + 3);
+    const t = Math.min(1.9 + rr() * 0.7, step - 0.2), hgt = 9.5 + rr() * 3, d = 8 + rr() * 0.8;
     // the body samples the texture's plain corner on every face (its top too: roundedBox maps the whole texture onto the top
     // by default, which would squash the spine onto it); only the spine quad carries the spine
     const body = roundedBox({ w: t, h: hgt, d, r: 0.12, seg: 2 }); body.uvs.fill(0.02);
@@ -726,7 +727,7 @@ export function buildRoom(root) {
     // (the shelf's LED strips light the spines, so they carry more of their own colour than the furniture around them)
     const mat = furn('#ffffff', { color: [0.8, 0.78, 0.74], map: spineTexture(p), roughness: 0.6, amb: 0.95 });
     const node = new Node('book:' + p.key);
-    const slotX = SHELF.x0 + 3.2 + k * 2.75 + (i >= 8 ? 4 : 0);
+    const slotX = SHELF.x0 + 3.2 + (k + 0.5) * step - 1.375 + (i >= perRow ? 4 : 0);
     node.position = [slotX, row + hgt / 2, BACK + 0.4 + sd - d / 2 - 0.6];
     node.userData = { book: p.key, interactive: true, glow: 0, targetGlow: 0, restZ: node.position[2] };
     const mesh = new Mesh(geo, mat, 'book'); mesh.castShadow = false; mesh.pickable = true; mesh.userData = { ownerKey: node };
@@ -734,7 +735,8 @@ export function buildRoom(root) {
   });
   // bookends, and the rest of the shelves: things that are not projects
   const bookend = (x, y) => { b.put(box(0.5, 6, 6), bronze, [x, y + 3, sz + 1]); b.put(box(3, 0.4, 6), bronze, [x + (x < sx ? -1.2 : 1.2), y + 0.2, sz + 1]); };
-  bookend(SHELF.x0 + 3.2 + 8 * 2.75 + 0.4, SHELF.rows[2]); bookend(SHELF.x0 + 3.2 + 4 - 1.6, SHELF.rows[1]); bookend(SHELF.x0 + 3.2 + 4 + 8 * 2.75 + 0.4, SHELF.rows[1]);
+  // the right-hand bookends stand against the last book of each row
+  bookend(SHELF.x0 + 3.2 + (Math.min(perRow, PROJECTS.length) - 0.5) * step + 0.3, SHELF.rows[2]); bookend(SHELF.x0 + 3.2 + 4 - 1.6, SHELF.rows[1]); bookend(SHELF.x0 + 3.2 + 4 + (Math.max(1, PROJECTS.length - perRow) - 0.5) * step + 0.3, SHELF.rows[1]);
   const fabric = furn('#3a2216', { amb: 0.7 }), cream = furn('#cdb994', { amb: 0.7 }), ember = furn('#7a3a1c', { amb: 0.7 });
   // books lying flat: a cover board above and below, the spine along the back (to the wall), and the page block showing between
   // the boards on the other three sides, set a hair inside them, its edge fine-lined with the leaves

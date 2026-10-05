@@ -2,7 +2,7 @@
 // visitors who would rather read than explore. The monitor opens it, and #site opens it straight away, over the loading
 // screen or the gate, so a link sent to a recruiter needs no 3D at all. "Explore the 3D desk" puts it away. Every line comes
 // from app/data: nothing here is new copy except the section names.
-import { SITE, PROJECTS, WORLDS, SHOTS, STORY } from 'app/data';
+import { SITE, PROJECTS, WORLDS, SHOTS, STORY, GALLERY } from 'app/data';
 import { setRoute } from 'app/router';
 
 const CSS = `
@@ -138,8 +138,8 @@ function html() {
       <span class="s-eyebrow s-mono">work</span><h2>Selected projects</h2>
       <div class="s-feature">${featured.map((p) => `<div class="s-card"><span class="s-meta s-mono">${esc(p.date)} · ${esc(p.industry)}</span><h3>${esc(p.title)}</h3><span class="s-stack s-mono">${esc(p.stack)}</span><p>${esc(p.description)}</p><button type="button" class="s-link" data-world="${worldOf(p)}">Explore it in 3D →</button></div>`).join('')}</div>
       <h3 class="s-sub">Live client websites</h3>
-      <div class="s-sites">${sites.map((p) => `<a class="s-site" href="${esc(p.url)}" ${ext}>${SHOTS.includes(p.key)
-        ? `<img class="s-shot" src="shots/${p.key}.webp" alt="${esc(p.title)} website" loading="lazy" decoding="async">`
+      <div class="s-sites">${sites.map((p) => `<a class="s-site" href="${esc(p.url)}" ${ext}>${GALLERY[p.key] || SHOTS.includes(p.key)
+        ? `<img class="s-shot" src="${GALLERY[p.key] ? `shots/gallery/${p.key}-1.webp` : `shots/${p.key}.webp`}" alt="${esc(p.title)} website" loading="lazy" decoding="async">`
         : `<span class="s-ph" aria-hidden="true"><b>${esc(p.title)}</b><small>${esc(new URL(p.url).hostname.replace(/^www\./, ''))}</small></span>`}
         <div class="s-site-body"><h4>${esc(p.title)}</h4><span>${esc(p.industry)} · ${esc(p.stack)}</span></div></a>`).join('')}</div>
     </div></section>
