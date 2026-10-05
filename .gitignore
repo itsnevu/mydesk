@@ -5,3 +5,5 @@ _to_delete
 *.blend1
 .claude
 .vercel
+# the original background track (89 MB): public/bgsound.m4a is the compressed one that ships
+public/bgsound.mp3

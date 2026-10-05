@@ -1,8 +1,10 @@
-// Synthesized room tone and key sounds, no audio files, respects autoplay rules.
+// The background track (public/bgsound.m4a, streamed) and synthesized key sounds; respects autoplay rules.
+// If the track can't play (a file:// build, a failed load) a synthesized pad takes its place.
 // One bus → compressor → soft clip, so stacked sounds never clip; while sound is off nothing is built at all.
 
 const rnd = (a, b) => a + Math.random() * (b - a);
 const MUSIC = 0.2;          // pad level: a bed under the clicks, never over them
+const TRACK = 'bgsound.m4a', TRACK_LEVEL = 0.34;   // the music: an hour-long track, looped, under the clicks
 const MAX_VOICES = 48;      // spam guard: past this, new one-shots are dropped instead of piling up
 // gentle chord cycle in D minor-ish, root note low
 const CHORDS = [[146.83, 220, 261.63, 349.23], [130.81, 196, 261.63, 311.13], [174.61, 220, 261.63, 392], [116.54, 174.61, 233.08, 293.66]];
@@ -15,7 +17,7 @@ class AudioEngine {
     this.unlocked = false;    // a user gesture has happened
     this.hidden = false;
     this.listeners = new Set();
-    this._pad = null; this._live = 0; this._hoverAt = -1; this._hoverHeat = 0; this._confirmAt = -1;
+    this._pad = null; this._track = null; this._trackFailed = false; this._trackPause = 0; this._live = 0; this._hoverAt = -1; this._hoverHeat = 0; this._confirmAt = -1;
     // iOS/Safari drop a running context to suspended/interrupted (calls, lock screen) and only a gesture may resume it
     if (typeof window !== 'undefined') { const kick = () => { if (this.ctx && this.unlocked && this.enabled && !document.hidden && this.ctx.state !== 'running') this._resume(); }; for (const e of ['pointerdown', 'touchend', 'keydown']) window.addEventListener(e, kick, { capture: true, passive: true }); }
   }
@@ -34,6 +36,8 @@ class AudioEngine {
     const clip = ctx.createWaveShaper(); clip.curve = this._ceiling();
     this.master.connect(comp); comp.connect(clip); clip.connect(ctx.destination);
     this.musicGain = ctx.createGain(); this.musicGain.gain.value = 0;
+    // the track has its own fader straight to the master: it is mixed already, so it skips the room's reverb
+    this.trackGain = ctx.createGain(); this.trackGain.gain.value = 0; this.trackGain.connect(this.master);
     this.sfxGain = ctx.createGain(); this.sfxGain.gain.value = 1;
     // one room for everything: the pad sits in it, the clicks only touch it
     const conv = ctx.createConvolver(); conv.buffer = this._impulse(2.8, 2.5);
@@ -54,8 +58,21 @@ class AudioEngine {
   _ceiling() { const n = 2049, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1, a = Math.abs(x); c[i] = Math.sign(x) * (a < 0.6 ? a : 0.6 + 0.36 * Math.tanh((a - 0.6) / 0.36)); } return c; }
   _resume() { const c = this.ctx; if (!c || c.state === 'running' || c.state === 'closed') return; try { const p = c.resume(); if (p && p.catch) p.catch(() => {}); } catch {} }
   // muted with the pad gone: stop the audio thread entirely (battery); setEnabled(true) resumes it inside its gesture
-  _sleep() { const c = this.ctx; if (!c || this.enabled || this._pad || c.state !== 'running' || !c.suspend) return; try { const p = c.suspend(); if (p && p.catch) p.catch(() => {}); } catch {} }
-  // ----- music: built on demand, torn down once silent, never two at once
+  _sleep() { const c = this.ctx; if (!c || this.enabled || this._pad || (this._track && !this._track.paused) || c.state !== 'running' || !c.suspend) return; try { const p = c.suspend(); if (p && p.catch) p.catch(() => {}); } catch {} }
+  // ----- music: the track, streamed (only what is heard is downloaded); paused once faded out, so it picks up where it was
+  get _useTrack() { return !this._trackFailed && typeof location !== 'undefined' && location.protocol !== 'file:'; }
+  _trackStart() {
+    clearTimeout(this._trackPause); this._trackPause = 0;
+    if (!this._track) {
+      const a = new Audio(); a.src = TRACK; a.loop = true; a.preload = 'none';
+      a.addEventListener('error', () => { this._trackFailed = true; if (this.playing) this._fadeMusic(true); });
+      try { this.ctx.createMediaElementSource(a).connect(this.trackGain); } catch { this._trackFailed = true; return; }
+      this._track = a;
+    }
+    if (!this.hidden) { const p = this._track.play(); if (p && p.catch) p.catch(() => {}); }
+  }
+  _trackStop() { clearTimeout(this._trackPause); this._trackPause = setTimeout(() => { if (!this.playing && this._track) { this._track.pause(); this._sleep(); } }, 1600); }
+  // ----- the fallback pad: built on demand, torn down once silent, never two at once
   _padStart() {
     if (this._pad) { clearTimeout(this._pad.kill); this._pad.kill = 0; return; }
     const ctx = this.ctx, t = ctx.currentTime;
@@ -97,11 +114,14 @@ class AudioEngine {
   }
   _fadeMusic(on) {
     if (!this.ctx) return;
-    if (on) this._padStart();
+    const track = this._useTrack;
+    if (on) { if (track) this._trackStart(); else this._padStart(); }
+    if (on && !track && this._track) this._track.pause();   // (the track just failed: the pad takes over)
     // setTarget picks up from wherever the last fade got to, so rapid toggles glide instead of popping
-    const g = this.musicGain.gain, t = this.ctx.currentTime;
-    g.cancelScheduledValues(t); g.setTargetAtTime(on ? MUSIC : 0, t, on ? 1 : 0.3);
-    if (!on) this._padStop();
+    const t = this.ctx.currentTime;
+    for (const [g, level] of [[this.trackGain.gain, track ? TRACK_LEVEL : 0], [this.musicGain.gain, track ? 0 : MUSIC]]) { g.cancelScheduledValues(t); g.setTargetAtTime(on ? level : 0, t, on ? 1 : 0.3); }
+    if (!on || track) this._padStop();
+    if (!on) this._trackStop();
     this.playing = !!on;
   }
   setEnabled(v) {
@@ -112,7 +132,12 @@ class AudioEngine {
   }
   toggle() { this.setEnabled(!this.enabled); }
   /** Tab visibility: freeze the clock while hidden, wake only if there is something to hear. */
-  setHidden(h) { this.hidden = !!h; if (!this.ctx) return; if (h) { try { const p = this.ctx.suspend(); if (p && p.catch) p.catch(() => {}); } catch {} } else if (this.enabled && this.unlocked) this._resume(); }
+  setHidden(h) {
+    this.hidden = !!h; if (!this.ctx) return;
+    // the track pauses with the tab (a suspended context would let it run on silently and lose its place)
+    if (h) { if (this._track) this._track.pause(); try { const p = this.ctx.suspend(); if (p && p.catch) p.catch(() => {}); } catch {} }
+    else if (this.enabled && this.unlocked) { this._resume(); if (this.playing && this._useTrack && this._track) { const p = this._track.play(); if (p && p.catch) p.catch(() => {}); } }
+  }
   // ----- sfx building blocks: every node frees itself when its source ends
   _t() { return this.ctx && this.unlocked && this.enabled && this._live < MAX_VOICES ? this.ctx.currentTime : -1; }
   _env(v, t, a, d, g) { v.gain.setValueAtTime(0, t); v.gain.linearRampToValueAtTime(g, t + a); v.gain.exponentialRampToValueAtTime(g * 1e-3, t + a + d); v.gain.linearRampToValueAtTime(0, t + a + d + 0.01); return t + a + d + 0.02; }
