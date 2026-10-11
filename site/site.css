@@ -1308,3 +1308,54 @@ body.menu-open { overflow: hidden; }
 .p-hero .shot-main > img { view-transition-name: shot; }
 .js.vt-in .p-hero [data-reveal="clip"] { clip-path: inset(-30% -30% -30% -30% round 0); transition: none; }
 @media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
+
+/* ---------- 2026-10-12, three languages: the switch in the header, the Chinese faces, the case study, the architecture diagram,
+   and the second way to send the brief */
+.head-in { display: flex; align-items: center; gap: 18px; }
+.lang { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; padding: 4px; border: 1px solid var(--line-2); border-radius: 999px; background: rgba(14, 12, 9, 0.55); backdrop-filter: blur(8px); }
+.lang a { display: inline-flex; align-items: center; justify-content: center; min-width: 38px; height: 30px; padding: 0 10px; border-radius: 999px; font: 700 12px/1 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); transition: color 0.25s, background 0.25s; }
+.lang a[lang="zh-Hans"] { letter-spacing: 0.06em; font-family: var(--cond), "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif; }
+.lang a:hover, .lang a:focus-visible { color: var(--ink); }
+.lang a[aria-current="true"] { background: var(--ink); color: #140f09; }
+.cream .lang { border-color: var(--cream-line); background: rgba(235, 227, 210, 0.6); }
+@media (max-width: 900px) { .head-in { gap: 10px; } .lang { padding: 3px; } .lang a { min-width: 32px; height: 28px; padding: 0 7px; font-size: 11px; } }
+@media (max-width: 400px) { .lang a { min-width: 28px; padding: 0 5px; letter-spacing: 0.04em; } }
+/* Chinese: the site's faces carry no Han glyphs, so the system's follow, and the Latin rules that assume capitals relax */
+html[lang="zh-Hans"] { --cond: "Barlow Condensed", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif; --serif: "Instrument Serif", "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif; --text: "Newsreader", "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif; }
+html[lang="zh-Hans"] .lbl, html[lang="zh-Hans"] .kick, html[lang="zh-Hans"] .btn, html[lang="zh-Hans"] .case-meta, html[lang="zh-Hans"] .case-cta, html[lang="zh-Hans"] .ml-sub, html[lang="zh-Hans"] .hero-facts li, html[lang="zh-Hans"] .t-items span, html[lang="zh-Hans"] .did-mods li, html[lang="zh-Hans"] .p-meta dt, html[lang="zh-Hans"] .copy-a, html[lang="zh-Hans"] .pill span, html[lang="zh-Hans"] .pill-f span { letter-spacing: 0.06em; }
+html[lang="zh-Hans"] .cap, html[lang="zh-Hans"] .serif-h, html[lang="zh-Hans"] .case-title, html[lang="zh-Hans"] .p-title, html[lang="zh-Hans"] .teaser-title, html[lang="zh-Hans"] .contact-title { line-height: 1.12; }
+html[lang="zh-Hans"] .hero-title { font-size: clamp(36px, 4vw, 72px); }
+html[lang="zh-Hans"] .who-p { line-height: 1.3; font-size: clamp(26px, 2.9vw, 48px); }
+html[lang="zh-Hans"] .t-title, html[lang="zh-Hans"] .pt-role, html[lang="zh-Hans"] .notes h3, html[lang="zh-Hans"] .how strong, html[lang="zh-Hans"] .diff-step { letter-spacing: 0.02em; }
+html[lang="zh-Hans"] .roll .ch { letter-spacing: 0.04em; }
+/* the case study: the problem and the approach side by side, the decisions as numbered notes, what comes next in italic */
+.story { padding-top: clamp(110px, 11vw, 170px); }
+.story-head { display: grid; gap: 18px; margin-bottom: clamp(36px, 4.5vw, 60px); }
+.story-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(24px, 4vw, 64px); margin-bottom: clamp(36px, 4.5vw, 60px); }
+.story-col { display: grid; gap: 14px; align-content: start; }
+.story-col p { font-size: clamp(18px, 1.45vw, 22px); line-height: 1.55; color: var(--ink); text-wrap: pretty; }
+.story-notes li { padding: 24px 0; }
+.story-next { margin-top: clamp(28px, 3.5vw, 44px); max-width: 40em; font: italic 400 clamp(21px, 1.7vw, 28px)/1.3 var(--serif); color: var(--acc, var(--accent-2)); text-wrap: pretty; }
+/* the architecture diagram: modules on top, the API in the middle, the database under it; a lit module paints its path */
+.arch { padding-top: clamp(110px, 11vw, 170px); }
+.arch-lead { max-width: 34em; margin: -8px 0 clamp(24px, 3vw, 40px); color: var(--dim); font-size: 18px; }
+.arch-fig { margin: 0; }
+.arch-svg { display: block; width: 100%; height: auto; overflow: visible; font-family: var(--cond); }
+.arch-svg .am rect { fill: rgba(255, 255, 255, 0.03); stroke: var(--line-2); stroke-width: 1; transition: fill 0.3s, stroke 0.3s; }
+.arch-svg .am text { font: 700 15px var(--cond); letter-spacing: 0.08em; text-transform: uppercase; fill: var(--ink); }
+.arch-svg .am { cursor: pointer; outline: none; }
+.arch-svg .am:hover rect, .arch-svg .am:focus-visible rect, .arch-svg .am.on rect { fill: rgba(217, 160, 91, 0.12); stroke: var(--acc, var(--accent)); }
+.arch-svg .an rect { fill: rgba(255, 255, 255, 0.04); stroke: var(--line-2); }
+.arch-svg .an .at { font: 700 17px var(--cond); letter-spacing: 0.1em; text-transform: uppercase; fill: var(--ink); }
+.arch-svg .an .as { font: 400 12px var(--text); fill: var(--dim); }
+.arch-svg .an--api rect { stroke: var(--acc, var(--accent)); }
+.arch-svg .al { fill: none; stroke: var(--line-2); stroke-width: 1.5; transition: stroke 0.3s, opacity 0.3s; }
+.arch-svg.lit .al:not(.on):not(.al--db) { opacity: 0.35; }
+.arch-svg .al.on, .arch-svg.lit .al--db { stroke: var(--acc, var(--accent)); stroke-width: 2.5; stroke-dasharray: 6 8; animation: arch-flow 1.2s linear infinite; }
+@keyframes arch-flow { to { stroke-dashoffset: -28; } }
+.arch-say { margin-top: 18px; min-height: 3.2em; font: italic 400 clamp(18px, 1.4vw, 22px)/1.45 var(--serif); color: var(--ink); text-wrap: pretty; }
+html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at { letter-spacing: 0.04em; }
+/* the brief: WhatsApp first, email as the quieter second */
+.brief-send { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+@media (max-width: 900px) { .story-grid { grid-template-columns: 1fr; } .arch-svg .am text { font-size: 18px; } .arch-say { font-size: 17px; } }
+@media (prefers-reduced-motion: reduce), print { .arch-svg .al.on, .arch-svg.lit .al--db { animation: none; } }

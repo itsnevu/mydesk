@@ -9,6 +9,11 @@
   // a link shared before the split (navygibran.dev/#project-x, /#note) belongs to the 3D desk: a project goes to its page here,
   // anything else the desk knows goes to the desk
   const DESK = __DESK_TARGETS__, PROJECTS = __PROJECTS__, INDEX = __INDEX__;
+  // the page's language: its path prefix ('' for Indonesian, '/en', '/zh') and the few words this script says itself
+  const PFX = __PREFIX__, LANG = __LANG__, JT = __JS_T__;
+  const jt = (k, vars) => String(JT[k] ?? k).replace(/\{(\w+)\}/g, (m, v) => (vars && v in vars ? vars[v] : m));
+  // the language switch remembers the choice (the default pages forward to it on arrival)
+  document.querySelectorAll('.lang a[data-lang]').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('nv-lang', a.dataset.lang); } catch {} }));
   const h0 = location.hash.slice(1);
   if (h0 && location.pathname === '/' && !document.getElementById(h0)) {
     const m = h0.match(/^project-(.+)$/);
@@ -598,7 +603,7 @@
     const text = b.dataset.copy; let ok = false;
     try { await navigator.clipboard.writeText(text); ok = true; } catch {}
     if (!ok) { try { const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0'; document.body.append(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch {} }
-    toast(ok ? (text.includes('@') ? 'Email copied' : 'Number copied') : (b.querySelector('.copy-n')?.textContent || text));
+    toast(ok ? (text.includes('@') ? jt('emailCopied') : jt('numberCopied')) : (b.querySelector('.copy-n')?.textContent || text));
     track('contact_click', { channel: 'copy-number' });
   }));
 
@@ -619,7 +624,8 @@
   };
   // the one message, for the preview and for the button alike; what is still missing shows as a gap in the preview
   const briefParts = (f) => { const d = new FormData(f); return { kind: d.get('kind') || '', name: String(d.get('name') || '').trim(), idea: String(d.get('text') || '').trim() }; };
-  const briefText = ({ kind, name, idea }) => `Hi Navy! I’m ${name}.${kind ? ` ${kind}:` : ''} ${idea}`;
+  const briefText = ({ kind, name, idea }) => `${jt('briefHi', { name })}${kind ? ` ${kind}:` : ''} ${idea}`;
+  const [briefHiA, briefHiB] = jt('briefHi', { name: '\u0001' }).split('\u0001');
   document.querySelectorAll('form.brief').forEach((f) => {
     f.noValidate = true;
     f.querySelectorAll('[required]').forEach((el) => el.addEventListener('input', () => { if (el.value.trim()) briefMark(el, false); }));
@@ -630,7 +636,7 @@
       const p = briefParts(f), any = !!(p.name || p.idea);
       pv.classList.toggle('on', any);
       if (!any) return;
-      msg.replaceChildren("Hi Navy! I’m ", p.name || gap(), `.${p.kind ? ` ${p.kind}:` : ''} `, p.idea || gap());
+      msg.replaceChildren(briefHiA, p.name || gap(), `${briefHiB}${p.kind ? ` ${p.kind}:` : ''} `, p.idea || gap());
     };
     f.addEventListener('input', paint); f.addEventListener('change', paint);
     paint();
@@ -643,7 +649,14 @@
     track('contact_click', { channel: 'brief', kind: kind || '' });
     const waUrl = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`, w = window.open(waUrl, '_blank');
     if (w) { try { w.opener = null; } catch {} } else location.href = waUrl;
-    toast('Opening WhatsApp');
+    toast(jt('openingWa'));
+  }));
+  // the same brief by email: the mail app opens with the message written (the address is on the form)
+  document.querySelectorAll('form.brief [data-mail-send]').forEach((b) => b.addEventListener('click', () => {
+    const f = b.closest('form'); if (!f || !briefReady(f)) return;
+    const parts = briefParts(f);
+    track('contact_click', { channel: 'email', kind: parts.kind || '' });
+    location.href = `mailto:${f.dataset.mail || ''}?subject=${encodeURIComponent(jt('mailSubject'))}&body=${encodeURIComponent(briefText(parts))}`;
   }));
 
   // ---------- the labels in brackets decode into place the first time they are seen
@@ -675,17 +688,17 @@
   if (typeof HTMLDialogElement === 'function' && INDEX) {
     const mac = /Mac|iPhone|iPad/.test(navigator.userAgentData?.platform || navigator.platform || '');
     document.querySelectorAll('[data-kbd]').forEach((k) => { k.textContent = mac ? '⌘ K' : 'Ctrl K'; });
-    const onHome = location.pathname === '/';
+    const onHome = location.pathname === `${PFX}/`;
     const items = [
-      ...[['Selected work', '/#work', 'Six projects, up close'], ['All projects', '/work/', `Every one of the ${INDEX.p.length}`], ['Clients', '/#clients', 'Who trusted me'], ['What I build', '/#territories', 'Six territories'], ['The path', '/#path', 'From the stairs'], ['Contact', '/#contact', 'Your turn'], ['The 3D desk', '/3d/', 'The other way in'], ['Home', '/', 'navygibran.dev']]
-        .map(([t, href, d]) => ({ g: 'Go to', t, d, href })),
-      ...INDEX.p.map(([key, t, d, s, bg, kind], i) => ({ g: 'Projects', n: String(i + 1).padStart(2, '0'), t, d, s: `${s} ${kind}`, href: `/work/${key}/`, bg, here: location.pathname === `/work/${key}/` })),
-      ...INDEX.l.map(([t, href]) => ({ g: 'Elsewhere', t, d: href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), href, ext: true })),
+      ...[[jt('selectedWork'), `${PFX}/#work`, jt('sixClose')], [jt('allProjects'), `${PFX}/work/`, jt('everyOne', { n: INDEX.p.length })], [jt('clients'), `${PFX}/#clients`, jt('whoTrusted')], [jt('whatIBuild'), `${PFX}/#territories`, jt('territories')], [jt('thePath'), `${PFX}/#path`, jt('fromStairs')], [jt('contact'), `${PFX}/#contact`, jt('yourTurn')], [jt('theDesk'), '/3d/', jt('otherWay')], [jt('home'), `${PFX}/`, 'navygibran.dev']]
+        .map(([t, href, d]) => ({ g: jt('goTo'), t, d, href })),
+      ...INDEX.p.map(([key, t, d, s, bg, kind], i) => ({ g: jt('projects'), n: String(i + 1).padStart(2, '0'), t, d, s: `${s} ${kind}`, href: `${PFX}/work/${key}/`, bg, here: location.pathname === `${PFX}/work/${key}/` })),
+      ...INDEX.l.map(([t, href]) => ({ g: jt('elsewhere'), t, d: href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), href, ext: true })),
     ];
     const ico = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
     const pal = document.createElement('dialog');
-    pal.className = 'pal'; pal.setAttribute('aria-label', 'Find a project or a part of the site');
-    pal.innerHTML = `<div class="pal-bar">${ico}<input class="pal-in" type="search" role="combobox" aria-label="Find a project, a client, a tool or a part of the site" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" placeholder="A project, a client, a tool, a part of the page" autocomplete="off" spellcheck="false"><button class="pal-esc" type="button" aria-label="Close">esc</button></div>`
+    pal.className = 'pal'; pal.setAttribute('aria-label', jt('palAria'));
+    pal.innerHTML = `<div class="pal-bar">${ico}<input class="pal-in" type="search" role="combobox" aria-label="${jt('palInput')}" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" placeholder="${jt('palPh')}" autocomplete="off" spellcheck="false"><button class="pal-esc" type="button" aria-label="Close">esc</button></div>`
       + `<ul class="pal-list" id="pal-list" role="listbox" aria-label="Results"></ul>`
       + `<div class="pal-foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> choose</span><span><kbd>↵</kbd> go</span><span><kbd>esc</kbd> close</span></div>`;
     document.body.append(pal);
@@ -736,7 +749,7 @@
       if (pal.open) return;
       if (menuOpen) setMenu(false);
       input.value = ''; sel = 0; paint();
-      input.placeholder = innerWidth < 560 ? 'Find a project or a client' : 'A project, a client, a tool, a part of the page';
+      input.placeholder = innerWidth < 560 ? jt('palPhShort') : jt('palPh');
       pal.showModal(); locked = true; input.focus();
       track('palette_open', { path: location.pathname });
     };
@@ -768,9 +781,9 @@
     const lb = document.createElement('dialog');
     lb.className = 'lb'; lb.setAttribute('aria-label', 'Screenshots');
     lb.innerHTML = `<figure class="lb-fig"><img class="lb-img" alt=""><figcaption class="lb-cap"><span class="lb-n"></span><span class="lb-t"></span></figcaption></figure>`
-      + `<button class="lb-x" type="button" aria-label="Close">${ico('M6 6l12 12M18 6L6 18')}</button>`
-      + `<button class="lb-p" type="button" aria-label="Previous screenshot">${ico('M15 5l-7 7 7 7')}</button>`
-      + `<button class="lb-nx" type="button" aria-label="Next screenshot">${ico('M9 5l7 7-7 7')}</button>`;
+      + `<button class="lb-x" type="button" aria-label="${jt('close')}">${ico('M6 6l12 12M18 6L6 18')}</button>`
+      + `<button class="lb-p" type="button" aria-label="${jt('prevShot')}">${ico('M15 5l-7 7 7 7')}</button>`
+      + `<button class="lb-nx" type="button" aria-label="${jt('nextShot')}">${ico('M9 5l7 7-7 7')}</button>`;
     document.body.append(lb);
     const big = lb.querySelector('.lb-img'), num = lb.querySelector('.lb-n'), cap = lb.querySelector('.lb-t');
     let at = 0;
@@ -824,7 +837,7 @@
   document.querySelectorAll('.motion').forEach((b) => {
     const off = root.classList.contains('motion-off');
     b.setAttribute('aria-pressed', String(off));
-    b.innerHTML = `Motion <b>${off ? 'off' : 'on'}</b>`;
+    b.innerHTML = `${jt('motion')} <b>${off ? jt('motionOff') : jt('motionOn')}</b>`;
     b.title = off ? 'Turn the animations back on' : 'Turn the animations off';
     b.addEventListener('click', () => {
       try { if (off) localStorage.removeItem('nv-motion'); else localStorage.setItem('nv-motion', 'off'); } catch {}
@@ -889,6 +902,20 @@
     const top = teaserEl.getBoundingClientRect().top + scrollY;
     scrollToY(top + teaserEl.offsetHeight - vh);
   });
+
+  // ---------- GodPlan's architecture diagram: a module under the pointer (or focus) lights its path to the API and the database,
+  // and the caption says what travels; leaving it puts the resting line back
+  const archFig = document.querySelector('.arch-fig');
+  if (archFig) {
+    let notes = {}; try { notes = JSON.parse(document.getElementById('arch-notes')?.textContent || '{}'); } catch {}
+    const say = archFig.querySelector('.arch-say'), svg = archFig.querySelector('svg');
+    const light = (mod) => { svg.querySelectorAll('[data-mod]').forEach((el) => el.classList.toggle('on', !!mod && el.dataset.mod === mod)); svg.classList.toggle('lit', !!mod); if (say) say.textContent = mod && notes[mod] ? notes[mod] : say.dataset.idle; };
+    svg.querySelectorAll('.am').forEach((g) => {
+      g.addEventListener('pointerenter', () => light(g.dataset.mod)); g.addEventListener('pointerleave', () => light(null));
+      g.addEventListener('focus', () => light(g.dataset.mod)); g.addEventListener('blur', () => light(null));
+      g.addEventListener('click', () => light(g.classList.contains('on') ? null : g.dataset.mod));
+    });
+  }
 
   // ---------- selected work: the pictures tilt toward the pointer (a mouse, motion on); the phone shot sits a little in front
   if (fine && !reduce) document.querySelectorAll('.case-in').forEach((a) => {
