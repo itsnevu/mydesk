@@ -9,7 +9,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LANGS, DEFAULT_LANG, LANG_ORDER, UI, CONTENT, fill } from './i18n.js';
+import { LANGS, DEFAULT_LANG, LANG_ORDER, OTHER_PREFIXES, UI, CONTENT, fill } from './i18n.js';
 import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META } from './labs.js';
 
@@ -246,7 +246,7 @@ function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jp
   const alts = LANG_ORDER.map((l) => `<link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pathname}">`).join('\n') + `\n<link rel="alternate" hreflang="x-default" href="${ORIGIN}${LANGS[DEFAULT_LANG].prefix}${pathname}">`;
   // (never from a path that already carries a prefix, and never from the 404 page: an old server that does not know /en/ would
   // answer it with this page, and the forward would then add /en/ again and again)
-  const forward = LANG === DEFAULT_LANG && pathname !== '/404' ? `try{var pl=localStorage.getItem('nv-lang');if(pl&&pl!=='${DEFAULT_LANG}'&&/^(en|zh)$/.test(pl)&&!/^\\/(en|zh)(\\/|$)/.test(location.pathname)&&window.top===window.self){location.replace('/'+pl+location.pathname+location.search+location.hash)}}catch(e){}` : '';
+  const forward = LANG === DEFAULT_LANG && pathname !== '/404' ? `try{var pl=localStorage.getItem('nv-lang');if(pl&&pl!=='${DEFAULT_LANG}'&&/^(${OTHER_PREFIXES})$/.test(pl)&&!/^\\/(${OTHER_PREFIXES})(\\/|$)/.test(location.pathname)&&window.top===window.self){location.replace('/'+pl+location.pathname+location.search+location.hash)}}catch(e){}` : '';
   return `<!doctype html>
 <html lang="${L.html}" class="no-js">
 <head>

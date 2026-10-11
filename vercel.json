@@ -5,7 +5,9 @@
   "outputDirectory": "dist",
   "trailingSlash": true,
   "redirects": [
-    { "source": "/:path*", "has": [{ "type": "host", "value": "3d.navygibran.dev" }], "destination": "https://navygibran.dev/3d/", "permanent": false }
+    { "source": "/:path*", "has": [{ "type": "host", "value": "3d.navygibran.dev" }], "destination": "https://navygibran.dev/3d/", "permanent": false },
+    { "source": "/en", "destination": "/", "permanent": true },
+    { "source": "/en/:path*", "destination": "/:path*", "permanent": true }
   ],
   "rewrites": [
     { "source": "/3d/shots/:path*", "destination": "/shots/:path*" },

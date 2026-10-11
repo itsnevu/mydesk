@@ -3,13 +3,16 @@
 // name comes from here; the English column is the source the other two were written from. No dashes anywhere (Navy's rule).
 // Project copy (descriptions, what was done, the worlds' notes) is in i18n-projects.js.
 
+// (English is the default at /, Navy's call of 2026-10-12 after a day with Indonesian there; Indonesian moved to /id/)
 export const LANGS = {
-  id: { code: 'id', prefix: '', html: 'id', og: 'id_ID', short: 'ID', name: 'Bahasa Indonesia' },
-  en: { code: 'en', prefix: '/en', html: 'en', og: 'en_US', short: 'EN', name: 'English' },
+  en: { code: 'en', prefix: '', html: 'en', og: 'en_US', short: 'EN', name: 'English' },
+  id: { code: 'id', prefix: '/id', html: 'id', og: 'id_ID', short: 'ID', name: 'Bahasa Indonesia' },
   zh: { code: 'zh', prefix: '/zh', html: 'zh-Hans', og: 'zh_CN', short: '中文', name: '中文（简体）' },
 };
-export const DEFAULT_LANG = 'id';
-export const LANG_ORDER = ['id', 'en', 'zh'];
+export const DEFAULT_LANG = 'en';
+export const LANG_ORDER = ['en', 'id', 'zh'];
+// the prefixes that are not the default, as a regex alternation ('id|zh'): the forward and the dev server's routes use it
+export const OTHER_PREFIXES = LANG_ORDER.filter((l) => l !== DEFAULT_LANG).map((l) => LANGS[l].prefix.slice(1)).join('|');
 
 // ---------- the interface: labels, headings, buttons, meta text. {n} style slots are filled by the renderer.
 export const UI = {

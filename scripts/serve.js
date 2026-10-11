@@ -11,6 +11,10 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import { packFile } from './kwpack.js';
+import { OTHER_PREFIXES, LANGS } from './i18n.js';   // (the language prefixes the portfolio is served under beside the default)
+const LP = OTHER_PREFIXES;   // 'id|zh'
+// the prefix a language used to have (English lived at /en/ for a day): its old links go to the new place
+const OLD_PREFIXES = Object.values(LANGS).map((l) => l.code).filter((c) => !new RegExp(`^(${LP})$`).test(c) && LANGS[c].prefix === '');
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.PORT || 5173);
@@ -73,7 +77,9 @@ http.createServer((req, res) => {
   if (desk) p = p.slice(3);
   // the plain portfolio, rendered from data.js on every request
   // (the portfolio speaks three languages: /en/ and /zh/ hold the same pages under a prefix, the default Indonesian ones at /)
-  const sitePath = !desk && (/^\/((en|zh)\/)?$/.test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : /^\/((en|zh)\/)?(work\/([\w-]+\/)?|labs\/|cv\/)(index\.html)?$/.test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
+  const old = !desk && OLD_PREFIXES.length && new RegExp(`^/(${OLD_PREFIXES.join('|')})(/|$)`).exec(p);
+  if (old) { res.writeHead(301, { Location: p.slice(old[1].length + 1) || '/' }); return res.end(); }
+  const sitePath = !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
   // (rendered by the worker above: any edit to the templates, the dictionaries, labs or data.js shows without a restart)
   const renderPage = (rel, status = 200) => renderSite().then((pages) => {
     const body = pages[rel];
@@ -82,7 +88,7 @@ http.createServer((req, res) => {
     res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(req.method === 'HEAD' ? undefined : body);
   }).catch((e) => { console.error('site:', e); res.writeHead(500, { 'Content-Type': 'text/plain' }); res.end(String(e.stack || e)); });
   if (sitePath) return renderPage(sitePath);
-  if (!desk && /^\/(((en|zh)\/)?(work(\/[\w-]+)?|labs|cv)|en|zh)$/.test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
+  if (!desk && new RegExp(`^/(((${LP})/)?(work(/[\\w-]+)?|labs|cv)|${LP})$`).test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
   if (p.endsWith('/')) p += 'index.html';
   const file = path.join(root, p);
   if (file !== root && !file.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }
