@@ -351,6 +351,24 @@ body.menu-open { overflow: hidden; }
   .head-in .lang a { min-width: 30px; padding: 0 8px; font-size: 11px; }
 }
 @media (max-width: 380px) { .head-in .lang a { min-width: 26px; padding: 0 6px; } .view a { padding: 0 9px; } }
+/* phones: the menu button is the two lines alone, the languages show only the other two (the current one is where you are), and both
+   menus carry a language row so the choice is never lost; under 360 px the header drops the languages altogether and the menu holds them */
+.menu .lang { display: none; }
+@media (max-width: 640px) {
+  .head-in { gap: 6px; }
+  .menu-btn, .head.compact .menu-btn { padding: 0 10px; }
+  .menu-word, .menu-btn[aria-expanded="true"] .menu-word { max-width: 0; margin-right: 0; opacity: 0; }
+  .head-in .lang a[aria-current="true"] { display: none; }
+  .head-in .view, .head-in .lang { flex: none; } .view a, .lang a { white-space: nowrap; }
+  .view a { padding: 0 8px; }
+  .head-in .lang a { min-width: 28px; padding: 0 7px; }
+  .menu .lang { display: inline-flex; margin: 0; }
+  .menu .lang a { min-width: 40px; height: 32px; padding: 0 12px; font-size: 12px; }
+  .sm-side .lang { margin-top: 6px; }
+}
+@media (max-width: 359px) { .head-in > .lang { display: none; } }
+/* pages outside the two readings show all three pills (head--3): under 400 px those drop the header's languages too, the menu keeps them */
+@media (max-width: 399px) { .head--3 .head-in > .lang { display: none; } }
 /* between a phone and a wide screen the hero's status line (left) and the rotating "Navy builds" (centre) would meet: the rotation sits out */
 @media (min-width: 901px) and (max-width: 1240px) { .hero-rot { display: none; } }
 

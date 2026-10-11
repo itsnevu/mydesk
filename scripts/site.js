@@ -305,7 +305,7 @@ const viewSwitch = (current) => `<nav class="view" aria-label="${esc(t('viewAria
 
 // the simple reading's menu (the profile page): one column of plain links, the WhatsApp button, the email and the links elsewhere;
 // no preview panel, no blurb, no running line. The same overlay and the same button open and close it
-function menuSimple(D, current) {
+function menuSimple(D, current, pathname) {
   const link = (href, label, id, extra = '') => `<a href="${href}"${current === id ? ' aria-current="page"' : ''}${extra}>${esc(label)}</a>`;
   return `<div class="menu menu--simple" id="menu" aria-hidden="true">
   <nav class="sm-links" aria-label="${esc(t('menuMain'))}">
@@ -316,6 +316,7 @@ function menuSimple(D, current) {
     <a class="sm-mail" href="mailto:${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="menu">${esc(D.SITE.email)}</a>
     <div class="sm-else"><span class="lbl">${esc(t('elsewhere'))}</span><ul>__ELSE_LINKS__</ul></div>
     <p class="menu-now menu-status"><span class="dot dot--open" aria-hidden="true"></span><span>${esc(`${t('status')} · ${t('where')}`)}</span></p>
+    ${langSwitch(pathname)}
   </div>
   <div class="menu-foot" aria-hidden="true"><em>${esc(t('motto'))}</em><span class="menu-esc if-hover"><kbd>Esc</kbd> ${esc(t('escClose'))}</span><span>© __YEAR__</span></div>
 </div>`;
@@ -333,7 +334,7 @@ function header(current, pathname, D = null) {
 <div id="top" class="top-anchor"></div>
 <div class="curtain" aria-hidden="true">${MARK()}<span class="curtain-t"></span></div><script>try{var n=sessionStorage.getItem('nv-curtain-name');if(n){document.currentScript.previousElementSibling.lastChild.textContent=n;sessionStorage.removeItem('nv-curtain-name')}}catch(e){}</script>
 <div class="progress" aria-hidden="true"><i></i></div>
-<header class="head">
+<header class="head${current === 'simple' || current === 'home' ? '' : ' head--3'}">
   <div class="head-in">
     <a class="brand" href="${u('/')}" aria-label="${esc(t('brandHome'))}">${MARK()}<span class="brand-n">Navy Gibran</span><span class="head-sec" aria-hidden="true"><span class="hs-in"></span></span></a>
     ${viewSwitch(current)}
@@ -341,7 +342,7 @@ function header(current, pathname, D = null) {
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnet><span class="menu-word">${roll(t('menu'))}</span><span class="menu-lines" aria-hidden="true"><i></i><i></i></span></button>
   </div>
 </header>
-${D ? menuSimple(D, current) : `<div class="menu" id="menu" aria-hidden="true">
+${D ? menuSimple(D, current, pathname) : `<div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">
     ${item(u('/full/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: WORLDS.length + (+(LABS_META.menu.sub.match(/\d+/) || [0])[0]) })))}
@@ -353,6 +354,7 @@ ${D ? menuSimple(D, current) : `<div class="menu" id="menu" aria-hidden="true">
     <p class="menu-now menu-status"><span class="dot dot--open" aria-hidden="true"></span><span>${esc(`${t('status')} · ${t('where')}`)}</span></p>
     <button class="menu-find" type="button" data-palette><span>${esc(t('find'))}</span><kbd data-kbd>Ctrl K</kbd></button>
     <div><span class="lbl">${esc(t('elsewhere'))}</span><ul>__MENU_LINKS__</ul></div>
+    ${langSwitch(pathname)}
     <span class="lbl menu-clock" data-clock>${esc(t('clock'))}</span>
   </div>
   <div class="menu-foot" aria-hidden="true"><em>${esc(t('motto'))}</em><span class="menu-esc if-hover"><kbd>Esc</kbd> ${esc(t('escClose'))}</span><span>© __YEAR__</span></div>
