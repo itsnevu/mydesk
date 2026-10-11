@@ -856,7 +856,7 @@ function labsPage(D, ctx) {
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
 <main id="main" tabindex="-1">
-${worldsSection({ t, u, splitPair, labsCount })}
+${worldsSection({ t, u, splitPair, labsCount, exists, img })}
 ${labsMain({ exists, img, chapter: { kick: t('lw_moreKick'), title: t('lw_moreTitle'), em: t('lw_moreEm') } })}
 </main>
 ${footer(D)}

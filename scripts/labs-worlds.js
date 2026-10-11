@@ -2,6 +2,9 @@
 // contracts, every app running its real contracts on an Ethereum chain inside the browser. Navy's copy, as written
 // (2026-10-13); the cards and the filter render on the Labs page (scripts/site.js labsPage), above the GitHub experiments.
 // Each card: name, tagline, category, description, tags and one "Visit" link to the site's root (Navy: never the /app/ path).
+// The card's picture is a frame of the world itself, public/site/labs/<key>.webp (1280x720, with a -800 copy for phones):
+// taken past the site's gate ("Enter silent", "Drop in", "Go inside", "Go for orbit", "Board in silence"), a few wheel steps in,
+// then cropped under the site's own header. A world without a picture keeps the coloured plate.
 
 export const WORLDS_INTRO = 'A series of crypto products, each told as one scroll-driven 3D world and each backed by a working dApp and Solidity contracts. Every app runs its real contracts on an Ethereum chain inside the browser, so you can play every role without a wallet. All brands are concepts except Pyris Pact, which is a live product.';
 export const WORLDS_STACK = ['three.js', 'TypeScript', 'Vite', 'Solidity (Foundry, OpenZeppelin)', 'viem', 'an in-browser EVM sandbox'];
@@ -74,7 +77,7 @@ export const WORLDS_CSS = `
 .world-plate { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 190px; padding: 22px 22px 20px; background: radial-gradient(120% 100% at 85% 0%, color-mix(in srgb, var(--acc) 28%, transparent), transparent 62%), radial-gradient(90% 80% at 10% 100%, color-mix(in srgb, var(--acc) 14%, transparent), transparent 60%), var(--bgc); }
 .world-plate::before { content: ""; position: absolute; inset: 0; background: linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 34px 34px, linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 34px 34px; opacity: 0.5; pointer-events: none; }
 /* a plate with a photograph of the world: the picture fills it, a scrim keeps the labels and the tagline readable, a slow zoom on hover */
-.world-plate.has-shot { aspect-ratio: 16 / 10; min-height: 0; padding: 20px 22px 18px; }
+.world-plate.has-shot { aspect-ratio: 16 / 9; min-height: 0; padding: 20px 22px 18px; }
 .world-shot { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.001); transition: transform 1.4s var(--ease), opacity 0.6s; }
 .world:hover .world-shot { transform: scale(1.045); }
 .world-plate.has-shot::before { z-index: 1; opacity: 1; background: linear-gradient(to top, rgba(9, 8, 10, 0.9) 0%, rgba(9, 8, 10, 0.5) 34%, rgba(9, 8, 10, 0) 58%), linear-gradient(to bottom, rgba(9, 8, 10, 0.55), rgba(9, 8, 10, 0) 30%); }
