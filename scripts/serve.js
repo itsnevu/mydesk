@@ -2,6 +2,8 @@
 // gzip/brotli (node:zlib) when the client accepts it, cached per file version; no-store so edits always show.
 // Files missing from the project root are looked up in public/ (copied to dist/ by the build), so `shots/x.webp` works in both.
 // assets/NAME.kwb is (re)packed from assets/NAME.json whenever the JSON is newer, so a fresh Blender export is never shadowed.
+// Two sites, as deployed: / and /work/<key>/ are the plain portfolio (scripts/site.js, rendered fresh on every request), and /3d/
+// is the 3D desk, whose sources are the project root (index.html, src/, assets/).
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -11,7 +13,7 @@ import { packFile } from './kwpack.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const port = Number(process.env.PORT || 5173);
-const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.map': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.md': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.otf': 'font/otf', '.wasm': 'application/wasm', '.kwb': 'application/octet-stream', '.bin': 'application/octet-stream', '.glb': 'model/gltf-binary' };
+const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.map': 'application/json; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.md': 'text/plain; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.webp': 'image/webp', '.avif': 'image/avif', '.ico': 'image/x-icon', '.mp3': 'audio/mpeg', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.otf': 'font/otf', '.wasm': 'application/wasm', '.kwb': 'application/octet-stream', '.webmanifest': 'application/manifest+json; charset=utf-8', '.bin': 'application/octet-stream', '.glb': 'model/gltf-binary' };
 const compressible = /^(text\/|application\/(json|javascript|wasm)|image\/svg)/;
 let devLikes = 0;
 const packed = new Map(); // file+encoding → { key: mtime|size|encoding, body }: one compressed version kept per file
@@ -42,6 +44,21 @@ http.createServer((req, res) => {
     });
     return;
   }
+  // the desk lives under /3d/: strip the prefix and serve the project root
+  if (p === '/3d') { res.writeHead(301, { Location: '/3d/' }); return res.end(); }
+  const desk = p.startsWith('/3d/');
+  if (desk) p = p.slice(3);
+  // the plain portfolio, rendered from data.js on every request
+  const sitePath = !desk && (p === '/' ? 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : /^\/work\/([\w-]+\/)?(index\.html)?$/.test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
+  // (scripts/site.js is re-imported whenever it changes, so edits to the page templates show without a restart)
+  const renderPage = (rel, status = 200) => import(`./site.js?v=${fs.statSync(new URL('./site.js', import.meta.url)).mtimeMs}`).then((m) => m.renderSite()).then((pages) => {
+    const body = pages[rel];
+    if (body === undefined) return renderPage('404.html', 404);
+    const type = rel.endsWith('.xml') ? 'application/xml; charset=utf-8' : rel.endsWith('.txt') ? types['.txt'] : types['.html'];
+    res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(req.method === 'HEAD' ? undefined : body);
+  }).catch((e) => { console.error('site:', e); res.writeHead(500, { 'Content-Type': 'text/plain' }); res.end(String(e.stack || e)); });
+  if (sitePath) return renderPage(sitePath);
+  if (!desk && /^\/work(\/[\w-]+)?$/.test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
   if (p.endsWith('/')) p += 'index.html';
   const file = path.join(root, p);
   if (file !== root && !file.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }
@@ -69,10 +86,11 @@ http.createServer((req, res) => {
       res.end(req.method === 'HEAD' ? undefined : body);
     });
   };
-  const missing = () => { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }); res.end('not found'); };
+  // (a page that isn't there, with or without its trailing slash, gets the site's 404 page, as it does on Vercel)
+  const missing = () => { if (!desk && (ext === '' || ext === '.html')) return renderPage('404.html', 404); res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' }); res.end('not found'); };
   fs.stat(file, (err, st) => {
     if (!err && st.isFile()) return send(file, st);
     if (!pub.startsWith(path.join(root, 'public') + path.sep)) return missing();
     fs.stat(pub, (e2, s2) => (!e2 && s2.isFile() ? send(pub, s2) : missing()));
   });
-}).listen(port, () => console.log(`KeyboardWeb → http://localhost:${port}`));
+}).listen(port, () => console.log(`navygibran.dev → http://localhost:${port}/  ·  3D desk → http://localhost:${port}/3d/`));

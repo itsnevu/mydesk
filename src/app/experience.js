@@ -129,6 +129,7 @@ export class Experience {
   // ---------- entry (happens once)
   enter({ music = true, direct = null } = {}) {
     if (!state.is(S.GATE)) return;
+    window.nvTrack?.('3d_experience_start', { sound: music });
     audio.setEnabled(music); audio.unlock();
     ui.hud.sound(audio.state);
     state.go(S.ENTERING);
@@ -325,6 +326,7 @@ export class Experience {
     ui.hud.discovery(this.found, DISCOVERY_ORDER);
     // the notice names the thing (never its internal id) and says how far along the visitor is
     const t = TARGETS[id]; ui.discovered(t.discover, `${this.found.size} of ${DISCOVERY_ORDER.length} found`);
+    window.nvTrack?.('3d_discovery', { id, found: this.found.size });
     if (this.found.size === DISCOVERY_ORDER.length) tween.delayed(0.8, () => { ui.reward.show(); audio.chime(); this.introWave(); });
   }
 

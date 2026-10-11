@@ -4,6 +4,64 @@ The portfolio of Navy Gibran, full-stack developer: a desk at night in a furnish
 Built on a small custom WebGL2 engine (renderer with shadow mapping, ACES tone mapping and a depth-of-field pass, orbit controls,
 raycasting, tween system). **Zero runtime dependencies**: nothing to install.
 
+## Two sites, one deployment
+
+**navygibran.dev/** is the plain portfolio: who Navy is, the selected work, the kinds of work on offer, the path so far, the stack and contact,
+readable in a minute with no WebGL, no sound and nothing to find. **navygibran.dev/3d/** is the desk below, unchanged: the gate, the
+worlds, the 37 discoveries, the sound. The portfolio links to the desk from the nav, the hero, a teaser section and the footer; the desk
+links back from the loading screen and the gate (top left), the desk (bottom left, above "? Guide") and the menu ("Portfolio ↗").
+
+- `scripts/site.js` renders the portfolio from `src/app/data.js` (the same content the desk tells) into static HTML: `/`, one page per
+  project at `/work/<key>/` (screenshots that open large in a viewer, stack, the world's hotspots as "Inside the project", a link
+  into that world on the desk, three related projects of the same kind), the archive at `/work/` (every project as a card, filtered
+  by kind: `/work/#store`; once the list has been read past its filters they follow as a dock at the foot of the screen), `404.html`
+  (with three projects to start from), `sitemap.xml` and `robots.txt`. `site/site.css` and `site/site.js` are inlined into every page
+  (about 60 kB gzipped for the home page).
+  The few lines of copy data.js doesn't hold (featured order and colours, the difference, territories, the path, the manifesto) sit at the top of
+  scripts/site.js and only restate its facts.
+- The design follows ownitt.fr's grammar, redrawn in the desk's colours: condensed capitals finished by an italic serif (Barlow Condensed,
+  Instrument Serif, Newsreader, served from the site itself: `public/site/fonts`, latin and latin-ext subsets, SIL OFL, declared in
+  `site/fonts.css`; Ownitt's own Elza Condensed and IvyPresto take over if an Adobe Fonts kit id is set in `ADOBE_KIT`), a once-a-visit
+  intro, scenes that hold still while they play (the manifesto, the giant letters, a colour panel per project, the desk teaser), cream pages that
+  rise as sheets, loops of client logos (`public/site/logos/`, one-colour silhouettes of each client's own logo) and names that run with the scroll.
+- Motion is driven by `site/site.js`: an inertial wheel scroll (mouse only), scenes that read their scroll progress into CSS custom properties,
+  word-by-word reveals, a pointer ring with labels, magnetic buttons, a coloured curtain between pages (carrying the next project's name), arrow
+  keys (or the two buttons beside a project's number) between projects; folded, the header names the part of the home page being
+  read (`data-sec` on its sections). `prefers-reduced-motion`, or "Motion off" in the footer (remembered per browser), lays every
+  scene out flat.
+- Big screens: from 1600 px wide the page is zoomed as a whole (`--k`, set before the first paint); every vh/vw in the stylesheet is divided by
+  `--k` when it is inlined, so the held scenes stay one screen tall. `--k` is reserved for this: name any new custom property something else.
+- The mark (the N): `site/mark.svg`, the two strokes as filled outlines traced from Navy's own logo (itsnevu.xyz/logo.png) by
+  `python scripts/trace-mark.py logo.png`. Every mark on the pages, the favicons, the icons and the share cards come from it; it is
+  always shown upright and whole (never turned, never cropped, never drawn heavier than the logo, except a touch at 16 px).
+- Share cards: `python scripts/og.py` (Pillow; fonts in `scripts/fonts`) draws `public/og.jpg` and one card per project in
+  `public/site/og/<key>.jpg` (its colours, its screenshot), the archive's `public/site/og/work.jpg` (a wall of the screenshots), plus the
+  home-screen icons and `favicon.ico`; run it again when a project is added or changes.
+  The cards stay under 260 kB because WhatsApp drops the picture from a link preview when the image is much over 300 kB.
+- Find anything: Ctrl K (or Cmd K, or / outside a form) opens a palette on every page: the parts of the home page, all the projects
+  (by name, trade, stack or kind: "store", "go"), the links elsewhere. The menu and the archive have a button for it.
+- Contact: the brief (what, who, the idea) becomes one WhatsApp message, written out under the form as it is typed; an empty field
+  says what it needs in the page's own words (the browser's check stands in without the script).
+- Pictures for phones: `python scripts/thumbs.py` writes an 800 px copy (`<name>-800.webp`) beside every wide screenshot and desk
+  render; the pages offer both through `srcset`, so a phone takes the small one (about half the bytes). Run it after adding pictures.
+- Print (or save as PDF): the page lies flat in black on white, with the addresses of the links written out.
+- `public/site/desk-loop.mp4` / `.webm` is a 10 s loop rendered frame by frame from the desk (camera on a closed orbit), played in the teaser
+  on screens 700 px and wider. In the hero, `public/site/portrait.webp` (Navy's portrait from itsnevu.xyz/about-me, cropped to 4:5)
+  lies on the desk still like a print, and `public/site/avatar.webp` (the face from the same photo) opens the "Chat on WhatsApp"
+  button; `public/site/hero.jpg` (or .webp/.png), if present, replaces the desk still and the print.
+- `npm run build` writes the desk to `dist/3d/index.html` and the portfolio around it. `npm run dev` serves both the same way:
+  http://localhost:5173/ is the portfolio (re-rendered on every request), http://localhost:5173/3d/ the desk from the sources.
+- `vercel.json`: the desk's relative fetches (`shots/`, `cat/`, `bgsound.m4a`) are rewritten from `/3d/…` to the root copies, and
+  `3d.navygibran.dev` redirects to `/3d/` once that domain is added to the Vercel project (Settings → Domains; DNS: a CNAME for `3d` to
+  `cname.vercel-dns.com`).
+- Old shared links still land: `/#project-<key>` goes to `/work/<key>/`, any other desk hash (`/#note`, `/#lamp`…) to `/3d/#…`.
+- Analytics-ready: both sites call `nvTrack(name, data)`, which pushes to `window.dataLayer` and Vercel Analytics when either is present
+  and does nothing otherwise. Events: `portfolio_view`, `project_view`, `project_open`, `project_live`, `contact_click`, `3d_teaser_view`,
+  `3d_cta_click` (a link to the desk, with where it was), `3d_experience_enter` (the desk loaded), `3d_experience_start`, `3d_discovery`, `3d_experience_exit`,
+  `3d_unsupported` (no WebGL2: the loader offers the portfolio instead), `scroll_depth`, `motion_toggle`, `archive_filter`, `screenshot_zoom`,
+  `palette_open`, `palette_go`.
+- `public/site/desk-*.webp` and `public/og.png` are renders of the desk (one headless capture); re-capture them when the desk changes a lot.
+
 ## Run
 
 ```bash

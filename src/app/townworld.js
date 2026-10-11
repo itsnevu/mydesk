@@ -1,5 +1,5 @@
 // Worlds 02 (Client Websites) and 03 (JAKASN), built in code: the same district that stands on the keyboard (app/kbtown), at a
-// world's size, so going in through the key lands in the place the key showed. The client street is its sixteen shops, each with
+// world's size, so going in through the key lands in the place the key showed. The client street is its seventeen shops, each with
 // its trade on the roof and its name over the door; JAKASN is the civic hall between the OJS press and BKNPEDIA. The world's
 // places to inspect are the district's own buildings.
 import { Node, Mesh } from 'engine/scene';
@@ -20,7 +20,7 @@ const PLAN = {
     steps: [[0.16, -0.63, 1.38, -1.5, -0.5], [0.08, -1.38, 0.63, -0.5, 0.5], [0.03, -0.88, 1.13, 0.5, 1.5]],
     hotspots: {
       sign: { box: [[-0.84, 0.03, 1.36], [-0.32, 0.4, 1.48]] },                                    // the street's name board
-      shelves: { shops: ['nf-optical', 'yukti-rasa-mitrabumi', 'orthobone', 'izzi'] },              // a row of company profiles
+      shelves: { shops: ['nf-optical', 'yukti-rasa-mitrabumi', 'recon', 'izzi', 'the-bedji-group'] },                  // a row of company profiles
       counter: { shops: ['flora-indonesia'] },                                                     // the florist's checkout
       crate: { shops: ['winfaith'] },                                                              // the custom build, behind the front
     },

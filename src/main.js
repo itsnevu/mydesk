@@ -4,7 +4,7 @@ import { state, S } from 'app/state';
 import { applyMotionToCSS } from 'app/motion';
 import { applyThemeToCSS } from 'app/theme';
 import { audio } from 'app/audio';
-import { PROJECTS, SITE, WORLDS, projectByKey } from 'app/data';
+import { PROJECTS, SITE, WORLDS, projectByKey, DISCOVERY_TOTAL } from 'app/data';
 import { parseRoute, onRoute, setRoute } from 'app/router';
 import * as ui from 'app/ui';
 import { initGuide } from 'app/guide';
@@ -14,7 +14,7 @@ import { initSite, openSite } from 'app/simplesite';
 applyMotionToCSS();
 applyThemeToCSS();
 document.body.dataset.state = 'loading';
-// #site is the plain website: it opens at once, over the loading screen, so a shared link needs no 3D
+{ const c = document.getElementById('gate-count'); if (c) c.textContent = DISCOVERY_TOTAL; }// #site is the plain website: it opens at once, over the loading screen, so a shared link needs no 3D
 if (location.hash === '#site') openSite();
 
 async function boot() {
@@ -23,7 +23,10 @@ async function boot() {
   try {
     xp = new Experience(canvas);
   } catch (err) {
-    document.getElementById('loading').innerHTML = `<div class="loading-inner"><div class="loading-label">this desk needs WebGL2</div><div class="loading-percent" style="margin-top:12px">${err.message}</div></div>`;
+    // no WebGL2 here: say so, and hand the visitor the plain portfolio (the same work, no 3D)
+    const msg = String(err.message || err).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    document.getElementById('loading').innerHTML = `<div class="loading-inner"><div class="loading-label">this desk needs WebGL2</div><div class="loading-percent" style="margin-top:12px">${msg}</div><a class="loading-out" href="/">read the portfolio instead →</a></div>`;
+    window.nvTrack?.('3d_unsupported', { reason: msg.slice(0, 80) });
     return;
   }
   window.__kw = { xp, state };
@@ -60,6 +63,7 @@ async function boot() {
     if (route.type === 'target') { const alias = { tab: 'note' }; const id = alias[route.slug] || route.slug; if (xp.world.targets[id] || xp.resolveTarget(id)) return id; }
     return null;
   };
+  xp.directFor = directFor;   // (the site's sheet uses it for a link to the desk clicked before the gate)
   xp.pendingDirect = initial?.slug === 'site' ? null : directFor(initial);   // (#site is already open)
 
   // ---------- UI wiring

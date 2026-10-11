@@ -1,224 +1,54 @@
-// The plain website: the same portfolio as an ordinary scrolling page (about, skills, the path so far, the work, contact) for
-// visitors who would rather read than explore. The monitor opens it, and #site opens it straight away, over the loading
-// screen or the gate, so a link sent to a recruiter needs no 3D at all. "Explore the 3D desk" puts it away. Every line comes
-// from app/data: nothing here is new copy except the section names.
-import { SITE, PROJECTS, WORLDS, SHOTS, STORY, GALLERY } from 'app/data';
-import { setRoute } from 'app/router';
+// The portfolio, inside the desk. The monitor (and #site) used to open a plain page of its own here; since the real site exists at /,
+// that page was a second, poorer copy of it. Now the sheet over the desk holds the site itself (scripts/site.js, served at /),
+// framed, so the desk never reloads and there is one portfolio, not two. The site knows it is framed (html.in-desk: no 3D tab,
+// no teaser) and every link of its own back to the desk arrives here as a message: the sheet goes away and the desk goes where
+// the link pointed (#project-godplan-erp, #note, ...). "Back to the desk" and Esc put the sheet away too. The site loads the
+// first time the sheet opens, never with the desk, and a closed sheet is display:none, so nothing in it runs behind the desk.
+import { SITE } from 'app/data';
+import { setRoute, parseRoute } from 'app/router';
 
 const CSS = `
-#site { position: fixed; inset: 0; z-index: 90; overflow: auto; overscroll-behavior: contain; background: var(--bg, #120f0a); color: var(--paper, #e7ddc8); font-family: var(--sans, system-ui); -webkit-font-smoothing: antialiased; opacity: 0; pointer-events: none; transition: opacity .35s; scrollbar-width: thin; scrollbar-color: rgba(217,160,91,0.45) transparent; }
+#site { position: fixed; inset: 0; z-index: 90; background: #0e0c09; opacity: 0; pointer-events: none; transition: opacity .4s ease; }
 #site.open { opacity: 1; pointer-events: auto; }
 #site:focus { outline: none; }
-#site * { box-sizing: border-box; }
-#site a { color: inherit; text-decoration: none; }
-#site .s-wrap { width: min(1080px, 100%); margin: 0 auto; padding: 0 24px; }
-#site .s-mono { font-family: var(--mono, monospace); }
-#site .s-bar { position: sticky; top: 0; z-index: 2; background: rgba(18,15,10,0.86); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(199,163,106,0.14); }
-#site .s-bar .s-wrap { display: flex; align-items: center; gap: 28px; height: 64px; }
-#site .s-brand { font-weight: 700; font-size: 18px; letter-spacing: 0.01em; margin-right: auto; }
-#site .s-nav { display: flex; gap: 24px; font-size: 14px; color: rgba(231,221,200,0.7); }
-#site .s-nav a:hover { color: var(--paper, #e7ddc8); }
-#site .s-3d { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid rgba(217,160,91,0.6); border-radius: 999px; font: 600 14px var(--sans, system-ui); color: var(--paper, #e7ddc8); background: none; cursor: pointer; white-space: nowrap; transition: border-color .2s, background .2s; }
-#site .s-3d:hover { border-color: var(--accent, #d9a05b); background: rgba(217,160,91,0.1); }
-#site .s-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 999px; font: 700 15px var(--sans, system-ui); border: 1px solid rgba(217,160,91,0.6); color: var(--paper, #e7ddc8); background: none; cursor: pointer; transition: transform .2s, background .2s; }
-#site .s-btn.fill { background: var(--accent, #d9a05b); border-color: var(--accent, #d9a05b); color: #1a140d; }
-#site .s-btn:hover { transform: translateY(-1px); }
-#site .s-hero { padding: 96px 0 72px; }
-#site .s-eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent, #d9a05b); }
-#site h1 { margin: 16px 0 20px; font-size: clamp(40px, 7vw, 76px); line-height: 1.02; letter-spacing: -0.02em; font-weight: 700; }
-#site .s-lead { max-width: 640px; margin: 0 0 32px; font-size: 18px; line-height: 1.65; color: rgba(231,221,200,0.78); }
-#site .s-row { display: flex; flex-wrap: wrap; gap: 12px; }
-#site .s-stats { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 44px; font-size: 13px; color: rgba(231,221,200,0.62); }
-#site .s-stats span::before { content: "> "; color: var(--accent, #d9a05b); }
-#site section { padding: 72px 0; border-top: 1px solid rgba(199,163,106,0.12); scroll-margin-top: 64px; }
-#site h2 { margin: 10px 0 28px; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.01em; }
-#site .s-about { display: grid; grid-template-columns: 1.4fr 1fr; gap: 40px; align-items: start; }
-#site .s-about p { margin: 0 0 16px; font-size: 17px; line-height: 1.7; color: rgba(231,221,200,0.82); }
-#site .s-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-#site .s-chip { padding: 8px 12px; border: 1px solid rgba(199,163,106,0.25); border-radius: 999px; font-size: 13px; color: rgba(231,221,200,0.85); }
-#site .s-skills { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-#site .s-card { padding: 22px; border: 1px solid rgba(199,163,106,0.18); border-radius: 16px; background: #17130e; }
-#site .s-card h3 { margin: 0 0 12px; font-size: 16px; }
-#site .s-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; color: rgba(231,221,200,0.75); }
-#site .s-path { display: grid; gap: 0; }
-#site .s-stop { display: grid; grid-template-columns: 200px 1fr; gap: 24px; padding: 20px 0; border-bottom: 1px solid rgba(199,163,106,0.1); }
-#site .s-stop:last-child { border-bottom: 0; }
-#site .s-when { font-size: 13px; color: var(--accent, #d9a05b); padding-top: 3px; }
-#site .s-stop h3 { margin: 0 0 6px; font-size: 18px; }
-#site .s-stop p { margin: 0; font-size: 15px; line-height: 1.65; color: rgba(231,221,200,0.75); }
-#site .s-feature { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 48px; }
-#site .s-feature .s-card { display: flex; flex-direction: column; }
-#site .s-feature p { margin: 0 0 18px; font-size: 14px; line-height: 1.65; color: rgba(231,221,200,0.75); flex: 1; }
-#site .s-meta { display: block; margin-bottom: 10px; font-size: 12px; letter-spacing: 0.08em; color: var(--accent, #d9a05b); }
-#site .s-stack { display: block; margin-bottom: 16px; font-size: 12px; color: rgba(231,221,200,0.55); }
-#site .s-link { align-self: flex-start; font: 600 14px var(--sans, system-ui); color: var(--accent, #d9a05b); background: none; border: 0; padding: 0; cursor: pointer; }
-#site .s-link:hover { text-decoration: underline; }
-#site h3.s-sub { margin: 0 0 18px; font-size: 20px; }
-#site .s-sites { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-#site .s-site { display: block; border: 1px solid rgba(199,163,106,0.18); border-radius: 16px; overflow: hidden; background: #17130e; transition: border-color .2s, transform .2s; }
-#site .s-site:hover { border-color: rgba(217,160,91,0.6); transform: translateY(-2px); }
-#site button.s-site { width: 100%; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; }
-#site .s-site-more { display: inline-block; margin-top: 10px; font: 600 13px var(--sans, system-ui); color: var(--accent, #d9a05b); }
-#site .s-detail { position: fixed; inset: 0; z-index: 3; overflow: auto; overscroll-behavior: contain; background: var(--bg, #120f0a); opacity: 0; pointer-events: none; transition: opacity .25s; }
-#site .s-detail.open { opacity: 1; pointer-events: auto; }
-#site .s-detail .s-wrap { padding-top: 28px; padding-bottom: 72px; }
-#site .s-back { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border: 1px solid rgba(199,163,106,0.3); border-radius: 999px; background: none; color: rgba(231,221,200,0.85); font: 600 14px var(--sans, system-ui); cursor: pointer; }
-#site .s-back:hover { border-color: var(--accent, #d9a05b); color: var(--paper, #e7ddc8); }
-#site .s-d-head { display: grid; grid-template-columns: 1.3fr 1fr; gap: 32px; align-items: end; margin: 36px 0 28px; }
-#site .s-d-head h2 { margin: 10px 0 12px; }
-#site .s-d-head p { margin: 0; font-size: 17px; line-height: 1.7; color: rgba(231,221,200,0.82); }
-#site .s-d-facts { display: grid; gap: 14px; padding: 20px 22px; border: 1px solid rgba(199,163,106,0.18); border-radius: 16px; background: #17130e; }
-#site .s-d-facts dt { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(231,221,200,0.5); }
-#site .s-d-facts dd { margin: 4px 0 0; font-size: 15px; color: rgba(231,221,200,0.9); }
-#site .s-d-shots { display: grid; gap: 16px; }
-#site .s-d-shots img { display: block; width: 100%; border: 1px solid rgba(199,163,106,0.18); border-radius: 14px; background: #211a11; }
-#site .s-d-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
-#site .s-shot { display: block; aspect-ratio: 16 / 10; width: 100%; object-fit: cover; object-position: top; background: #211a11; }
-#site .s-ph { display: flex; flex-direction: column; justify-content: center; gap: 8px; aspect-ratio: 16 / 10; padding: 24px; background: radial-gradient(ellipse at 30% 20%, rgba(217,160,91,0.16), transparent 60%), #1c1610; border-bottom: 1px solid rgba(199,163,106,0.14); }
-#site .s-ph b { font-size: 24px; line-height: 1.15; color: var(--paper, #e7ddc8); }
-#site .s-ph small { font: 13px var(--mono, monospace); color: var(--accent, #d9a05b); }
-#site .s-site-body { padding: 16px 18px 18px; }
-#site .s-site h4 { margin: 0 0 4px; font-size: 16px; }
-#site .s-site span { font-size: 13px; color: rgba(231,221,200,0.6); }
-#site .s-contact { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: start; }
-#site .s-contact p { margin: 0 0 24px; font-size: 18px; line-height: 1.6; color: rgba(231,221,200,0.8); }
-#site .s-links { display: grid; gap: 10px; }
-#site .s-links a { display: flex; justify-content: space-between; padding: 14px 18px; border: 1px solid rgba(199,163,106,0.18); border-radius: 12px; font-size: 15px; transition: border-color .2s; }
-#site .s-links a:hover { border-color: var(--accent, #d9a05b); }
-#site .s-links a i { font-style: normal; color: var(--accent, #d9a05b); }
-#site footer { padding: 32px 0 48px; border-top: 1px solid rgba(199,163,106,0.12); font-size: 13px; color: rgba(231,221,200,0.5); }
-#site footer .s-wrap { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+#site iframe { display: block; width: 100%; height: 100%; border: 0; background: #0e0c09; opacity: 0; transition: opacity .5s ease; }
+#site.ready iframe { opacity: 1; }
+#site .s-wait { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; color: var(--accent, #d9a05b); font: 500 12px var(--mono, monospace); letter-spacing: .26em; text-transform: uppercase; transition: opacity .3s; }
+#site.ready .s-wait { opacity: 0; pointer-events: none; }
+#site .s-wait i { display: block; width: 44px; height: 1px; margin: 14px auto 0; background: var(--accent, #d9a05b); animation: s-pulse 1.1s ease-in-out infinite alternate; }
+@keyframes s-pulse { from { transform: scaleX(.2); opacity: .4; } to { transform: none; opacity: 1; } }
+#site .s-back { position: absolute; right: max(18px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); z-index: 2; display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 18px 0 16px; border-radius: 999px; border: 1px solid rgba(241,234,219,.35); background: rgba(14,12,9,.78); color: #f1eadb; font: 600 12px var(--mono, monospace); letter-spacing: .2em; text-transform: uppercase; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,.4); transition: border-color .25s, background .25s, transform .4s ease; }
+#site .s-back:hover { border-color: #f1eadb; background: rgba(14,12,9,.95); transform: translateY(-2px); }
+#site .s-back b { font: 700 15px var(--mono, monospace); color: var(--accent, #d9a05b); }
 #site :focus-visible { outline: 2px solid var(--accent, #d9a05b); outline-offset: 3px; }
-@media (max-width: 900px) {
-  #site .s-skills { grid-template-columns: repeat(2, 1fr); }
-  #site .s-feature, #site .s-sites { grid-template-columns: repeat(2, 1fr); }
-  #site .s-d-head { grid-template-columns: 1fr; }
-  #site .s-about, #site .s-contact { grid-template-columns: 1fr; }
-}
-@media (max-width: 640px) {
-  #site .s-wrap { padding: 0 16px; }
-  #site .s-nav { display: none; }
-  #site .s-bar .s-wrap { height: 58px; }
-  #site .s-hero { padding: 56px 0 48px; }
-  #site .s-lead { font-size: 16px; }
-  #site section { padding: 52px 0; scroll-margin-top: 58px; }
-  #site .s-skills, #site .s-feature, #site .s-sites { grid-template-columns: 1fr; }
-  #site .s-stop { grid-template-columns: 1fr; gap: 6px; }
-  #site .s-row .s-btn { flex: 1 1 100%; }
-}
-@media (prefers-reduced-motion: reduce) { #site, #site .s-btn, #site .s-site { transition: none; } }
+#site .s-back .s-short { display: none; }
+@media (max-width: 640px) { #site .s-back { height: 44px; padding: 0 14px 0 12px; } #site .s-back .s-long { display: none; } #site .s-back .s-short { display: inline; } }   /* (a phone keeps the hero's own bottom line clear) */
+@media (prefers-reduced-motion: reduce) { #site, #site iframe, #site .s-back { transition: none; } #site .s-wait i { animation: none; } }
 `;
 
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const ext = 'target="_blank" rel="noopener"';
-
-function html() {
-  const wa = SITE.links.find((l) => l.label === 'WhatsApp');
-  const worldOf = (p) => WORLDS.findIndex((w) => w.project === p.key);
-  const featured = PROJECTS.filter((p) => worldOf(p) >= 0);
-  const sites = PROJECTS.filter((p) => p.url);
-  // the path so far: the story's stops between the opening and the closing line
-  const path = STORY.filter((s) => s.at !== 'keyboard' && s.at !== 'enter');
-  return `
-  <header class="s-bar"><div class="s-wrap">
-    <a class="s-brand" href="#site" data-top>${esc(SITE.name)}</a>
-    <nav class="s-nav" aria-label="Sections"><a href="#s-about" data-jump>About</a><a href="#s-skills" data-jump>Skills</a><a href="#s-work" data-jump>Work</a><a href="#s-contact" data-jump>Contact</a></nav>
-    <button type="button" class="s-3d" data-close>Explore the 3D desk</button>
-  </div></header>
-  <main>
-    <div class="s-hero"><div class="s-wrap">
-      <span class="s-eyebrow s-mono">${esc(SITE.role)}</span>
-      <h1>${SITE.headline.map(esc).join('<br>')}</h1>
-      <p class="s-lead">ERP systems in Go and Next.js, and websites for Indonesian businesses.</p>
-      <div class="s-row">
-        <a class="s-btn fill" href="#s-work" data-jump>See my work</a>
-        ${wa ? `<a class="s-btn" href="${esc(wa.href)}" ${ext}>WhatsApp me</a>` : ''}
-      </div>
-      <div class="s-stats s-mono">${SITE.screen.map((l) => `<span>${esc(l)}</span>`).join('')}</div>
-    </div></div>
-    <section id="s-about"><div class="s-wrap">
-      <span class="s-eyebrow s-mono">about</span><h2>Who I am</h2>
-      <div class="s-about">
-        <div><p>${esc(SITE.about)}</p><p>Currently ${esc(SITE.currently)}</p></div>
-        <div class="s-chips">${SITE.facts.map((f) => `<span class="s-chip">${esc(f)}</span>`).join('')}</div>
-      </div>
-    </div></section>
-    <section id="s-skills"><div class="s-wrap">
-      <span class="s-eyebrow s-mono">skills</span><h2>What I work with</h2>
-      <div class="s-skills">${SITE.skills.map((g) => `<div class="s-card"><h3>${esc(g.group)}</h3><ul>${g.items.map((i) => `<li>${esc(i)}</li>`).join('')}</ul></div>`).join('')}</div>
-    </div></section>
-    <section id="s-path"><div class="s-wrap">
-      <span class="s-eyebrow s-mono">the path so far</span><h2>Experience</h2>
-      <div class="s-path">${path.map((s) => `<div class="s-stop"><span class="s-when s-mono">${esc(s.when)}</span><div><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p></div></div>`).join('')}</div>
-    </div></section>
-    <section id="s-work"><div class="s-wrap">
-      <span class="s-eyebrow s-mono">work</span><h2>Selected projects</h2>
-      <div class="s-feature">${featured.map((p) => `<div class="s-card"><span class="s-meta s-mono">${esc(p.date)} · ${esc(p.industry)}</span><h3>${esc(p.title)}</h3><span class="s-stack s-mono">${esc(p.stack)}</span><p>${esc(p.description)}</p><button type="button" class="s-link" data-world="${worldOf(p)}">Explore it in 3D →</button></div>`).join('')}</div>
-      <h3 class="s-sub">Live client websites</h3>
-      <div class="s-sites">${sites.map((p) => `<button type="button" class="s-site" data-site="${esc(p.key)}" aria-label="${esc(p.title)}: details">${GALLERY[p.key] || SHOTS.includes(p.key)
-        ? `<img class="s-shot" src="${GALLERY[p.key] ? `shots/gallery/${p.key}-1.webp` : `shots/${p.key}.webp`}" alt="${esc(p.title)} website" loading="lazy" decoding="async">`
-        : `<span class="s-ph" aria-hidden="true"><b>${esc(p.title)}</b><small>${esc(new URL(p.url).hostname.replace(/^www\./, ''))}</small></span>`}
-        <div class="s-site-body"><h4>${esc(p.title)}</h4><span>${esc(p.industry)} · ${esc(p.stack)}</span><br><b class="s-site-more">Details →</b></div></button>`).join('')}</div>
-    </div></section>
-    <section id="s-contact"><div class="s-wrap">
-      <span class="s-eyebrow s-mono">contact</span><h2>Say hello</h2>
-      <div class="s-contact">
-        <div><p>Have a project in mind? WhatsApp is the fastest way to reach me.</p>${wa ? `<a class="s-btn fill" href="${esc(wa.href)}" ${ext}>Chat on WhatsApp</a>` : ''}</div>
-        <div class="s-links">${SITE.links.map((l) => `<a href="${esc(l.href)}" ${ext}>${esc(l.label)}<i>↗</i></a>`).join('')}</div>
-      </div>
-    </div></section>
-  </main>
-  <div class="s-detail" role="dialog" aria-modal="true" aria-label="Project details" tabindex="-1"></div>
-  <footer><div class="s-wrap"><span>© ${esc(SITE.year)} ${esc(SITE.name)}</span><button type="button" class="s-3d" data-close>Explore the 3D desk</button></div></footer>`;
-}
-
-// one client site, on its own page: what it is, what it is built with, every screenshot, and only then the way out to it
-const shotsOf = (p) => GALLERY[p.key] ? Array.from({ length: GALLERY[p.key] }, (_, i) => `shots/gallery/${p.key}-${i + 1}.webp`) : SHOTS.includes(p.key) ? [`shots/${p.key}.webp`] : [];
-function detailHtml(p) {
-  const host = new URL(p.url).hostname.replace(/^www\./, '');
-  return `<div class="s-wrap">
-    <button type="button" class="s-back" data-back>← All websites</button>
-    <div class="s-d-head">
-      <div><span class="s-eyebrow s-mono">client website</span><h2>${esc(p.title)}</h2><p>${esc(p.description || '')}</p>
-        <div class="s-d-cta"><a class="s-btn fill" href="${esc(p.url)}" ${ext}>${p.date === 'live' ? `Visit ${esc(host)}` : `${esc(host)} today (the redesign)`} ↗</a></div></div>
-      <dl class="s-d-facts"><div><dt>Business</dt><dd>${esc(p.industry)}</dd></div><div><dt>Built with</dt><dd>${esc(p.stack)}</dd></div><div><dt>Status</dt><dd>${esc(p.date === 'live' ? 'Live' : p.date)}</dd></div></dl>
-    </div>
-    <div class="s-d-shots">${shotsOf(p).map((src, i) => `<img src="${src}" alt="${esc(p.title)}, screenshot ${i + 1}" loading="lazy" decoding="async">`).join('')}</div>
-  </div>`;
-}
-let detailFrom = null;
-function openDetail(key) {
-  const p = PROJECTS.find((q) => q.key === key); if (!p) return;
-  const d = el.querySelector('.s-detail'); detailFrom = document.activeElement;
-  d.innerHTML = detailHtml(p); d.scrollTop = 0; d.classList.add('open'); d.focus({ preventScroll: true });
-}
-function closeDetail() { const d = el?.querySelector('.s-detail.open'); if (!d) return false; d.classList.remove('open'); try { detailFrom?.focus({ preventScroll: true }); } catch {} return true; }
-
-let el = null, xp = null, lastFocus = null;
+let el = null, frame = null, xp = null, lastFocus = null, hideT = 0;
 
 function build() {
   if (el) return el;
   const st = document.createElement('style'); st.textContent = CSS; document.head.appendChild(st);
-  el = document.createElement('div'); el.id = 'site'; el.tabIndex = -1; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `${SITE.name}, portfolio`);
-  el.inert = true; el.setAttribute('aria-hidden', 'true'); el.innerHTML = html(); document.body.appendChild(el);
-  el.addEventListener('click', (e) => {
-    const t = e.target.closest('[data-close],[data-jump],[data-top],[data-world],[data-site],[data-back]'); if (!t) return;
-    if (t.hasAttribute('data-site')) { e.preventDefault(); openDetail(t.dataset.site); return; }
-    if (t.hasAttribute('data-back')) { e.preventDefault(); closeDetail(); return; }
-    if (t.hasAttribute('data-close')) { e.preventDefault(); closeSite(); return; }
-    if (t.hasAttribute('data-top')) { e.preventDefault(); el.scrollTo({ top: 0, behavior: 'smooth' }); return; }
-    if (t.hasAttribute('data-jump')) { e.preventDefault(); el.querySelector(t.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' }); return; }
-    // into that project's world: the page goes away and the desk takes the visitor there (only once past the gate)
-    const wi = Number(t.dataset.world); closeSite();
-    const st0 = document.body.dataset.state;
-    if (xp && wi >= 0 && st0 !== 'loading' && st0 !== 'gate' && st0 !== 'entering') xp.enterWorldVia(wi, WORLDS[wi].trigger);
+  el = document.createElement('div'); el.id = 'site'; el.tabIndex = -1; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `${SITE.name}, the portfolio`);
+  el.inert = true; el.hidden = true; el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = '<div class="s-wait" aria-hidden="true"><span>Opening the site<i></i></span></div><button type="button" class="s-back" data-close aria-label="Back to the desk"><b>←</b><span class="s-long">Back to the desk</span><span class="s-short">Desk</span></button>';
+  document.body.appendChild(el);
+  el.querySelector('[data-close]').addEventListener('click', () => closeSite());
+  // the site's own links to the desk come back as messages: the sheet closes and the desk goes where the link pointed. Before the
+  // gate the router ignores the hash, so the link waits as the desk's pending direct, the way a #project-x address does
+  window.addEventListener('message', (e) => {
+    if (e.origin !== location.origin || e.data?.nv !== 'desk' || !isSiteOpen()) return;
+    closeSite();
+    const hash = String(e.data.hash || '').replace(/^#/, '');
+    if (!hash || hash === 'site') return;
+    location.hash = hash;
+    const s = document.body.dataset.state;
+    if (xp && (s === 'loading' || s === 'gate' || s === 'entering')) xp.pendingDirect = xp.directFor?.(parseRoute()) || null;
   });
-  // while the page is up the desk hears no keys (Esc closes the page; arrows, space and Tab scroll and move through it as usual)
-  window.addEventListener('keydown', (e) => {
-    if (!isSiteOpen()) return;
-    e.stopImmediatePropagation();
-    if (e.key === 'Escape') { e.preventDefault(); if (!closeDetail()) closeSite(); }
-  }, true);
+  // while the sheet is up the desk hears no keys (Esc puts the sheet away; inside the frame the site handles its own keys)
+  window.addEventListener('keydown', (e) => { if (!isSiteOpen()) return; e.stopImmediatePropagation(); if (e.key === 'Escape') { e.preventDefault(); closeSite(); } }, true);
   window.addEventListener('keyup', (e) => { if (isSiteOpen()) e.stopImmediatePropagation(); }, true);
   // the browser's back button closes it
   window.addEventListener('hashchange', () => { if (isSiteOpen() && location.hash !== '#site') closeSite(true); });
@@ -230,13 +60,21 @@ export function initSite(experience) { xp = experience; build(); }
 export function openSite() {
   build(); if (isSiteOpen()) return;
   lastFocus = document.activeElement;
-  el.inert = false; el.setAttribute('aria-hidden', 'false'); el.classList.add('open'); el.scrollTop = 0;
+  clearTimeout(hideT); el.hidden = false;
+  if (!frame) {
+    frame = document.createElement('iframe'); frame.title = `${SITE.name}, the portfolio`;
+    frame.addEventListener('load', () => { el.classList.add('ready'); try { frame.contentWindow?.focus(); } catch {} });
+    frame.src = '/'; el.prepend(frame);
+  }
+  el.inert = false; el.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => el.classList.add('open'));
   setRoute('site');
-  el.focus({ preventScroll: true });   // the page itself takes the focus: Tab moves on from there, and no ring shows on a click
+  el.focus({ preventScroll: true });
 }
 export function closeSite(fromHistory = false) {
   if (!isSiteOpen()) return;
-  closeDetail(); el.classList.remove('open'); el.inert = true; el.setAttribute('aria-hidden', 'true');
+  el.classList.remove('open'); el.inert = true; el.setAttribute('aria-hidden', 'true');
+  clearTimeout(hideT); hideT = setTimeout(() => { if (!isSiteOpen()) el.hidden = true; }, 450);
   if (!fromHistory && location.hash === '#site') setRoute('');
   if (lastFocus?.focus) try { lastFocus.focus({ preventScroll: true }); } catch {}
 }

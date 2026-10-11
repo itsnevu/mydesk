@@ -1,5 +1,5 @@
 // The keyboard's districts, built so each one reads as what it stands for. The Blender shells (the stone steps a district
-// stands on) stay; what stands on them is made here. The client street is sixteen shops, one per live client site, each
+// stands on) stay; what stands on them is made here. The client street is seventeen shops, one per live client site, each
 // with its trade on the roof (glasses over the optician, a ship over the model maker, a flying elephant over Gajah Terbang)
 // and its name over the door; point at one and it names itself, click it and its project page opens.
 // Units are the keyboard's own (1 = one key pitch); y = 0 is the plate the removed caps stood on, the district's origin.
@@ -90,7 +90,7 @@ const STEPS = [
 ];
 const SHOPS = [
   [
-    { key: 'recon', sign: ['RECON'], w: 0.42, h: 0.5, wall: '#4d4a3f', awn: '#6b5a48', trade: 'dish' },
+    { key: 'recon', sign: ['RECON'], w: 0.42, h: 0.5, wall: '#4d4a3f', awn: '#6b5a48', trade: 'house' },
     { key: 'airon', sign: ['AIRON'], w: 0.42, h: 0.46, wall: '#5c6a6e', awn: '#e7ddc8', trade: 'aircon' },
     { key: 'rameinaja', sign: ['RAMEINAJA'], w: 0.44, h: 0.48, wall: '#7a3f22', awn: '#d9a05b', trade: 'billboard' },
     { key: 'gajah-terbang-kreatif', sign: ['GAJAH TERBANG'], w: 0.55, h: 0.58, wall: '#c9b48a', awn: '#4d3822', trade: 'elephant' },
@@ -99,7 +99,7 @@ const SHOPS = [
     { key: 'nf-optical', sign: ['NF OPTICAL'], w: 0.36, h: 0.4, wall: '#d6c7ab', awn: '#2e2418', trade: 'glasses' },
     { key: 'yukti-rasa-mitrabumi', sign: ['YUKTI RASA'], w: 0.36, h: 0.42, wall: '#6f6a4a', awn: '#b8622c', trade: 'flask' },
     { key: 'orthobone', sign: ['ORTHOBONE'], w: 0.36, h: 0.38, wall: '#e7ddc8', awn: '#4a5236', trade: 'cross' },
-    { key: 'izzi', sign: ['IZZI'], w: 0.36, h: 0.4, wall: '#8a5a34', awn: '#e7ddc8', trade: 'bag' },
+    { key: 'izzi', sign: ['IZZI'], w: 0.36, h: 0.4, wall: '#8a5a34', awn: '#e7ddc8', trade: 'house' },
     { key: 'little-aivy', sign: ['LITTLE', 'AIVY'], w: 0.36, h: 0.4, wall: '#e9c9c0', awn: '#b8622c', trade: 'dress' },
   ],
   [
@@ -110,8 +110,10 @@ const SHOPS = [
     { key: 'miniatur-kapal', sign: ['MINIATUR', 'KAPAL'], w: 0.358, h: 0.3, wall: '#4a4a40', awn: '#d6c7ab', trade: 'ship' },
   ],
   [
-    { key: 'fortunarack', sign: ['FORTUNARACK'], w: 0.44, h: 0.46, wall: '#3b3a33', awn: '#8a7a66', trade: 'rack' },
-    { key: 'fls-group-indonesia', sign: ['FLS GROUP'], w: 0.44, h: 0.44, wall: '#7a2e1e', awn: '#d9a05b', trade: 'vase' },
+    // (the slab is 0.96 wide: three narrow shops with two gaps fill it exactly)
+    { key: 'fortunarack', sign: ['FORTUNA', 'RACK'], w: 0.29, h: 0.46, wall: '#3b3a33', awn: '#8a7a66', trade: 'rack' },
+    { key: 'fls-group-indonesia', sign: ['FLS', 'GROUP'], w: 0.29, h: 0.44, wall: '#7a2e1e', awn: '#d9a05b', trade: 'vase' },
+    { key: 'the-bedji-group', sign: ['THE BEDJI', 'GROUP'], w: 0.3, h: 0.42, wall: '#1f3b2e', awn: '#d9b56a', trade: 'tube' },
   ],
 ];
 const DEPTH = 0.4, GAP = 0.04;
@@ -171,9 +173,11 @@ function drawFront(ctx, c, W, H, glow) {
     case 'flask': for (let i = 0; i < 4; i++) { const x = gx(0.15 + i * 0.23); ctx.fillRect(x - gw * 0.04, gyy(0.5), gw * 0.08, gh * 0.32); ctx.fillRect(x - gw * 0.015, gyy(0.38), gw * 0.03, gh * 0.12); } break;
     case 'cross': ctx.fillRect(gx(0.45), gyy(0.2), gw * 0.1, gh * 0.5); ctx.fillRect(gx(0.32), gyy(0.38), gw * 0.36, gh * 0.14); break;
     case 'bag': for (let i = 0; i < 3; i++) { const x = gx(0.2 + i * 0.3); ctx.fillRect(x - gw * 0.08, gyy(0.45), gw * 0.16, gh * 0.37); ctx.beginPath(); ctx.arc(x, gyy(0.45), gw * 0.05, Math.PI, 0); ctx.stroke(); } break;
+    case 'house': for (let i = 0; i < 2; i++) { const x = gx(0.28 + i * 0.44), hw = gw * 0.16, y1 = gyy(0.78), y0 = gyy(0.5); ctx.beginPath(); ctx.moveTo(x - hw, y0); ctx.lineTo(x, gyy(0.32)); ctx.lineTo(x + hw, y0); ctx.lineTo(x + hw, y1); ctx.lineTo(x - hw, y1); ctx.closePath(); ctx.fill(); } break;   // two little houses in the window
     case 'boxes': for (let i = 0; i < 3; i++) for (let j = 0; j <= (i % 2); j++) ctx.fillRect(gx(0.12 + i * 0.28), gyy(0.6 - j * 0.24), gw * 0.22, gh * 0.22); break;
     case 'ship': ctx.beginPath(); ctx.moveTo(gx(0.15), gyy(0.62)); ctx.lineTo(gx(0.85), gyy(0.62)); ctx.lineTo(gx(0.75), gyy(0.78)); ctx.lineTo(gx(0.25), gyy(0.78)); ctx.fill(); ctx.fillRect(gx(0.49), gyy(0.15), 3, gh * 0.48); ctx.beginPath(); ctx.moveTo(gx(0.52), gyy(0.18)); ctx.lineTo(gx(0.75), gyy(0.55)); ctx.lineTo(gx(0.52), gyy(0.55)); ctx.fill(); break;
     case 'factory': for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.arc(gx(0.22 + i * 0.28), gyy(0.55), gh * 0.13, 0, Math.PI * 2); ctx.stroke(); } break;
+    case 'tube': ctx.strokeStyle = ctx.fillStyle; ctx.lineWidth = Math.max(2, gh * 0.07); for (let i = 0; i < 3; i++) circle(gx(0.2 + i * 0.3), gyy(0.5), gh * 0.14, false); break;   // inner tubes on the shelf
     default: for (let i = 0; i < 3; i++) ctx.fillRect(gx(0.12 + i * 0.3), gyy(0.4 + (i % 2) * 0.12), gw * 0.18, gh * 0.42 - (i % 2) * gh * 0.12);
   }
   // mullions over everything
@@ -185,7 +189,7 @@ function drawBillboard(ctx, c, W, H, glow) {
   ctx.fillStyle = glow ? '#3a2410' : '#efe4cf'; ctx.beginPath(); ctx.moveTo(W * 0.06, H * 0.42); ctx.lineTo(W * 0.16, H * 0.42); ctx.lineTo(W * 0.25, H * 0.2); ctx.lineTo(W * 0.25, H * 0.8); ctx.lineTo(W * 0.16, H * 0.58); ctx.lineTo(W * 0.06, H * 0.58); ctx.fill();
   ctx.fillStyle = glow ? '#3a2410' : '#2b1a10'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   const s = fit(ctx, 'RAMEINAJA', W * 0.64, H * 0.46, 700, SANS, 1); ctx.font = `700 ${s}px ${SANS}`; ctx.fillText('RAMEINAJA', W * 0.33, H * 0.42);
-  ctx.font = `500 ${Math.round(s * 0.42)}px ${MONO}`; ctx.letterSpacing = '2px'; ctx.fillStyle = glow ? '#20140a' : '#8a5a34'; ctx.fillText('DIGITAL MARKETING', W * 0.335, H * 0.76);
+  ctx.font = `500 ${Math.round(s * 0.42)}px ${MONO}`; ctx.letterSpacing = '2px'; ctx.fillStyle = glow ? '#20140a' : '#8a5a34'; ctx.fillText('EVENTS & NIGHTLIFE', W * 0.335, H * 0.76);
 }
 function drawLotSign(ctx, c, W, H, glow) {
   if (!glow) { ctx.fillStyle = '#efe4cf'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#b8622c'; ctx.fillRect(0, 0, W, H * 0.12); ctx.fillRect(0, H * 0.88, W, H * 0.12); }
@@ -197,7 +201,7 @@ function drawStreetSign(ctx, c, W, H, glow) {
   if (!glow) { ctx.fillStyle = '#1b130c'; ctx.fillRect(0, 0, W, H); ctx.strokeStyle = '#b08a52'; ctx.lineWidth = 3; ctx.strokeRect(3, 3, W - 6, H - 6); }
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillStyle = glow ? '#ffd29a' : '#f1e2c8'; const s = fit(ctx, 'CLIENT WEBSITES', W * 0.86, H * 0.36, 700, SANS, 2); ctx.font = `700 ${s}px ${SANS}`; ctx.fillText('CLIENT WEBSITES', W / 2, H * 0.4);
-  ctx.fillStyle = glow ? '#a8682a' : '#d9a05b'; ctx.font = `500 ${Math.round(s * 0.5)}px ${MONO}`; ctx.letterSpacing = '3px'; ctx.fillText('16 LIVE SITES, EVERY SHOP IS REAL', W / 2, H * 0.74);
+  ctx.fillStyle = glow ? '#a8682a' : '#d9a05b'; ctx.font = `500 ${Math.round(s * 0.5)}px ${MONO}`; ctx.letterSpacing = '3px'; ctx.fillText('17 LIVE SITES, EVERY SHOP IS REAL', W / 2, H * 0.74);
 }
 
 // each trade on its shop's roof (origin: the roof's centre), built small and in the room's palette
@@ -299,12 +303,28 @@ function trade(g, s, top, live) {
       put(g, fuse([[box(0.016, 0.05, 0.012)], [box(0.05, 0.016, 0.012)]]), lit, [w / 2 + 0.04, top - 0.08, d / 2 - 0.02]);
       break;
     }
+    case 'house': {   // property: a little house on the roof, one window lit, and a board on a post beside it
+      put(g, box(0.09, 0.06, 0.07), plain('#efe4cf', 0.7), [-0.04, top + 0.03, 0]);
+      put(g, cone(0.072, 0.045, 4), plain('#b8622c', 0.7), [-0.04, top + 0.082, 0], [0, Math.PI / 4, 0]);
+      put(g, box(0.02, 0.016, 0.004), GLOW(), [-0.04, top + 0.03, 0.036]).castShadow = false;
+      put(g, box(0.004, 0.08, 0.004), BRONZE(), [0.08, top + 0.04, 0.02]);
+      put(g, box(0.06, 0.03, 0.004), plain('#efe4cf', 0.7), [0.08, top + 0.085, 0.02]);
+      break;
+    }
     case 'bag': {   // the lifestyle brand: a shopping bag with a rope handle
       put(g, box(0.1, 0.11, 0.045), plain('#efe4cf', 0.8), [0, top + 0.055, 0]);
       put(g, torus(0.026, 0.004, 12, 4, Math.PI), BRASS(), [0, top + 0.11, 0], [-Math.PI / 2, 0, 0]);
       put(g, box(0.07, 0.08, 0.04), plain('#b8622c', 0.8), [0.1, top + 0.04, 0.02], [0, 0.4, 0]);
       break;
     }
+    case 'tube': {   // The Bedji Group, river tubing in Jatiluwih: an inner tube propped on the roof, a paddle beside it, a puddle of river under them
+      put(g, cylinder(0.034, 0.034, 0.006, 16), plain('#2b4a6e', 0.4), [0, top + 0.003, 0]);
+      put(g, torus(0.034, 0.013, 16, 10), plain('#e0a63a', 0.55), [0, top + 0.042, 0], [Math.PI / 2 - 0.5, 0, 0]);
+      put(g, box(0.004, 0.11, 0.004), plain('#8a5a34', 0.8), [0.06, top + 0.055, 0.012], [0, 0, -0.25]);
+      put(g, box(0.016, 0.03, 0.004), plain('#e7ddc8', 0.7), [0.076, top + 0.118, 0.012], [0, 0, -0.25]);
+      break;
+    }
+
     case 'flower': {   // the florist: a big bloom on the roof
       put(g, cylinder(0.005, 0.006, 0.1, 5), plain('#4a5236', 0.8), [0, top + 0.05, 0]);
       const pet = [];

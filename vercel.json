@@ -3,6 +3,16 @@
   "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "trailingSlash": true,
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "3d.navygibran.dev" }], "destination": "https://navygibran.dev/3d/", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/3d/shots/:path*", "destination": "/shots/:path*" },
+    { "source": "/3d/cat/:path*", "destination": "/cat/:path*" },
+    { "source": "/3d/bgsound.m4a", "destination": "/bgsound.m4a" },
+    { "source": "/3d/og.png", "destination": "/og.png" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -10,6 +20,18 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
+    },
+    {
+      "source": "/(shots|cat|site)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=86400" }]
+    },
+    {
+      "source": "/site/fonts/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/bgsound.m4a",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, immutable" }]
     }
   ]
 }

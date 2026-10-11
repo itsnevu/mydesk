@@ -159,7 +159,9 @@ export const menu = {
     const nav = $('site-menu');
     nav.innerHTML = '';
     for (const m of MENU) {
-      const a = document.createElement('a'); a.href = `#${m.target}`; a.textContent = m.label; a.dataset.key = (m.key || m.target).toUpperCase();
+      const a = document.createElement('a'); a.href = m.href || `#${m.target}`; a.textContent = m.label; a.dataset.key = (m.key || m.target).toUpperCase();
+      // a plain link (the way out to the portfolio) is left to the browser
+      if (m.href) { a.addEventListener('click', () => { window.nvTrack?.('3d_experience_exit', { from: 'menu' }); try { sessionStorage.setItem('nv-curtain', '#120f0a'); sessionStorage.setItem('nv-curtain-name', 'Navy Gibran'); } catch {} }); nav.appendChild(a); continue; }
       // (the link lets go of focus first: closing the menu would otherwise hand it to the toggle, and Space would reopen the menu)
       a.addEventListener('click', (e) => { e.preventDefault(); a.blur(); menu.close(); onSelect(m); });
       nav.appendChild(a);
@@ -209,6 +211,7 @@ export const detail = {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.key = p.key;
       // a live site's thumbnail is its real screenshot; the file is only asked for when the page first opens (data-src), not at boot
       if (GALLERY[p.key] || SHOTS.includes(p.key)) { const im = document.createElement('img'); im.dataset.src = GALLERY[p.key] ? `shots/gallery/${p.key}-1.webp` : `shots/${p.key}.webp`; im.alt = ''; im.decoding = 'async'; im.onerror = () => im.replaceWith(cardCanvas(p, 240, 152)); b.appendChild(im); }
+      else if (p.noShot) { const ph = document.createElement('span'); ph.className = 'strip-plate mono'; ph.innerHTML = `<b>${esc(p.title)}</b><i>${esc(p.noShot.tag)}</i>`; b.appendChild(ph); }
       else b.appendChild(cardCanvas(p, 240, 152));
       const s = document.createElement('span'); s.textContent = `${projectIndex(p)} ${p.title}`; b.appendChild(s);
       b.addEventListener('click', () => detail.show(p));
@@ -241,6 +244,9 @@ export const detail = {
       if (m) { m.onerror = () => m.remove(); m.src = phone; }
       d.src = shots[0];
       media.querySelector('.shot-thumbs')?.addEventListener('click', (e) => { const b = e.target.closest('.shot-thumb'); if (!b) return; d.src = shots[+b.dataset.i]; for (const t of media.querySelectorAll('.shot-thumb')) t.classList.toggle('on', t === b); });
+    } else if (p.noShot) {
+      // the picture that is not there (JAKASN): the same light note as on the portfolio's page, in place of a generated card
+      media.innerHTML = `<div class="shot-plate"><span class="sp-k mono">${esc(p.industry)}</span><span class="sp-tag mono">( ${esc(p.noShot.tag)} )</span><b>${esc(p.title)}</b><p>${esc(p.noShot.line)}</p><small class="mono">${esc(p.stack)}</small></div>`;
     } else media.appendChild(cardCanvas(p, 1280, 720));
     const strip = $('detail-strip'); for (const b of strip.children) b.classList.toggle('active', b.dataset.key === p.key);
     // the active thumbnail slides to the middle of the strip (scrollIntoView could also scroll the page under it)
@@ -307,7 +313,9 @@ const linksRow = () => `<div class="contact-links">${SITE.links.map((l) => `<a h
 export const panel = {
   about() {
     const glance = `<div class="sp-group"><span class="sp-group-title mono">at a glance</span><ul class="sp-skills">${SITE.facts.map((f) => `<li>${f}</li>`).join('')}</ul></div>`;
-    showPanel('who I am', 'ABOUT', `<p>${SITE.about}</p><p><strong>Currently:</strong> ${SITE.currently}</p>${glance}${linksRow()}`, 'right');
+    // (his face first: public/site/portrait.webp, the same print as on the portfolio's opening page)
+    const face = `<figure class="sp-portrait" aria-hidden="true"><img src="/site/portrait.webp" alt="" width="92" height="115" decoding="async" loading="lazy"></figure>`;
+    showPanel('who I am', 'ABOUT', `${face}<p>${SITE.about}</p><p><strong>Currently:</strong> ${SITE.currently}</p><p><strong>${SITE.status}</strong> · ${SITE.where}</p>${glance}${linksRow()}`, 'right');
   },
   skills() {
     const html = SITE.skills.map((g) => `<div class="sp-group"><span class="sp-group-title mono">${g.group}</span><ul class="sp-skills">${g.items.map((i) => `<li>${i}</li>`).join('')}</ul></div>`).join('');

@@ -4,6 +4,8 @@
 // non-executing <script type="application/octet-stream" id="kwa-NAME">: the HTML parser skips it, and loadAsset() decodes it
 // only when asked, so worlds cost nothing until entered. JS and CSS get a light, verified comment/indent strip (scripts/jsmin.js).
 // public/** is copied into dist/ as is (lazy images such as shots/<key>.webp stay out of the HTML).
+// Two sites: the 3D desk is written to dist/3d/index.html, and the plain portfolio (scripts/site.js) to dist/index.html and
+// dist/work/<key>/index.html. vercel.json maps the desk's relative fetches (shots/, cat/, bgsound.m4a) back to the root copies.
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -11,6 +13,7 @@ import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { pack } from './kwpack.js';
 import { minifyJS, minifyCSS } from './jsmin.js';
+import { renderSite } from './site.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = process.env.KW_OUT ? path.resolve(process.env.KW_OUT) : path.join(root, 'dist'); // KW_OUT: build somewhere else (tests)
@@ -100,10 +103,15 @@ fs.mkdirSync(dist, { recursive: true });
 // public/** first, so nothing in it can overwrite the pages written below
 const pub = path.join(root, 'public'); let copied = 0;
 if (fs.existsSync(pub)) {
-  try { fs.cpSync(pub, dist, { recursive: true, filter: (s) => { const r = path.relative(pub, s); if (r === 'index.html' || r === 'artifact.html') return false; if (fs.statSync(s).isFile()) copied++; return true; } }); }
+  try { fs.cpSync(pub, dist, { recursive: true, filter: (s) => { const r = path.relative(pub, s); if (r === 'index.html' || r === 'artifact.html' || r === 'robots.txt' || r === 'sitemap.xml') return false; if (fs.statSync(s).isFile()) copied++; return true; } }); }
   catch (e) { console.warn(`warning: copying public/ into dist/ failed part way (${e.message})`); }
 }
-fs.writeFileSync(path.join(dist, 'index.html'), out);
+fs.mkdirSync(path.join(dist, '3d'), { recursive: true });
+fs.writeFileSync(path.join(dist, '3d', 'index.html'), out);
+// the plain portfolio: the home page, one page per project, the 404, the sitemap and robots.txt
+const pages = await renderSite();
+for (const [rel, page] of Object.entries(pages)) { const f = path.join(dist, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, page); }
+const homeKB = Buffer.byteLength(pages['index.html']);
 // artifact flavour: body-only fragment (the host wraps it in its own document skeleton); left out of Vercel builds,
 // where dist/ is the public site and only index.html belongs in it
 if (!process.env.VERCEL) {
@@ -111,6 +119,7 @@ if (!process.env.VERCEL) {
   fs.writeFileSync(path.join(dist, 'artifact.html'), frag);
 }
 const kb = (n) => (n / 1024).toFixed(1) + ' kB';
-console.log(`built dist/index.html (${kb(out.length)}, gzip ${kb(zlib.gzipSync(out).length)}), ${order.length} modules, ${minNote}`);
+console.log(`built dist/3d/index.html, the desk (${kb(out.length)}, gzip ${kb(zlib.gzipSync(out).length)}), ${order.length} modules, ${minNote}`);
+console.log(`built the portfolio: ${Object.keys(pages).length} files, home page ${kb(homeKB)} (gzip ${kb(zlib.gzipSync(pages['index.html']).length)})`);
 console.log(`assets: ${inlined.length} inlined as kwb2 (${kb(jsonBytes)} of JSON → ${kb(assetTags.length)} base64)${skipped.length ? `, not referenced so left out: ${skipped.join(', ')}` : ''}`);
 if (copied) console.log(`public: ${copied} file(s) copied into dist/`);

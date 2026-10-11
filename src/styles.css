@@ -52,6 +52,8 @@ body[data-cursor="grabbing"] #canvas { cursor: grabbing; }
 .loading-track { width: clamp(260px, 32vw, 680px); height: 2px; background: var(--line); margin: clamp(20px, 2vw, 40px) auto clamp(14px, 1.4vw, 28px); position: relative; overflow: hidden; }
 .loading-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--accent); transition: width 0.25s var(--ease); }
 .loading-percent { font-family: var(--mono); font-size: clamp(13px, 1.25vw, 26px); color: var(--paper-faint); }
+.loading-out { display: inline-block; margin-top: 30px; padding: 13px 22px; border: 1px solid rgba(217, 160, 91, 0.6); border-radius: 999px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; color: var(--paper); transition: background var(--d-fast), border-color var(--d-fast); }
+.loading-out:hover, .loading-out:focus-visible { background: rgba(217, 160, 91, 0.14); border-color: var(--accent); }
 
 /* ---------- gate */
 #gate { position: absolute; inset: 0; z-index: 50; background: radial-gradient(ellipse at 50% 45%, rgba(18,15,10,0.62) 0%, rgba(18,15,10,0.86) 55%, rgba(18,15,10,0.97) 100%); overflow: hidden; opacity: 1; transition: opacity 1.1s var(--ease-io); }
@@ -605,3 +607,54 @@ body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1
 @media (prefers-reduced-motion: reduce) { .mc-chips li, .mc-chips li i { animation-duration: 0.01s; animation-delay: 0s; } }
 /* the plain-text version of the page (index.html): read by search engines and screen readers, never drawn over the desk */
 .seo-text { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+/* ---------- the way back to the plain portfolio (navygibran.dev/), and the gate's word on what this is.
+   On the loading screen and the gate the link sits top left; on the desk it moves down to the bottom left corner, just above
+   the "? Guide" and "See the work" buttons. On a phone the menu carries it after the gate, so the corner stays free for "See the work". */
+#exit-3d { position: absolute; z-index: 65; left: 40px; top: calc(30px + var(--safe-t)); display: inline-flex; align-items: center; gap: 10px; box-sizing: border-box; height: 48px; padding: 0 18px 0 9px; border: 1px solid rgba(217, 160, 91, 0.6); border-radius: 999px; background: rgba(18, 15, 10, 0.78); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: var(--paper); font: 600 14px/1 var(--sans); letter-spacing: 0.04em; text-decoration: none; transition: border-color var(--d-fast), transform var(--d-fast), opacity var(--d-base); }
+#exit-3d i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--paper); color: #1a140d; font-style: normal; font-size: 15px; transition: transform var(--d-fast) var(--ease); }
+#exit-3d:hover, #exit-3d:focus-visible { border-color: var(--accent); transform: translateY(-1px); }
+#exit-3d:hover i { transform: translateX(-2px); }
+body:not([data-state="loading"]):not([data-state="gate"]) #exit-3d { top: auto; bottom: calc(90px + var(--safe-b)); }
+body[data-state="entering"] #exit-3d, body[data-state="switching"] #exit-3d, body[data-state="detail"] #exit-3d { opacity: 0; pointer-events: none; }
+#gate-intro { position: absolute; z-index: 45; right: 40px; top: calc(30px + var(--safe-t)); max-width: 330px; display: grid; gap: 6px; text-align: right; color: var(--paper); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85); opacity: 0; transform: translateY(-6px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); pointer-events: none; }
+body[data-state="gate"] #gate-intro { opacity: 1; transform: none; }
+.gi-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+.gi-line { font-size: 17px; font-weight: 500; line-height: 1.3; }
+.gi-line b { color: var(--accent); }
+.gi-sub { font-size: 13px; line-height: 1.45; color: var(--paper-dim); }
+@media (min-width: 1025px) { #exit-3d, #gate-intro { zoom: var(--ui, 1); } }
+@media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
+  #exit-3d { left: 16px; top: calc(14px + var(--safe-t)); height: 44px; padding: 0 15px 0 7px; font-size: 13px; }
+  #exit-3d i { width: 28px; height: 28px; font-size: 14px; }
+  body:not([data-state="loading"]):not([data-state="gate"]) #exit-3d { display: none; }
+  #gate-intro { left: 16px; right: 16px; top: calc(62px + var(--safe-t)); max-width: none; text-align: left; gap: 4px; }
+  .gi-line { font-size: 15px; } .gi-sub { font-size: 12px; }
+}
+
+/* ---------- 2026-10-11: a way to write to Navy from anywhere on the desk, a face in the About panel, and a line about him while the scene loads */
+#hud-wa { position: absolute; right: 40px; bottom: calc(104px + var(--safe-b)); display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: 1px solid rgba(217, 160, 91, 0.55); border-radius: 999px; background: rgba(18, 15, 10, 0.78); backdrop-filter: blur(8px); color: var(--paper); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; text-decoration: none; opacity: 0; pointer-events: none; transform: translateY(6px); transition: opacity var(--d-base) var(--ease), transform var(--d-base) var(--ease), border-color var(--d-fast); }
+#hud-wa::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #7fd49c; box-shadow: 0 0 0 3px rgba(127, 212, 156, 0.18); }
+#hud-wa i { font-style: normal; color: var(--accent); }
+#hud-wa:hover { border-color: var(--accent); }
+body[data-state="desk"] #hud-wa, body[data-state="focus"] #hud-wa, body[data-state="overview"] #hud-wa { opacity: 1; pointer-events: auto; transform: none; }
+body.hints-on #hud-wa { opacity: 0; pointer-events: none; }
+.sp-portrait { float: right; width: 92px; aspect-ratio: 4 / 5; margin: 0 0 12px 16px; padding: 4px 4px 12px; background: #e9e1cf; border-radius: 2px; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45); transform: rotate(2deg); }
+.sp-portrait img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 30%; border-radius: 1px; filter: saturate(0.8) contrast(1.05); }
+@media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
+  #hud-wa { right: 16px; bottom: calc(136px + var(--safe-b)); padding: 9px 14px; }
+  body[data-state="focus"] #hud-wa { opacity: 0; pointer-events: none; }
+  .sp-portrait { width: 72px; }
+}
+@media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) { #hud-wa { display: none; } }
+@media (min-width: 1025px) { #hud-wa { zoom: var(--ui, 1); } }
+/* a project with no picture (JAKASN): a typographic plate in the detail page and in the strip, saying so lightly */
+.shot-plate { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 7%; background: radial-gradient(ellipse at 30% 20%, rgba(217, 160, 91, 0.16), transparent 60%), var(--surface); }
+.shot-plate .sp-k { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); }
+.shot-plate .sp-tag { font-size: 12px; letter-spacing: 0.12em; color: var(--accent); }
+.shot-plate b { font-size: clamp(28px, 4vw, 56px); line-height: 1.05; font-weight: 700; color: var(--paper); }
+.shot-plate p { max-width: 34em; margin: 6px 0 0; font-size: clamp(14px, 1.3vw, 18px); line-height: 1.5; color: var(--paper-dim); }
+.shot-plate small { margin-top: 10px; font-size: 11px; letter-spacing: 0.12em; color: var(--paper-faint); }
+.detail-strip button .strip-plate { display: flex; flex-direction: column; justify-content: center; gap: 4px; width: 100%; height: 76px; padding: 8px 10px; box-sizing: border-box; white-space: normal; background: radial-gradient(ellipse at 30% 20%, rgba(217, 160, 91, 0.18), transparent 60%), var(--surface); }
+.detail-strip button .strip-plate b { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.detail-strip button .strip-plate i { display: block; font-style: normal; font-size: 9px; letter-spacing: 0.12em; color: var(--accent); white-space: nowrap; }

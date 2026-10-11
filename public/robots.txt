@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://mydesk-murex.vercel.app/sitemap.xml

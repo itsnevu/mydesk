@@ -5,3 +5,4 @@ node_modules
 *.blend1
 scripts/*.py
 public/bgsound.mp3
+scripts/fonts
