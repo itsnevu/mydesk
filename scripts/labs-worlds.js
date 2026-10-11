@@ -1,7 +1,7 @@
 // The worlds: a series of crypto products, each told as one scroll-driven 3D world backed by a working dApp and Solidity
 // contracts, every app running its real contracts on an Ethereum chain inside the browser. Navy's copy, as written
 // (2026-10-13); the cards and the filter render on the Labs page (scripts/site.js labsPage), above the GitHub experiments.
-// Each card: name, tagline, category, description, tags, "Visit" (the site) and "Open app" (the site's /app/).
+// Each card: name, tagline, category, description, tags and one "Visit" link to the site's root (Navy: never the /app/ path).
 
 export const WORLDS_INTRO = 'A series of crypto products, each told as one scroll-driven 3D world and each backed by a working dApp and Solidity contracts. Every app runs its real contracts on an Ethereum chain inside the browser, so you can play every role without a wallet. All brands are concepts except Pyris Pact, which is a live product.';
 export const WORLDS_STACK = ['three.js', 'TypeScript', 'Vite', 'Solidity (Foundry, OpenZeppelin)', 'viem', 'an in-browser EVM sandbox'];
@@ -73,6 +73,15 @@ export const WORLDS_CSS = `
 .labs-chapter .serif-h { margin-bottom: clamp(18px, 2vw, 28px); }
 .world-plate { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 190px; padding: 22px 22px 20px; background: radial-gradient(120% 100% at 85% 0%, color-mix(in srgb, var(--acc) 28%, transparent), transparent 62%), radial-gradient(90% 80% at 10% 100%, color-mix(in srgb, var(--acc) 14%, transparent), transparent 60%), var(--bgc); }
 .world-plate::before { content: ""; position: absolute; inset: 0; background: linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 34px 34px, linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 34px 34px; opacity: 0.5; pointer-events: none; }
+/* a plate with a photograph of the world: the picture fills it, a scrim keeps the labels and the tagline readable, a slow zoom on hover */
+.world-plate.has-shot { aspect-ratio: 16 / 10; min-height: 0; padding: 20px 22px 18px; }
+.world-shot { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.001); transition: transform 1.4s var(--ease), opacity 0.6s; }
+.world:hover .world-shot { transform: scale(1.045); }
+.world-plate.has-shot::before { z-index: 1; opacity: 1; background: linear-gradient(to top, rgba(9, 8, 10, 0.9) 0%, rgba(9, 8, 10, 0.5) 34%, rgba(9, 8, 10, 0) 58%), linear-gradient(to bottom, rgba(9, 8, 10, 0.55), rgba(9, 8, 10, 0) 30%); }
+.world-plate.has-shot .world-top, .world-plate.has-shot .world-tag { z-index: 2; }
+.world-plate.has-shot .world-top { color: rgba(241, 234, 219, 0.8); }
+.world-plate.has-shot .world-tag { text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
+@media (prefers-reduced-motion: reduce) { .world:hover .world-shot { transform: none; } }
 .world-top { position: absolute; left: 22px; right: 22px; top: 18px; display: flex; justify-content: space-between; gap: 10px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
 .world-top b { color: var(--acc); font-weight: 700; }
 .world-tag { position: relative; font: italic 400 clamp(24px, 1.9vw, 30px)/1.12 var(--serif); color: var(--ink); text-wrap: balance; }
@@ -86,8 +95,6 @@ export const WORLDS_CSS = `
 .world-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .world-links a { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px; font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: border-color 0.3s, color 0.3s, background 0.3s; }
 .world-links a:hover, .world-links a:focus-visible { border-color: var(--ink); color: var(--ink); }
-.world-links a.is-app { background: var(--ink); border-color: var(--ink); color: #140f09; }
-.world-links a.is-app:hover, .world-links a.is-app:focus-visible { background: var(--acc); border-color: var(--acc); }
 .world-links .ar { width: 0.8em; height: 0.8em; }
 .world.is-live .world-top b::after { content: " · live"; color: #7fd49c; }
 .worlds-after { margin-top: clamp(80px, 9vw, 130px); padding-top: clamp(40px, 5vw, 64px); border-top: 1px solid var(--line-2); }
@@ -97,7 +104,7 @@ export const WORLDS_CSS = `
 
 /** The worlds section (the first chapter of the Labs page): the kick, the filter pills, the cards. `t` is the page's translator,
  *  `u` adds the language prefix to a link, `splitPair` is the site's rising headline. */
-export function worldsSection({ t, u = (p) => p, splitPair = (a, b) => `${esc(a)} <em>${esc(b)}</em>`, labsCount = 0 }) {
+export function worldsSection({ t, u = (p) => p, splitPair = (a, b) => `${esc(a)} <em>${esc(b)}</em>`, labsCount = 0, exists = () => false, img = null }) {
   const kick = (s) => `<span class="kick"><span class="sr">${esc(s)}</span><span class="kt" aria-hidden="true">${esc(s)}</span></span>`;
   const n = WORLDS.length;
   const counts = Object.fromEntries(WORLD_KINDS.map(([k]) => [k, WORLDS.filter((w) => w.kind === k).length]));
@@ -105,14 +112,18 @@ export function worldsSection({ t, u = (p) => p, splitPair = (a, b) => `${esc(a)
     .map(([k, label, c]) => `<button type="button" class="pill-f" data-kind="${k}" aria-pressed="${k === 'all'}"><span>${esc(label)}</span><span class="c">${c}</span></button>`).join('');
   const cards = WORLDS.map((w, i) => {
     const tags = [...SHARED_TAGS.map((x) => `<span>${esc(x)}</span>`), ...(w.tags || []).map((x) => `<span class="is-extra">${esc(x)}</span>`)].join('');
+    // the plate: a photograph of the world itself (public/site/labs/<key>.webp, taken past its gate) when there is one, the
+    // first row fetched eagerly since it sits near the top of the page; a card without a picture keeps the coloured plate
+    const shotRel = `site/labs/${w.key}.webp`;
+    const shot = img && exists(shotRel) ? img(shotRel, t('lw_shotAlt', { n: w.name }), { cls: 'world-shot', sizes: '(min-width: 1100px) 31vw, (min-width: 640px) 46vw, 92vw', eager: i < 3 }) : '';
     return `<li class="world${w.live ? ' is-live' : ''}" data-kind="${w.kind}" style="--i:${i % 9};--h:${w.hue}">
-      <div class="world-plate"><span class="world-top"><span>${pad(i + 1)} / ${pad(n)}</span><b>${esc(w.category)}</b></span><p class="world-tag">${esc(w.tagline)}</p></div>
+      <div class="world-plate${shot ? ' has-shot' : ''}">${shot}<span class="world-top"><span>${pad(i + 1)} / ${pad(n)}</span><b>${esc(w.category)}</b></span><p class="world-tag">${esc(w.tagline)}</p></div>
       <div class="world-body">
         <h3 class="world-name">${esc(w.name)}</h3>
         <span class="world-cat">${esc(w.category)}</span>
         <p class="world-desc">${esc(w.body)}</p>
         <div class="world-tags">${tags}</div>
-        <div class="world-links"><a href="${esc(w.url)}" target="_blank" rel="noopener" data-track="lab_open" data-lab="${esc(w.key)}" data-channel="visit">${esc(t('lw_visit'))} ${arrow}</a><a class="is-app" href="${esc(w.url)}/app/" target="_blank" rel="noopener" data-track="lab_open" data-lab="${esc(w.key)}" data-channel="app">${esc(t('lw_open'))} ${arrow}</a></div>
+        <div class="world-links"><a href="${esc(w.url)}/" target="_blank" rel="noopener" data-track="lab_open" data-lab="${esc(w.key)}" data-channel="visit">${esc(t('lw_visit'))} ${arrow}</a></div>
       </div>
     </li>`;
   }).join('');
