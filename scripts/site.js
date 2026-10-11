@@ -12,6 +12,8 @@ import { fileURLToPath } from 'node:url';
 import { LANGS, DEFAULT_LANG, LANG_ORDER, OTHER_PREFIXES, UI, CONTENT, fill } from './i18n.js';
 import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META } from './labs.js';
+import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
+import { LABS } from '../src/app/labs.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const ORIGIN = 'https://navygibran.dev';
@@ -241,8 +243,13 @@ function roll(text, em = '') {
 
 // `pathname` is the page's path without the language prefix ('/', '/work/', '/work/<key>/'): the canonical and the alternates
 // are built from it. The default language's pages forward to a remembered choice (the switch sets it) before anything paints.
-function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false }) {
+function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false }) {
   const url = `${ORIGIN}${PFX}${pathname}`;
+  // the home (the simple page) remembers which reading the visitor chose at the gate: "full" sends them to the story before anything
+  // paints, in the language they remembered too (this runs before the language forward, so the two never race), never when the
+  // address carries a hash, nor inside the desk's sheet
+  const viewLang = LANG === DEFAULT_LANG ? `(vl&&/^(${OTHER_PREFIXES})$/.test(vl)?'/'+vl:'')` : `'${PFX}'`;
+  const viewFwd = viewForward ? `try{if(!location.hash&&window.top===window.self&&localStorage.getItem('nv-view')==='full'){var vl=localStorage.getItem('nv-lang');location.replace(${viewLang}+'/full/'+location.search);return}}catch(e){}` : '';
   const alts = LANG_ORDER.map((l) => `<link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pathname}">`).join('\n') + `\n<link rel="alternate" hreflang="x-default" href="${ORIGIN}${LANGS[DEFAULT_LANG].prefix}${pathname}">`;
   // (never from a path that already carries a prefix, and never from the 404 page: an old server that does not know /en/ would
   // answer it with this page, and the forward would then add /en/ again and again)
@@ -282,7 +289,7 @@ ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alt
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/site/fonts/barlow-condensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/fonts/instrument-serif-400-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
-${ADOBE_KIT ? `<link rel="stylesheet" href="https://use.typekit.net/${esc(ADOBE_KIT)}.css">\n` : ''}<script>(function(d){${forward}d.classList.replace('no-js','js');try{if(window.top!==window.self)d.classList.add('in-desk')}catch(e){}try{var k=Math.max(1,Math.min(innerWidth/1600,innerHeight/900));if(k>1.02&&CSS.supports('zoom','1.5')){d.style.setProperty('--k',k.toFixed(4));d.style.zoom=k.toFixed(4)}}catch(e){}try{if(localStorage.getItem('nv-motion')==='off')d.classList.add('motion-off')}catch(e){}try{var s=sessionStorage,c=s.getItem('nv-curtain');if(c){d.classList.add('curtain-on');if(c!=='1'){d.style.setProperty('--curtain',c);d.classList.add('curtain-tint')}s.removeItem('nv-curtain')}${intro ? "if(!c&&!s.getItem('nv-intro')&&!d.classList.contains('in-desk')&&!d.classList.contains('motion-off')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro-on')" : ''}}catch(e){}})(document.documentElement)</script>
+${ADOBE_KIT ? `<link rel="stylesheet" href="https://use.typekit.net/${esc(ADOBE_KIT)}.css">\n` : ''}<script>(function(d){${viewFwd}${forward}d.classList.replace('no-js','js');try{if(window.top!==window.self)d.classList.add('in-desk')}catch(e){}try{var k=Math.max(1,Math.min(innerWidth/1600,innerHeight/900));if(k>1.02&&CSS.supports('zoom','1.5')){d.style.setProperty('--k',k.toFixed(4));d.style.zoom=k.toFixed(4)}}catch(e){}try{if(localStorage.getItem('nv-motion')==='off')d.classList.add('motion-off')}catch(e){}try{var s=sessionStorage,c=s.getItem('nv-curtain');if(c){d.classList.add('curtain-on');if(c!=='1'){d.style.setProperty('--curtain',c);d.classList.add('curtain-tint')}s.removeItem('nv-curtain')}${intro ? "if(!c&&!s.getItem('nv-intro')&&!d.classList.contains('in-desk')&&!d.classList.contains('motion-off')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro-on')" : ''}}catch(e){}})(document.documentElement)</script>
 <style>${css}</style>
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/3d/*"}}]},"eagerness":"moderate"},{"where":{"href_matches":"/3d/*"},"eagerness":"conservative"}]}</script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script>
@@ -291,6 +298,9 @@ ${extra}</head>`;
 
 // the language switch: the same page in each language (the page script remembers the choice)
 const langSwitch = (pathname) => `<nav class="lang" aria-label="${esc(t('langAria'))}">${LANG_ORDER.map((l) => `<a href="${LANGS[l].prefix}${pathname}" hreflang="${LANGS[l].html}" lang="${LANGS[l].html}" data-lang="${l}" title="${esc(LANGS[l].name)}"${l === LANG ? ' aria-current="true"' : ''}>${esc(LANGS[l].short)}</a>`).join('')}</nav>`;
+
+// the two readings of the home, Full (the story) and Simple (the profile page), beside the languages; only where it applies
+const viewSwitch = (current) => `<nav class="view" aria-label="${esc(t('viewAria'))}"><a href="${u('/full/')}" data-view="full"${current === 'home' ? ' aria-current="true"' : ''}>${esc(t('viewFull'))}</a><a href="${u('/')}" data-view="simple"${current === 'simple' ? ' aria-current="true"' : ''}>${esc(t('viewSimple'))}</a></nav>`;
 
 // the top of every page: the skip link, the anchor "back to top" goes to, the curtain between pages, the header, the menu and
 // the tab on the right edge that opens the desk
@@ -307,6 +317,7 @@ function header(current, pathname) {
 <header class="head">
   <div class="head-in">
     <a class="brand" href="${u('/')}" aria-label="${esc(t('brandHome'))}">${MARK()}<span class="brand-n">Navy Gibran</span><span class="head-sec" aria-hidden="true"><span class="hs-in"></span></span></a>
+    ${current === 'home' || current === 'simple' ? viewSwitch(current) : ''}
     ${langSwitch(pathname)}
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnet><span class="menu-word">${roll(t('menu'))}</span><span class="menu-lines" aria-hidden="true"><i></i><i></i></span></button>
   </div>
@@ -315,7 +326,7 @@ function header(current, pathname) {
 <div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">
-    ${item(u('/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: (LABS_META.menu.sub.match(/\d+/) || [''])[0] })))}
+    ${item(u('/full/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: (LABS_META.menu.sub.match(/\d+/) || [''])[0] })))}
   </nav>
   <div class="menu-side">
     <div class="menu-pv" aria-hidden="true">${pv}<span class="menu-pv-mark">${MARK()}</span><span class="menu-pv-cap"><b></b><span></span></span></div>
@@ -336,7 +347,7 @@ function footer(D) {
   <div class="wrap">
     <div class="foot-big" aria-hidden="true"><span class="fb-o">Navy Gibran</span><span class="fb-f">Navy Gibran</span></div>
     <div class="foot-cols">
-      <div><span class="lbl">${esc(t('f_site'))}</span><a href="${u('/#work')}">${esc(t('m_work'))}</a><a href="${u('/work/')}">${esc(t('f_all'))}</a><a href="${u('/labs/')}">${esc(t('m_labs'))}</a><a href="${u('/cv/')}">${esc(t('m_cv'))}</a><a href="${u('/#clients')}">${esc(t('m_clients'))}</a><a href="${u('/#territories')}">${esc(t('m_terr'))}</a><a href="${u('/#path')}">${esc(t('m_path'))}</a><a href="${u('/#contact')}">${esc(t('m_contact'))}</a></div>
+      <div><span class="lbl">${esc(t('f_site'))}</span><a href="${u('/full/#work')}">${esc(t('m_work'))}</a><a href="${u('/work/')}">${esc(t('f_all'))}</a><a href="${u('/labs/')}">${esc(t('m_labs'))}</a><a href="${u('/cv/')}">${esc(t('m_cv'))}</a><a href="${u('/full/#clients')}">${esc(t('m_clients'))}</a><a href="${u('/full/#territories')}">${esc(t('m_terr'))}</a><a href="${u('/full/#path')}">${esc(t('m_path'))}</a><a href="${u('/full/#contact')}">${esc(t('m_contact'))}</a></div>
       <div><span class="lbl">${esc(t('elsewhere'))}</span>${links}</div>
       <div><span class="lbl">${esc(t('f_other'))}</span><a href="/3d/" data-track="3d_cta_click" data-from="footer">${esc(t('f_desk'))} ${arrow}</a></div>
     </div>
@@ -449,19 +460,13 @@ function home(D, ctx) {
     sameAs: D.SITE.links.filter((l) => /linkedin|github|x\.com/.test(l.href)).map((l) => l.href),
   };
 
+  // (the story lives at /full/: the home itself is the simple page, which carries the intro and the gate; see simplePage)
   return head({
-    title: t('t_home'), description: t('d_home', { n: clientSites.length }), pathname: '/', css: ctx.css, intro: true, imageAlt: t('ogHomeAlt'),
+    title: t('t_home'), description: t('d_home', { n: clientSites.length }), pathname: '/full/', css: ctx.css, imageAlt: t('ogHomeAlt'),
     extra: `${heroPreload}\n<script type="application/ld+json">${JSON.stringify(ld)}</script>\n`,
   }) + `
 <body class="home">
-<div class="intro" id="intro" aria-hidden="true">
-  <div class="intro-posters">${posters.map((k, i) => `<figure style="--i:${i}"><img src="/site/intro/${k}.webp" alt="" width="240" height="320">${MARK()}</figure>`).join('')}</div>
-  <div class="intro-in">${MARK('intro-mark')}<div class="intro-word"><div class="iw-o"><span>Navy</span><span>Gibran</span></div><div class="iw-f"><span>Navy</span><span>Gibran</span></div></div><div class="intro-sub">${esc(t('role'))}</div></div>
-  <span class="intro-foot lbl">${esc(t('introFoot', { y: D.SITE.year }))}</span>
-  <button class="intro-skip" type="button" tabindex="-1">${esc(t('skipIntro'))}</button>
-  <span class="intro-count">00</span>
-</div>
-${header('home', '/')}
+${header('home', '/full/')}
 <main id="main" tabindex="-1">
   <section class="hero" aria-label="${esc(t('inShort'))}" data-scene="hero">
     <div class="hero-media">${heroPhoto ? img(heroPhoto, t('heroAlt'), { eager: true, sizes: heroSizes }) : img(deskShot, t('heroDeskAlt'), { eager: true, cls: 'hero-desk', sizes: heroSizes })}</div>
@@ -925,6 +930,46 @@ function typeset(html) {
   }).join('');
 }
 
+// ---------- the intro (once a visit, on the home): posters of the work, the mark, the name; then the gate, two doors, Simple (this
+// page) or Full (the story at /full/). The page script shows the gate once the name has played and skips it once a reading has been
+// chosen; the choice is remembered (nv-view), the header's switch changes it
+function introHtml(D) {
+  const posters = ['godplan-erp', 'godjah-studio', 'winfaith', 'flora-indonesia', 'fls-group-indonesia', 'dams-garage'].filter((k) => exists(`site/intro/${k}.webp`));
+  const deskShot = exists('site/desk-wide-800.webp') ? 'site/desk-wide-800.webp' : exists('site/desk-wide.webp') ? 'site/desk-wide.webp' : 'og.png';
+  return `<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-posters">${posters.map((k, i) => `<figure style="--i:${i}"><img src="/site/intro/${k}.webp" alt="" width="240" height="320">${MARK()}</figure>`).join('')}</div>
+  <div class="intro-in">${MARK('intro-mark')}<div class="intro-word"><div class="iw-o"><span>Navy</span><span>Gibran</span></div><div class="iw-f"><span>Navy</span><span>Gibran</span></div></div><div class="intro-sub">${esc(t('role'))}</div></div>
+  <div class="intro-gate" hidden>
+    <span class="kick">${esc(t('gateKick'))}</span>
+    <h2 class="intro-gate-t">${esc(t('gateTitle'))}</h2>
+    <div class="intro-doors">
+      <button class="intro-door" type="button" data-view="simple"><span class="door-pic door-pic--simple" aria-hidden="true"><i class="door-face">${exists('site/portrait.webp') ? '<img src="/site/portrait.webp" alt="" width="640" height="800" loading="lazy" decoding="async">' : ''}</i><i class="door-line door-line--1"></i><i class="door-line door-line--2"></i><i class="door-line door-line--3"></i><i class="door-rows"><b></b><b></b><b></b></i></span><b class="door-t">${esc(t('gateSimple'))}</b><small class="door-s">${esc(t('gateSimpleSub'))}</small></button>
+      <a class="intro-door" href="${u('/full/')}" data-view="full"><span class="door-pic door-pic--full" aria-hidden="true"><img src="/${deskShot}" alt="" width="800" height="450" loading="lazy" decoding="async"><i class="door-cap"><b>Navy</b><b>Gibran</b></i></span><b class="door-t">${esc(t('gateFull'))}</b><small class="door-s">${esc(t('gateFullSub'))}</small></a>
+    </div>
+    <p class="intro-gate-hint">${esc(t('gateHint'))} <a href="/3d/" data-track="3d_cta_click" data-from="gate">${esc(t('gate3d'))} ${arrow}</a></p>
+  </div>
+  <span class="intro-foot lbl">${esc(t('introFoot', { y: D.SITE.year }))}</span>
+  <button class="intro-skip" type="button" tabindex="-1">${esc(t('skipIntro'))}</button>
+  <span class="intro-count">00</span>
+</div>`;
+}
+
+// ---------- the home (/): the portfolio as one profile page (scripts/home-profile.js), the reading for the people Navy sells to,
+// who look and then call; the intro and the gate play over it, and "Full" leads to the story at /full/
+function simplePage(D, ctx) {
+  const Cn = C();
+  const clients = CLIENTS.map((c) => ({ key: c.key, name: c.name, word: c.word || null }));
+  const main = homeProfileMain({ D, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, labs: LABS, clients, exists, img, u, projectMedia });
+  const preload = ['site/desk-wide-800.webp', 'site/portrait.webp'].filter(exists).map((f) => `<link rel="preload" as="image" href="/${f}" fetchpriority="high">`).join('\n');
+  return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
+<body class="home home-profile">
+${introHtml(D)}
+${header('simple', '/')}
+${main}
+${footer(D)}
+` + tail(ctx.js + '\n' + HOME_PROFILE_JS);
+}
+
 // ---------- everything, per language: { 'index.html', 'work/<key>/index.html', 'labs/index.html', 'en/index.html', ...,
 // '404.html' (the default language), 'sitemap.xml', 'robots.txt' }
 export async function renderSite() {
@@ -947,7 +992,8 @@ export async function renderSite() {
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a></li>`).join('');
     const fillAll = (html) => typeset(html.replace('__MENU_LINKS__', menuLinks).replace(/__N_PROJECTS__/g, counted(D).length).replace(/__N_CLIENTS__/g, nClients).replace(/__YEAR__/g, esc(D.SITE.copyright || D.SITE.year)));
     const dir = PFX ? PFX.slice(1) + '/' : '';
-    out[`${dir}index.html`] = fillAll(home(D, ctx));
+    out[`${dir}index.html`] = fillAll(simplePage(D, ctx));
+    out[`${dir}full/index.html`] = fillAll(home(D, ctx));
     out[`${dir}work/index.html`] = fillAll(archivePage(D, ctx));
     out[`${dir}labs/index.html`] = fillAll(labsPage(D, ctx));
     out[`${dir}cv/index.html`] = fillAll(cvPage(D, ctx));
@@ -956,10 +1002,10 @@ export async function renderSite() {
   }
   setLang(DEFAULT_LANG);
   const today = new Date().toISOString().slice(0, 10);
-  const paths = ['/', '/work/', '/labs/', '/cv/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
+  const paths = ['/', '/full/', '/work/', '/labs/', '/cv/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
   const alt = (pth) => LANG_ORDER.map((l) => `<xhtml:link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pth}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${pth}"/>`;
   const urls = [];
-  for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><lastmod>${today}</lastmod><priority>${pth === '/' ? '1.0' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}</url>`);
+  for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><lastmod>${today}</lastmod><priority>${pth === '/' ? '1.0' : pth === '/full/' ? '0.9' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}</url>`);
   urls.push(`  <url><loc>${ORIGIN}/3d/</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>`);
   out['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
   out['robots.txt'] = `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`;

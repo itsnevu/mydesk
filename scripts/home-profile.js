@@ -1,0 +1,367 @@
+// The profile home: the portfolio as one narrow column anyone can scan in a minute, the way a GitHub or LinkedIn profile reads
+// (Navy's reference: zickrian.dev). A card with the banner, the portrait, one paragraph and the links; a row of tabs to the rest of
+// the site; then lists, not prose: experience, projects, clients, stack, labs, each a row with a name, a line and a chip or two,
+// the long parts folded away behind a toggle. Our own palette and type stay, and so does the motion: the banner drifts with the
+// pointer, rows light as they arrive, chips answer the hover, notes appear in the margins on a wide screen.
+// This module renders only <main>, its CSS and its script; scripts/site.js (or the preview) wraps it in the page shell.
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = (n) => String(n).padStart(2, '0');
+const I = {
+  work: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M3 12h18"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1.5 1.5M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1.5-1.5"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg>',
+  folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>',
+  flask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.5 9A2 2 0 006.2 21h11.6a2 2 0 001.7-3L14 9V3"/></svg>',
+  doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/></svg>',
+  cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>',
+  cap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5L2 9zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  out: '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  right: '<svg class="ar ar-r" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+};
+const mark = (slug, cls = '') => `<i class="pf-m${cls ? ' ' + cls : ''}" style="--m:url(/site/tools/${slug}.svg)" aria-hidden="true"></i>`;
+
+export const WORDS = {
+  id: {
+    handle: '@itsnevu', role: 'Full-stack developer', where: 'Indonesia', site: 'navygibran.dev', open: 'Menerima proyek baru',
+    bio: 'Full-stack developer dari Indonesia. Saya membangun sistem ERP dengan Go dan Next.js, serta website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Tujuh belas situs klien online hari ini.',
+    live: 'situs live', tabs: { home: 'Beranda', work: 'Karya', labs: 'Labs', cv: 'CV', desk: 'Desk 3D' },
+    exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack', labs: 'Labs',
+    viewAll: 'Lihat semua', more: 'Tampilkan lebih', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
+    status: { live: 'Live', first: 'Versi pertama', done: 'Selesai' }, year: { 'godplan-erp': '2025', jakasn: '2025' },
+    dur: { y: 'th', m: 'bl', d: 'hari' }, present: 'sekarang',
+    notes: ['Dari mengangkat TV ke lantai atas sampai membangun ERP.', 'Dua puluh proyek. Tujuh belas di antaranya online hari ini.', 'Satu pesan cukup untuk mulai.'],
+    ctaTitle: 'Ceritakan usaha Anda.', ctaLine: 'Website, toko online, atau sistem. Satu pesan cukup untuk mulai, dan saya sendiri yang membalas.',
+    chat: 'Chat WhatsApp', see3d: 'Lihat versi 3D', cvBtn: 'Unduh CV', email: 'Email',
+    waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
+    altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
+  },
+};
+WORDS.en = {
+  ...WORDS.id,
+  role: 'Full-stack developer', where: 'Indonesia', open: 'Taking new projects',
+  bio: 'Full-stack developer from Indonesia. I build ERP systems in Go and Next.js, and websites for businesses: company profiles, online stores and custom applications. Seventeen client sites are live today.',
+  live: 'live sites', tabs: { home: 'Home', work: 'Work', labs: 'Labs', cv: 'CV', desk: '3D desk' },
+  exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack', labs: 'Labs',
+  viewAll: 'View all', more: 'Show more', less: 'Show less', open_: 'Open', close_: 'Close',
+  status: { live: 'Live', first: 'First version', done: 'Done' }, dur: { y: 'y', m: 'm', d: 'days' }, present: 'present',
+  notes: ['From carrying TVs upstairs to building an ERP.', 'Twenty projects. Seventeen of them are live today.', 'One message is enough to start.'],
+  ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
+  chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
+  waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
+};
+WORDS.zh = { ...WORDS.en };
+
+// what each stop of the path carries beyond its words (the words come from i18n, in the same order): a logo, its chips, its
+// span in months (year, month; null = present) for the duration, and whether it is education
+// (`logo` is a one-colour mark in public/site/logos, made from the organisation's own site: a .webp silhouette, or an .svg)
+const PATH_META = [
+  { logo: 'gajah-terbang-kreatif', mono: 'GTK', chips: ['Go', 'Next.js', 'WordPress', 'GodPlan ERP'], from: [2025, 7], to: null },
+  { logo: 'bkn', mono: 'BKN', chips: ['PHP', 'MySQL', 'OJS', 'JAKASN'], from: [2025, 1], to: [2025, 6] },
+  { logo: 'umn', mono: 'PC', chips: ['C++', 'Competitive programming'], from: [2024, 1], to: [2025, 1], loose: true },
+  { logo: 'compnet', big: true, mono: 'NCI', chips: ['Hardware', '341 laptops', 'BNI'], days: 2 },   // (the BNI laptops: Compnet's job, BNI the client)
+  { logo: 'compnet', big: true, mono: 'NCI', chips: ['Field work', 'Pertamina'] },
+  { logo: 'umn', mono: 'UMN', chips: ['OOP', 'SOLID', 'Design patterns', 'GPA 3.71'], from: [2022, 8], to: [2026, 6], loose: true, edu: true },
+  { logo: 'pahoa', mono: 'PH', chips: ['TK', 'SD', 'SMP', 'SMA', '2021'], edu: true },
+];
+const TOOL_MARK = {
+  Go: 'go', TypeScript: 'typescript', JavaScript: 'javascript', PHP: 'php', Solidity: 'solidity', 'Next.js': 'nextdotjs', React: 'react', SvelteKit: 'svelte', 'Tailwind CSS': 'tailwindcss',
+  'Node.js': 'nodedotjs', Bun: 'bun', PostgreSQL: 'postgresql', MySQL: 'mysql', WordPress: 'wordpress', WooCommerce: 'woocommerce', Elementor: 'elementor',
+  Docker: 'docker', Vercel: 'vercel', Swagger: 'swagger', DBeaver: 'dbeaver', Figma: 'figma', GSAP: 'gsap', 'Framer Motion': 'framer', 'Three.js': 'threedotjs', WebGL: 'webgl',
+  'Smart contracts': 'ethereum', 'Wallet integration': 'walletconnect', 'C++': 'cplusplus', OJS: 'php', 'GodPlan ERP': 'go', JAKASN: 'php',
+};
+const STACK = [['Go', 'TypeScript', 'JavaScript', 'PHP', 'Solidity'], ['Next.js', 'React', 'SvelteKit', 'Tailwind CSS'], ['Node.js', 'Bun', 'REST APIs', 'PostgreSQL', 'MySQL'], ['WordPress', 'WooCommerce', 'Elementor', 'Custom themes'], ['Docker', 'Vercel', 'Swagger', 'DBeaver', 'Figma'], ['GSAP', 'Framer Motion', 'Three.js', 'WebGL'], ['Smart contracts', 'Wallet integration', 'dApp frontends']];
+const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'linkedin'], ['GitHub', 'github'], ['X', 'x']];
+
+/** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `labs` the LABS list; `clients` [{key, name, word?}]. */
+export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, clients, exists, img, u = (p) => p, projectMedia, now = new Date() }) {
+  const W = WORDS[lang] || WORDS.id;
+  const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(t)}</span>`; };
+  const dur = (m) => {
+    if (m.days) return `${m.days} ${W.dur.d}`;
+    if (!m.from) return '';
+    const to = m.to || [now.getFullYear(), now.getMonth() + 1];
+    const n = (to[0] - m.from[0]) * 12 + (to[1] - m.from[1]) + (m.to ? 1 : 0);
+    if (m.loose) return `${Math.max(1, Math.round(n / 12))} ${W.dur.y}`;   // (a span known only by its years)
+    const y = Math.floor(n / 12), mo = n % 12;
+    return [y ? `${y} ${W.dur.y}` : '', mo ? `${mo} ${W.dur.m}` : ''].filter(Boolean).join(' ') || `1 ${W.dur.m}`;
+  };
+  const logoFile = (m) => m.logo && (m.logo.includes('.') ? m.logo : `${m.logo}.webp`);
+  // (`big` lets a fine-lined mark fill more of its circle, or it reads as a smudge at 44 px)
+  const avatar = (m) => logoFile(m) && exists(`site/logos/${logoFile(m)}`) ? `<i class="pf-av pf-av--m" style="--m:url(/site/logos/${logoFile(m)})${m.big ? ';--ms:92%' : ''}" aria-hidden="true"></i>` : `<i class="pf-av" aria-hidden="true">${esc(m.mono || '')}</i>`;
+  const rowPath = (r, m, i) => `<li class="pf-row pf-exp" style="--i:${i}">
+      ${avatar(m)}
+      <div class="pf-body">
+        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="false" aria-label="${esc(W.open_)}: ${esc(r.org)}">${I.chev}</button></div>
+        <span class="pf-role">${esc(r.role)}</span>
+        <span class="pf-meta"><span>${esc(r.when)}</span>${dur(m) ? `<i>·</i><span>${esc(dur(m))}</span>` : ''}</span>
+        <div class="pf-chips">${m.chips.map(chip).join('')}</div>
+        <div class="pf-fold"><p>${esc(r.body)}</p></div>
+      </div>
+    </li>`;
+  const rows = path.map((r, i) => [r, PATH_META[i] || { chips: [] }, i]);
+  const expRows = rows.filter(([, m]) => !m.edu), eduRows = rows.filter(([, m]) => m.edu);
+  const exp = expRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
+  const edu = eduRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
+
+  const counted = D.PROJECTS.filter((p) => p.key !== 'client-websites');
+  const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
+  const status = (p) => W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
+  const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
+      <span class="pf-th">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="64" height="40">` : I.folder}</span>
+      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(p.industry)}</span><i>·</i><span>${esc(status(p))}</span></span></span>
+      <span class="pf-go">${I.out}</span></a></li>`; };
+  const projects = counted.map(rowProject).join('');
+
+  const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
+    ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
+    : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(/site/logos/${c.key}.webp)"><img src="/site/logos/${c.key}.webp" alt="" loading="lazy" decoding="async"></span></a>`;
+  const stack = STACK.map((items, i) => `<div class="pf-st" style="--i:${i}"><span class="pf-st-n"><b>${pad(i + 1)}</b>${esc(stackNames[i] || '')}</span><div class="pf-chips">${items.map(chip).join('')}</div></div>`).join('');
+  const rowLab = (l, i) => `<li class="pf-row pf-pj" style="--i:${i}"${i >= 4 ? ' hidden data-more' : ''}><a href="${esc(l.links[0][1])}"${l.links[0][1].startsWith('/') ? '' : ' target="_blank" rel="noopener"'} data-track="lab_open" data-lab="${esc(l.key)}" data-channel="profile">
+      <span class="pf-th pf-th--m">${mark(l.mark)}</span>
+      <span class="pf-body"><b>${esc(l.name)}</b><span class="pf-meta"><span>${esc(l.line)}</span></span></span>
+      <span class="pf-go">${I.out}</span></a></li>`;
+  const labRows = labs.map(rowLab).join('');
+  const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
+  const social = SOCIAL.map(([label, slug]) => {
+    const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
+    return `<a class="pf-soc" href="${esc(l.href)}" target="_blank" rel="noopener" title="${esc(label)}" aria-label="${esc(label)}" data-track="contact_click" data-channel="${esc(label)}">${exists(`site/tools/${slug}.svg`) ? mark(slug) : esc(label[0])}</a>`;
+  }).join('') + `<a class="pf-soc pf-soc--w" href="${u('/cv/')}" title="CV">${I.doc}<span>CV</span></a>`;
+  const sec = (title, n, extra = '') => `<div class="pf-h"><h2><em>${esc(title)}</em><sup>(${n})</sup></h2>${extra}</div>`;
+  const hatch = '<div class="pf-hatch" aria-hidden="true"></div>';
+  const more = (label) => `<button type="button" class="pf-more" data-more-btn data-less="${esc(W.less)}"><span>${esc(label)}</span>${I.chev}</button>`;
+
+  return `<main id="main" tabindex="-1">
+<div class="pf">
+  <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--2">${esc(W.notes[1])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
+  <section class="pf-card" aria-label="Navy Gibran">
+    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}</div>
+    <div class="pf-card-in">
+      <div class="pf-id">
+        <figure class="pf-face">${img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure>
+        <a class="pf-stat" href="${u('/work/client-websites/')}"><b data-count="${clientSites}">${clientSites}</b> ${esc(W.live)}</a>
+      </div>
+      <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
+      <span class="pf-handle">${esc(W.handle)}</span>
+      <p class="pf-bio">${esc(W.bio)}</p>
+      <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}</li><li>${I.link}${esc(W.site)}</li><li class="pf-open"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.open)}</li></ul>
+      <div class="pf-socials">${social}</div>
+    </div>
+    <nav class="pf-tabs" aria-label="Site">
+      <a href="${u('/')}" aria-current="page">${I.home}<span>${esc(W.tabs.home)}</span></a>
+      <a href="${u('/work/')}">${I.folder}<span>${esc(W.tabs.work)}</span></a>
+      <a href="${u('/labs/')}">${I.flask}<span>${esc(W.tabs.labs)}</span></a>
+      <a href="${u('/cv/')}">${I.doc}<span>${esc(W.tabs.cv)}</span></a>
+      <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
+    </nav>
+  </section>
+  ${hatch}
+  <section class="pf-sec" aria-labelledby="pf-exp">
+    ${sec(W.exp, expRows.length)}
+    <ol class="pf-list" data-stagger>${exp}</ol>
+    <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
+    <ol class="pf-list" data-stagger>${edu}</ol>
+  </section>
+  ${hatch}
+  <section class="pf-sec" aria-labelledby="pf-pj">
+    ${sec(W.projects, counted.length, `<a class="pf-all" href="${u('/work/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    <ol class="pf-list" data-stagger data-fold>${projects}</ol>
+    ${more(W.more)}
+  </section>
+  ${hatch}
+  <section class="pf-sec" aria-labelledby="pf-cl">
+    ${sec(W.clients, clientSites, `<a class="pf-all" href="${u('/work/client-websites/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    <div class="pf-logos" data-stagger>${clients.map(logo).join('')}</div>
+  </section>
+  ${hatch}
+  <section class="pf-sec" aria-labelledby="pf-st">
+    ${sec(W.stack, STACK.reduce((n, s) => n + s.length, 0))}
+    <div class="pf-stack" data-stagger>${stack}</div>
+  </section>
+  ${hatch}
+  <section class="pf-sec" aria-labelledby="pf-lb">
+    ${sec(W.labs, labs.length, `<a class="pf-all" href="${u('/labs/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    <ol class="pf-list" data-stagger data-fold>${labRows}</ol>
+    ${more(W.more)}
+  </section>
+  ${hatch}
+  <section class="pf-cta" aria-label="${esc(W.ctaTitle)}" data-reveal>
+    ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
+    <div class="pf-cta-in">
+      <h2>${esc(W.ctaTitle)}</h2>
+      <p>${esc(W.ctaLine)}</p>
+      <div class="pf-cta-row">
+        <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${esc(W.chat)} ${I.out}</a>
+        <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${esc(W.see3d)} ${I.right}</a>
+      </div>
+    </div>
+  </section>
+</div>
+</main>`;
+}
+
+export const HOME_PROFILE_CSS = `
+/* ---------- the profile home (scripts/home-profile.js): one narrow column, lists not prose */
+body.home-profile { background-image: radial-gradient(rgba(241, 234, 219, 0.06) 1px, transparent 1px); background-size: 22px 22px; }
+/* the field behind the column (mouse only, drawn by the page script): the same dots, alive. They breathe in a slow wave, lift and
+   warm to amber around the pointer, keep its trail for a moment, and slide a little with the scroll */
+body.home-profile.has-field { background-image: none; }
+.pf-field { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 1.2s; }
+.pf-field.on { opacity: 1; }
+.pf { position: relative; width: min(100%, 780px); margin: 0 auto; padding: calc(var(--head-h) + 8px) 0 clamp(60px, 7vw, 100px); }
+.pf-card, .pf-sec, .pf-cta, .pf-hatch { border-left: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--bg); }
+.pf-card { overflow: hidden; border-top: 1px solid var(--line); border-radius: 14px 14px 0 0; }
+.pf-banner { position: relative; height: clamp(150px, 26vw, 230px); overflow: hidden; }
+.pf-banner img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 45%; filter: brightness(0.7) saturate(0.85); transform: translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -8px), 0) scale(1.08); transition: transform 0.6s var(--ease); }
+.pf-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg) 0%, transparent 45%); }
+.pf-card-in { padding: 0 clamp(18px, 3vw, 30px) clamp(18px, 3vw, 26px); }
+.pf-id { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: -58px; }
+/* (the ring is opaque: a translucent one vanished over the bright half of the banner) */
+.pf-face { width: 116px; height: 116px; border-radius: 50%; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 0 0 1.5px #8f8574, 0 20px 40px -20px rgba(0, 0, 0, 0.8); background: var(--bg-2); transition: transform 0.6s var(--ease), box-shadow 0.4s; }
+.pf-face:hover { box-shadow: 0 0 0 1.5px var(--accent-2), 0 20px 40px -20px rgba(0, 0, 0, 0.8); }
+.pf-face:hover { transform: translateY(-3px) rotate(-2deg); }
+.pf-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; filter: saturate(0.85) contrast(1.05); }
+.pf-stat { display: inline-flex; align-items: baseline; gap: 6px; margin-bottom: 10px; padding: 8px 12px; border: 1px solid var(--line-2); border-radius: 999px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: border-color 0.3s, color 0.3s; }
+.pf-stat b { font: 400 20px/1 var(--serif); letter-spacing: 0; color: var(--ink); }
+.pf-stat:hover { border-color: var(--ink); color: var(--ink); }
+.pf-name { display: flex; align-items: center; gap: 10px; margin-top: 14px; font: 700 clamp(28px, 3.4vw, 40px)/1 var(--cond); text-transform: uppercase; letter-spacing: -0.01em; }
+.pf-verified { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #140f09; } .pf-verified svg { width: 13px; height: 13px; }
+.pf-handle { display: block; margin-top: 6px; font: 600 13px var(--cond); letter-spacing: 0.14em; color: var(--faint); }
+.pf-bio { max-width: 40em; margin: 16px 0 0; font-size: 17px; line-height: 1.6; color: var(--dim); text-wrap: pretty; }
+.pf-facts { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 18px 0 0; font: 600 12px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.pf-facts li { display: inline-flex; align-items: center; gap: 7px; } .pf-facts svg { width: 15px; height: 15px; color: var(--accent); }
+.pf-open { color: var(--ink); }
+.pf-socials { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pf-soc { display: inline-grid; place-items: center; width: 42px; height: 42px; border: 1px solid var(--line-2); border-radius: 10px; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease), background 0.3s; }
+.pf-soc:hover, .pf-soc:focus-visible { border-color: var(--ink); color: var(--ink); transform: translateY(-3px); background: rgba(241, 234, 219, 0.05); }
+.pf-soc--w { width: auto; grid-auto-flow: column; gap: 8px; padding: 0 12px; font: 600 12px var(--cond); letter-spacing: 0.16em; } .pf-soc--w svg { width: 16px; height: 16px; }
+.pf-m { display: inline-block; width: 18px; height: 18px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.pf-tabs { position: sticky; top: 0; z-index: 3; display: flex; border-top: 1px solid var(--line); background: rgba(14, 12, 9, 0.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); overflow-x: auto; scrollbar-width: none; }
+.pf-tabs::-webkit-scrollbar { display: none; }
+.pf-tabs a { position: relative; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: max-content; height: 50px; padding: 0 16px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; }
+.pf-tabs a svg { width: 16px; height: 16px; }
+.pf-tabs a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease); }
+.pf-tabs a:hover, .pf-tabs a[aria-current] { color: var(--ink); } .pf-tabs a[aria-current]::after, .pf-tabs a:hover::after { transform: none; }
+.pf-hatch { height: 14px; background-color: var(--bg); background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 9px); background-size: 200% 100%; animation: pf-hatch 60s linear infinite; }
+@keyframes pf-hatch { to { background-position: -400px 0; } }
+.pf-sec { padding: clamp(18px, 2.6vw, 26px) clamp(18px, 3vw, 30px) clamp(22px, 3vw, 30px); }
+.pf-h { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.pf-h h2 { font: 400 clamp(26px, 2.6vw, 32px)/1 var(--serif); } .pf-h h2 em { color: var(--accent-2); }
+.pf-h sup { margin-left: 6px; font: 600 11px var(--cond); letter-spacing: 0.12em; color: var(--faint); vertical-align: 0.9em; }
+.pf-h--sub { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.pf-h h3 { display: inline-flex; align-items: center; gap: 8px; font: 600 12px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); } .pf-h h3 svg { width: 16px; height: 16px; color: var(--accent); }
+.pf-all { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; } .pf-all:hover { color: var(--accent-2); }
+.pf-list { display: grid; }
+.pf-row { display: grid; grid-template-columns: 44px 1fr; column-gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); transition: background 0.3s; }
+.pf-row:first-child { border-top: 0; }
+.pf-av { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); font: 700 12px var(--cond); letter-spacing: 0.08em; color: var(--dim); }
+.pf-av--m { background: var(--ink); -webkit-mask: var(--m) center / var(--ms, 64%) no-repeat; mask: var(--m) center / var(--ms, 64%) no-repeat; box-shadow: none; border-radius: 0; opacity: 0.88; transition: opacity 0.3s, transform 0.5s var(--ease); }
+.pf-row:hover .pf-av--m { opacity: 1; transform: scale(1.06); }
+.pf-body { display: grid; gap: 6px; min-width: 0; }
+.pf-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pf-top b { font: 700 clamp(17px, 1.6vw, 20px)/1.2 var(--cond); text-transform: uppercase; letter-spacing: 0.01em; }
+.pf-role { font-size: 17px; color: var(--ink); }
+.pf-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; font: 600 11.5px var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+.pf-meta i { font-style: normal; opacity: 0.6; }
+.pf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; font: 500 12px var(--cond); letter-spacing: 0.08em; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.4s var(--ease); }
+.pf-chip .pf-m { width: 13px; height: 13px; opacity: 0.85; }
+.pf-chip:hover { border-color: var(--line-2); color: var(--ink); transform: translateY(-2px); }
+.pf-tg { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--dim); cursor: pointer; transition: border-color 0.3s, color 0.3s, transform 0.4s var(--ease); }
+.pf-tg svg { width: 14px; height: 14px; } .pf-tg:hover { border-color: var(--ink); color: var(--ink); }
+.pf-tg[aria-expanded="true"] { transform: rotate(180deg); }
+.pf-fold { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease); }
+.pf-fold > p { overflow: hidden; margin: 0; font-size: 16px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
+.pf-exp.open .pf-fold { grid-template-rows: 1fr; } .pf-exp.open .pf-fold > p { padding-top: 6px; }
+.pf-pj { display: block; padding: 0; } .pf-pj[hidden] { display: none; }
+.pf-pj a { display: grid; grid-template-columns: 64px 1fr 24px; align-items: center; column-gap: 14px; padding: 12px 0; transition: padding 0.4s var(--ease), color 0.3s; }
+.pf-pj a:hover { color: var(--accent-2); padding-left: 8px; }
+.pf-th { display: grid; place-items: center; width: 64px; height: 40px; overflow: hidden; border-radius: 6px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--dim); }
+.pf-th img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.15) brightness(0.95); } .pf-th svg { width: 20px; height: 20px; }
+.pf-th--m .pf-m { width: 22px; height: 22px; color: var(--ink); }
+.pf-pj b { font: 700 clamp(17px, 1.6vw, 20px)/1.2 var(--cond); text-transform: uppercase; }
+.pf-pj .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 14.5px var(--text); color: var(--dim); }
+.pf-go { color: var(--faint); transition: color 0.3s, transform 0.4s var(--ease); } .pf-go .ar { width: 14px; height: 14px; } .pf-pj a:hover .pf-go { color: var(--accent-2); transform: translate(2px, -2px); }
+.pf-more { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--dim); font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
+.pf-more svg { width: 14px; height: 14px; transition: transform 0.4s var(--ease); } .pf-more:hover { border-color: var(--ink); color: var(--ink); } .pf-more.open svg { transform: rotate(180deg); }
+.pf-logos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.pf-logo { display: grid; place-items: center; height: 68px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease); }
+/* the logo in one colour: the mask is the client's own silhouette, the hidden <img> only gives it its width */
+.pf-logo-m { display: block; max-width: 100%; height: 30px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.pf-logo-m img { display: block; height: 30px; width: auto; max-width: 100%; visibility: hidden; }
+.pf-logo:hover { border-color: var(--line-2); color: var(--ink); transform: translateY(-3px); }
+.pf-logo--w span { padding: 0 8px; font: 700 12px/1.1 var(--cond); letter-spacing: 0.06em; text-transform: uppercase; text-align: center; }
+.pf-stack { display: grid; }
+.pf-st { display: grid; grid-template-columns: 150px 1fr; column-gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.pf-st:first-child { border-top: 0; }
+.pf-st-n { display: flex; gap: 8px; padding-top: 6px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); } .pf-st-n b { color: var(--accent); }
+.pf-st .pf-chips { margin-top: 0; }
+.pf-cta { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); border-radius: 0 0 14px 14px; min-height: 300px; display: grid; align-items: end; }
+.pf-cta > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; filter: brightness(0.5) saturate(0.9); transition: transform 2s var(--ease); }
+.pf-cta:hover > img { transform: scale(1.04); }
+.pf-cta-in { position: relative; display: grid; gap: 12px; padding: clamp(28px, 4vw, 40px) clamp(18px, 3vw, 30px); background: linear-gradient(0deg, rgba(14, 12, 9, 0.92), rgba(14, 12, 9, 0.2)); }
+.pf-cta h2 { font: 400 clamp(30px, 3.4vw, 44px)/1.05 var(--serif); }
+.pf-cta p { max-width: 30em; font-size: 17px; color: var(--dim); text-wrap: pretty; }
+.pf-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+/* margin notes on a wide screen only: the italic in the gutters, in after the column settles */
+.pf-notes { display: none; }
+@media (min-width: 1240px) {
+  .pf-notes { display: block; }
+  .pf-note { position: absolute; width: 190px; font: italic 400 20px/1.3 var(--serif); color: var(--accent-2); opacity: 0; transform: translateY(14px) rotate(-2deg); transition: opacity 1s var(--ease), transform 1.2s var(--ease); }
+  .pf-note.in { opacity: 0.9; transform: rotate(-2deg); }
+  .pf-note--1 { left: -230px; top: 560px; text-align: right; } .pf-note--2 { right: -230px; top: 1360px; } .pf-note--3 { left: -230px; bottom: 120px; text-align: right; }
+}
+@media (max-width: 800px) {
+  .pf { padding-top: calc(var(--head-h) + 4px); }
+  .pf-card, .pf-sec, .pf-cta, .pf-hatch { border-left: 0; border-right: 0; } .pf-card, .pf-cta { border-radius: 0; }
+  .pf-logos { grid-template-columns: repeat(3, 1fr); }
+  .pf-st { grid-template-columns: 1fr; row-gap: 8px; }
+  .pf-pj a { grid-template-columns: 56px 1fr 20px; } .pf-th { width: 56px; height: 36px; }
+  .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 10.5px; letter-spacing: 0.08em; } .pf-tabs a svg { width: 14px; height: 14px; }
+  body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
+}
+@media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-stat { margin: 10px 0 0; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
+@media (prefers-reduced-motion: reduce) { .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
+`;
+
+export const HOME_PROFILE_JS = `(function(){
+  var fine = matchMedia('(hover: hover) and (pointer: fine)').matches, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('motion-off');
+  // the banner drifts a little toward the pointer
+  var card = document.querySelector('.pf-card'), bimg = document.querySelector('.pf-banner img');
+  if (card && bimg && fine && !reduce) card.addEventListener('pointermove', function (e) { var r = card.getBoundingClientRect(); bimg.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); bimg.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
+  // a row's story opens under it
+  document.querySelectorAll('.pf-exp').forEach(function (row) { var b = row.querySelector('.pf-tg'); if (!b) return; var open = function () { var on = !row.classList.contains('open'); row.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); }; b.addEventListener('click', open); row.querySelector('.pf-top b').addEventListener('click', open); });
+  // the lists fold after a few rows
+  document.querySelectorAll('.pf-more').forEach(function (btn) { var list = btn.previousElementSibling, label = btn.querySelector('span'), more = label.textContent, less = btn.dataset.less; btn.addEventListener('click', function () { var on = !btn.classList.contains('open'); btn.classList.toggle('open', on); list.querySelectorAll('[data-more]').forEach(function (li) { li.hidden = !on; }); label.textContent = on ? less : more; if (!on) list.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }); });
+  // the margin notes come in with the column
+  if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: 0.2 }); document.querySelectorAll('.pf-note').forEach(function (n) { io.observe(n); }); }
+  // the field: a grid of dots on a canvas behind everything; each dot keeps a little heat from the pointer passing and cools down
+  if (!fine || reduce || !window.requestAnimationFrame) return;
+  var cv = document.createElement('canvas'); cv.className = 'pf-field'; cv.setAttribute('aria-hidden', 'true'); document.body.prepend(cv);
+  var ctx = cv.getContext('2d'); if (!ctx) return;
+  var W = 0, H = 0, dots = [], GAP = 26, R = 230, px = -9999, py = -9999, t0 = performance.now(), raf = 0, alive = true;
+  function size() { var d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = Math.round(W * d); cv.height = Math.round(H * d); cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx.setTransform(d, 0, 0, d, 0, 0); dots = []; for (var y = GAP / 2; y < H + GAP; y += GAP) for (var x = GAP / 2; x < W; x += GAP) dots.push({ x: x, y: y, h: 0 }); }
+  function frame(now) {
+    if (!alive) return;
+    var t = (now - t0) / 1000, sy = (scrollY * 0.12) % GAP;
+    ctx.clearRect(0, 0, W, H);
+    if (px > -1000) { var g = ctx.createRadialGradient(px, py, 0, px, py, R * 1.5); g.addColorStop(0, 'rgba(217,160,91,0.075)'); g.addColorStop(1, 'rgba(217,160,91,0)'); ctx.fillStyle = g; ctx.fillRect(px - R * 1.5, py - R * 1.5, R * 3, R * 3); }
+    for (var i = 0; i < dots.length; i++) {
+      var d = dots[i], y = d.y - sy, dx = d.x - px, dy = y - py, dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < R) { var k = 1 - dist / R; if (k * k > d.h) d.h = k * k; }
+      d.h *= 0.956;
+      var wave = 0.5 + 0.5 * Math.sin(t * 0.55 + d.x * 0.011 + y * 0.008);
+      var a = 0.04 + wave * 0.045 + d.h * 0.62, r = 1 + d.h * 1.7, ox = 0, oy = 0;
+      if (d.h > 0.003 && dist > 0.1) { var push = d.h * 7; ox = dx / dist * push; oy = dy / dist * push; }
+      ctx.fillStyle = d.h > 0.04 ? 'rgba(217,160,91,' + a.toFixed(3) + ')' : 'rgba(241,234,219,' + a.toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(d.x + ox, y + oy, r, 0, 6.2832); ctx.fill();
+    }
+    raf = requestAnimationFrame(frame);
+  }
+  addEventListener('pointermove', function (e) { px = e.clientX; py = e.clientY; }, { passive: true });
+  document.addEventListener('mouseleave', function () { px = -9999; py = -9999; });
+  addEventListener('resize', size);
+  document.addEventListener('visibilitychange', function () { alive = !document.hidden; if (alive) raf = requestAnimationFrame(frame); else cancelAnimationFrame(raf); });
+  size(); document.body.classList.add('has-field'); requestAnimationFrame(function () { cv.classList.add('on'); }); raf = requestAnimationFrame(frame);
+})();`;

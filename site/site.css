@@ -266,6 +266,61 @@ body.menu-open { overflow: hidden; }
 /* framed in the 3D desk's sheet (html.in-desk, set in <head>): the desk is one key away already, so no tab to it and no teaser;
    the sheet's own "Back to the desk" sits bottom right, where the tab would be on a phone */
 .in-desk .side-3d, .in-desk .teaser { display: none !important; }
+
+/* ---------- the gate at the end of the intro: two doors, Simple (the profile page at /simple/) or Full (this page). The page
+   script shows it once the name has played (html.intro-choose) and only until a reading has been chosen once */
+.intro-gate { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: clamp(12px, 2vh, 22px); padding: 0 var(--gut); text-align: center; opacity: 0; pointer-events: none; transition: opacity 0.6s var(--ease) 0.3s; }
+.intro-gate[hidden] { display: none; }
+.intro-choose .intro { cursor: default; animation: none; }
+/* a slow amber breath behind the doors, so the black is not flat while the visitor decides */
+.intro-choose .intro::before { content: ""; position: absolute; inset: -20%; background: radial-gradient(38% 34% at 50% 56%, rgba(217, 160, 91, 0.16), transparent 70%); animation: gate-breathe 5s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes gate-breathe { from { transform: scale(0.92) translateY(2%); opacity: 0.7; } to { transform: scale(1.08) translateY(-2%); opacity: 1; } }
+.intro-choose .intro-gate { opacity: 1; pointer-events: auto; }
+.intro-choose .intro-in, .intro-choose .intro-count { opacity: 0; transform: translateY(-24px) scale(0.96); transition: opacity 0.45s, transform 0.7s var(--ease-io); }
+.intro-choose .intro-posters, .intro-choose .intro-skip, .intro-choose .intro-foot { opacity: 0; pointer-events: none; transition: opacity 0.4s; }
+.intro-gate .kick { color: var(--dim); }
+.intro-gate-t { font: 400 clamp(32px, 5vw, 68px)/1 var(--serif); letter-spacing: -0.02em; }
+.intro-doors { display: grid; grid-template-columns: repeat(2, minmax(0, 300px)); gap: clamp(12px, 2vw, 24px); width: 100%; max-width: 640px; margin-top: clamp(4px, 1.5vh, 12px); }
+.intro-door { display: grid; gap: 10px; padding: 12px 12px 16px; border: 1px solid var(--line-2); border-radius: 14px; background: rgba(241, 234, 219, 0.03); color: var(--ink); text-align: left; cursor: pointer; font: inherit; opacity: 0; transform: translateY(24px); transition: transform 0.6s var(--ease), border-color 0.3s, background 0.3s, opacity 0.6s; }
+.intro-choose .intro-door { opacity: 1; transform: none; transition-delay: 0.4s; } .intro-choose .intro-door + .intro-door { transition-delay: 0.5s; }
+.intro-door:hover, .intro-door:focus-visible { border-color: var(--ink); background: rgba(241, 234, 219, 0.07); transform: translateY(-4px); transition-delay: 0s; outline: none; }
+.intro-door:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.door-pic { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 8px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); }
+.door-pic img { width: 100%; height: 100%; object-fit: cover; }
+.door-pic--full img { transition: transform 1.2s var(--ease); } .intro-door:hover .door-pic--full img { transform: scale(1.05); }
+.door-cap { position: absolute; left: 10px; bottom: 8px; display: flex; gap: 0.2em; font: 700 clamp(18px, 2vw, 26px)/0.9 var(--cond); text-transform: uppercase; color: var(--ink); text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6); }
+/* the simple door is a tiny profile drawn in CSS: the face, three lines, three rows */
+.door-pic--simple { display: grid; grid-template-columns: 34% 1fr; gap: 6px 10px; align-content: start; padding: 12px; background: linear-gradient(180deg, #17120d, var(--bg-2)); }
+.door-face { grid-row: 1 / 4; width: 100%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--line-2); } .door-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; }
+.door-line { display: block; height: 7px; border-radius: 4px; background: var(--ink); opacity: 0.9; } .door-line--1 { width: 70%; margin-top: 6px; } .door-line--2 { width: 45%; height: 5px; opacity: 0.4; } .door-line--3 { width: 90%; height: 5px; opacity: 0.4; }
+.door-rows { grid-column: 1 / -1; display: grid; gap: 5px; margin-top: 6px; } .door-rows b { display: block; height: 9px; border-radius: 3px; background: rgba(241, 234, 219, 0.1); border-left: 14px solid rgba(217, 160, 91, 0.6); }
+.intro-door:hover .door-line--1 { animation: door-pulse 1.4s var(--ease) infinite alternate; } @keyframes door-pulse { to { width: 85%; } }
+.door-t { font: 700 clamp(20px, 2.2vw, 28px)/1 var(--cond); text-transform: uppercase; }
+.door-s { font-size: 14px; line-height: 1.4; color: var(--dim); text-wrap: pretty; }
+.intro-gate-hint { font: 600 11px var(--cond); letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); }
+.intro-gate-hint a { color: var(--dim); border-bottom: 1px solid var(--line-2); } .intro-gate-hint a:hover { color: var(--ink); }
+/* leaving to the profile page: the doors fade, the intro stays black until the next page opens under the curtain */
+.intro-leave .intro-gate { opacity: 0; transform: translateY(-20px); transition: opacity 0.3s, transform 0.5s var(--ease-io); }
+/* the header's three pills stand the same height (the languages set it: 30 px inside 4 px of padding); the menu button follows */
+.menu-btn { height: 40px; padding: 0 13px 0 18px; font-size: 12px; letter-spacing: 0.2em; }
+.menu-word { margin-right: 12px; }
+.head.compact .menu-btn { padding: 0 12px; }
+.menu-btn[aria-expanded="true"] .menu-word { margin-right: 12px; }
+@media (max-width: 900px) { .menu-btn { height: 40px; padding: 0 12px 0 16px; } .head.compact .menu-btn { padding: 0 11px; } }
+/* the Full / Simple switch in the header, beside the languages, on the home and the story page only */
+.view { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; padding: 4px; border: 1px solid var(--line-2); border-radius: 999px; background: rgba(14, 12, 9, 0.55); backdrop-filter: blur(8px); pointer-events: auto; }
+.head-in .view + .lang { margin-left: 0; }
+.view a { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 12px; border-radius: 999px; font: 700 12px/1 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); transition: color 0.25s, background 0.25s; }
+.view a:hover, .view a:focus-visible { color: var(--ink); } .view a[aria-current="true"] { background: var(--accent); color: #140f09; }
+.cream .view { border-color: var(--cream-line); background: rgba(235, 227, 210, 0.6); }
+@media (max-width: 640px) { .intro-doors { grid-template-columns: 1fr 1fr; gap: 10px; } .door-s { display: none; } .intro-door { padding: 8px 8px 12px; } .intro-gate-t { font-size: clamp(28px, 8vw, 40px); } .head-in { gap: 8px; } }
+/* a phone has no room for three pills and the menu: the switch shows only the other reading (one short pill), the languages tighten */
+@media (max-width: 640px) {
+  .view a[aria-current="true"] { display: none; }
+  .view a { padding: 0 11px; font-size: 11px; }
+  .head-in .lang a { min-width: 30px; padding: 0 8px; font-size: 11px; }
+}
+@media (max-width: 380px) { .head-in .lang a { min-width: 26px; padding: 0 6px; } .view a { padding: 0 9px; } }
 /* between a phone and a wide screen the hero's status line (left) and the rotating "Navy builds" (centre) would meet: the rotation sits out */
 @media (min-width: 901px) and (max-width: 1240px) { .hero-rot { display: none; } }
 

@@ -19,6 +19,14 @@ links back from the loading screen and the gate (top left), the desk (bottom lef
   (about 60 kB gzipped for the home page).
   The few lines of copy data.js doesn't hold (featured order and colours, the difference, territories, the path, the manifesto) sit at the top of
   scripts/site.js and only restate its facts.
+- Two readings. The home, `/`, is the **Simple** one (`scripts/home-profile.js`): the portfolio as one profile page anyone can scan in a
+  minute (banner, portrait, a paragraph, icon links, a tab row, then rows: experience with each organisation's one-colour mark, chips and
+  durations, projects, clients, stack, labs, a contact banner; behind it a field of dots that warm around the pointer). The intro plays
+  over it and ends in a gate with two doors: Simple (this page) or **Full**, the editorial story at `/full/` (the sections the menu,
+  the footer and the palette point to: `/full/#work`). Skip, Escape or a click outside the doors mean Simple. The choice is remembered
+  (`nv-view`): `/` forwards to `/full/` (in the remembered language) before the first paint, never when the address carries a hash; a
+  Full | Simple switch beside the languages changes it on either page; the gate shows only until a choice has been made. The
+  organisations' marks live in `public/site/logos/` beside the clients' (bkn, umn, compnet, gajah-terbang-kreatif, pahoa).
 - The design follows ownitt.fr's grammar, redrawn in the desk's colours: condensed capitals finished by an italic serif (Barlow Condensed,
   Instrument Serif, Newsreader, served from the site itself: `public/site/fonts`, latin and latin-ext subsets, SIL OFL, declared in
   `site/fonts.css`; Ownitt's own Elza Condensed and IvyPresto take over if an Adobe Fonts kit id is set in `ADOBE_KIT`), a once-a-visit

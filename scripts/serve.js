@@ -79,7 +79,7 @@ http.createServer((req, res) => {
   // (the portfolio speaks three languages: /en/ and /zh/ hold the same pages under a prefix, the default Indonesian ones at /)
   const old = !desk && OLD_PREFIXES.length && new RegExp(`^/(${OLD_PREFIXES.join('|')})(/|$)`).exec(p);
   if (old) { res.writeHead(301, { Location: p.slice(old[1].length + 1) || '/' }); return res.end(); }
-  const sitePath = !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
+  const sitePath = !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/|full/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
   // (rendered by the worker above: any edit to the templates, the dictionaries, labs or data.js shows without a restart)
   const renderPage = (rel, status = 200) => renderSite().then((pages) => {
     const body = pages[rel];
@@ -88,7 +88,7 @@ http.createServer((req, res) => {
     res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(req.method === 'HEAD' ? undefined : body);
   }).catch((e) => { console.error('site:', e); res.writeHead(500, { 'Content-Type': 'text/plain' }); res.end(String(e.stack || e)); });
   if (sitePath) return renderPage(sitePath);
-  if (!desk && new RegExp(`^/(((${LP})/)?(work(/[\\w-]+)?|labs|cv)|${LP})$`).test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
+  if (!desk && new RegExp(`^/(((${LP})/)?(work(/[\\w-]+)?|labs|cv|full)|${LP})$`).test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
   if (p.endsWith('/')) p += 'index.html';
   const file = path.join(root, p);
   if (file !== root && !file.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }

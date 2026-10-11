@@ -14,6 +14,8 @@
   const jt = (k, vars) => String(JT[k] ?? k).replace(/\{(\w+)\}/g, (m, v) => (vars && v in vars ? vars[v] : m));
   // the language switch remembers the choice (the default pages forward to it on arrival)
   document.querySelectorAll('.lang a[data-lang]').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('nv-lang', a.dataset.lang); } catch {} }));
+  // the reading of the home (Full or Simple), chosen at the intro's gate or in the header, remembered the same way
+  document.querySelectorAll('.view a[data-view]').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('nv-view', a.dataset.view); } catch {} }));
   const h0 = location.hash.slice(1);
   if (h0 && location.pathname === '/' && !document.getElementById(h0)) {
     const m = h0.match(/^project-(.+)$/);
@@ -161,18 +163,42 @@
       count.textContent = '100';
       root.classList.add('intro-out');
       try { sessionStorage.setItem('nv-intro', '1'); } catch {}
-      setTimeout(() => { root.classList.remove('intro-on', 'intro-out'); intro.remove(); locked = false; dirty = true; }, 1500);
+      setTimeout(() => { root.classList.remove('intro-on', 'intro-out', 'intro-choose'); intro.remove(); locked = false; dirty = true; }, 1500);
     };
+    // the gate: once the name has played, two doors (this page, Simple, or the story at /full/) until a reading has been chosen once;
+    // the choice is remembered (nv-view), the header's switch changes it. Skip, Escape and a click outside the doors mean Simple.
+    const gate = intro.querySelector('.intro-gate');
+    let chosen = null; try { chosen = localStorage.getItem('nv-view'); } catch {}
+    let choosing = false;
+    const choose = () => {
+      if (done || !gate || chosen) return finish();
+      choosing = true; gate.hidden = false; count.textContent = '100';
+      requestAnimationFrame(() => root.classList.add('intro-choose'));
+      setTimeout(() => { if (!done) gate.querySelector('[data-view="simple"]')?.focus({ preventScroll: true }); }, 700);
+    };
+    const pick = (view, href) => {
+      if (done) return;
+      try { localStorage.setItem('nv-view', view); } catch {}
+      track('gate_pick', { view });
+      if (view === 'simple' || !href) { finish(); return; }
+      // the story: the doors fade, the intro stays black, the next page opens under the curtain
+      done = true;
+      try { sessionStorage.setItem('nv-intro', '1'); sessionStorage.setItem('nv-curtain', '1'); } catch {}
+      root.classList.add('intro-leave');
+      setTimeout(() => { location.href = href; }, 520);
+    };
+    gate?.querySelectorAll('.intro-door').forEach((d) => d.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); pick(d.dataset.view, d.getAttribute('href')); }));
+    gate?.querySelector('.intro-gate-hint a')?.addEventListener('click', (e) => e.stopPropagation());
     const tick = (now) => {
       if (done) return;
       const t = now - t0, p = Math.min(1, t / MIN);
       count.textContent = String(Math.round(ease(p) * (fontsReady ? 100 : 94))).padStart(2, '0');
-      if ((p >= 1 && fontsReady) || t > MAX) { setTimeout(finish, 160); return; }
+      if ((p >= 1 && fontsReady) || t > MAX) { setTimeout(choose, 160); return; }
       requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
-    intro.addEventListener('click', finish);
-    addEventListener('keydown', (e) => { if (!done && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) finish(); });
+    intro.addEventListener('click', (e) => { if (choosing && e.target.closest('.intro-doors')) return; if (choosing) pick('simple'); else finish(); });
+    addEventListener('keydown', (e) => { if (done) return; if (e.key === 'Escape') { choosing ? pick('simple') : finish(); return; } if (!choosing && (e.key === 'Enter' || e.key === ' ')) finish(); });
   }
 
   // ---------- header: folds to the mark and a round button once the page moves, slips away reading down, back on the way up
@@ -191,7 +217,7 @@
       head.classList.remove('away');
       // (the section the reader is in: of those begun above the middle of the screen, the one that began last; the menu's order is not the page's)
       let here = null, best = -Infinity;
-      for (const a of menu.querySelectorAll('.menu-links a[href^="/#"]')) { const s = location.pathname === '/' && document.getElementById(a.getAttribute('href').slice(2)), top = s ? s.getBoundingClientRect().top : Infinity; if (top < innerHeight * 0.45 && top > best) { best = top; here = a; } }
+      for (const a of menu.querySelectorAll('.menu-links a[href*="/full/#"]')) { const s = location.pathname === `${PFX}/full/` && document.getElementById(a.getAttribute('href').split('#')[1]), top = s ? s.getBoundingClientRect().top : Infinity; if (top < innerHeight * 0.45 && top > best) { best = top; here = a; } }
       menu.querySelectorAll('.menu-links a').forEach((a) => a.classList.toggle('here', a === here));
       setTimeout(() => (keyboard ? menu.querySelector('a') : menu)?.focus({ preventScroll: true }), 350);
     }
@@ -688,9 +714,9 @@
   if (typeof HTMLDialogElement === 'function' && INDEX) {
     const mac = /Mac|iPhone|iPad/.test(navigator.userAgentData?.platform || navigator.platform || '');
     document.querySelectorAll('[data-kbd]').forEach((k) => { k.textContent = mac ? '⌘ K' : 'Ctrl K'; });
-    const onHome = location.pathname === `${PFX}/`;
+    const onHome = location.pathname === `${PFX}/full/`;   // (the sections live on the story page)
     const items = [
-      ...[[jt('selectedWork'), `${PFX}/#work`, jt('sixClose')], [jt('allProjects'), `${PFX}/work/`, jt('everyOne', { n: INDEX.p.length })], [jt('clients'), `${PFX}/#clients`, jt('whoTrusted')], [jt('whatIBuild'), `${PFX}/#territories`, jt('territories')], [jt('thePath'), `${PFX}/#path`, jt('fromStairs')], [jt('contact'), `${PFX}/#contact`, jt('yourTurn')], [jt('theDesk'), '/3d/', jt('otherWay')], [jt('home'), `${PFX}/`, 'navygibran.dev']]
+      ...[[jt('selectedWork'), `${PFX}/full/#work`, jt('sixClose')], [jt('allProjects'), `${PFX}/work/`, jt('everyOne', { n: INDEX.p.length })], [jt('clients'), `${PFX}/full/#clients`, jt('whoTrusted')], [jt('whatIBuild'), `${PFX}/full/#territories`, jt('territories')], [jt('thePath'), `${PFX}/full/#path`, jt('fromStairs')], [jt('contact'), `${PFX}/full/#contact`, jt('yourTurn')], [jt('theDesk'), '/3d/', jt('otherWay')], [jt('home'), `${PFX}/`, 'navygibran.dev']]
         .map(([t, href, d]) => ({ g: jt('goTo'), t, d, href })),
       ...INDEX.p.map(([key, t, d, s, bg, kind], i) => ({ g: jt('projects'), n: String(i + 1).padStart(2, '0'), t, d, s: `${s} ${kind}`, href: `${PFX}/work/${key}/`, bg, here: location.pathname === `${PFX}/work/${key}/` })),
       ...INDEX.l.map(([t, href]) => ({ g: jt('elsewhere'), t, d: href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), href, ext: true })),
