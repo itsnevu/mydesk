@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { Worker } from 'node:worker_threads';
 import { packFile } from './kwpack.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -24,6 +25,28 @@ function encode(file, st, data, enc) {
   const body = enc === 'br' ? zlib.brotliCompressSync(data, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: data.length > 1 << 20 ? 5 : 9, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: data.length } }) : zlib.gzipSync(data, { level: 6 });
   packed.set(file + enc, { key, body });
   return body;
+}
+
+// ---------- the portfolio's renderer lives in a worker thread (scripts/render-worker.mjs). Node never drops a module it has
+// loaded, so re-importing site.js alone left its dictionaries, labs and data.js stale until a restart; a worker has its own
+// registry, and a new one is started whenever any source of the pages changes (their newest mtime is the version).
+const SOURCES = ['scripts', 'site', 'src/app'];
+const sourceStamp = () => {
+  let latest = 0;
+  for (const dir of SOURCES) for (const f of fs.readdirSync(path.join(root, dir))) if (/\.(m?js|css)$/.test(f) && !/^(serve|build|smoke|kwpack|turntable|jsmin|render-worker)\.m?js$/.test(f)) latest = Math.max(latest, fs.statSync(path.join(root, dir, f)).mtimeMs);
+  return latest;
+};
+let renderer = null, rendererStamp = 0, rendererSeq = 0; const pending = new Map();
+function renderSite() {
+  const stamp = sourceStamp();
+  if (!renderer || stamp !== rendererStamp) {
+    if (renderer) { renderer.terminate(); for (const [, { reject }] of pending) reject(new Error('the renderer was replaced')); pending.clear(); }
+    renderer = new Worker(new URL('./render-worker.mjs', import.meta.url)); rendererStamp = stamp;
+    renderer.on('message', (m) => { const w = pending.get(m.id); if (!w) return; pending.delete(m.id); m.error ? w.reject(new Error(m.error)) : w.resolve(m.pages); });
+    renderer.on('error', (e) => { for (const [, { reject }] of pending) reject(e); pending.clear(); renderer = null; });
+    console.log('site: fresh renderer (sources changed)');
+  }
+  return new Promise((resolve, reject) => { const id = ++rendererSeq; pending.set(id, { resolve, reject }); renderer.postMessage(id); });
 }
 
 http.createServer((req, res) => {
@@ -51,8 +74,8 @@ http.createServer((req, res) => {
   // the plain portfolio, rendered from data.js on every request
   // (the portfolio speaks three languages: /en/ and /zh/ hold the same pages under a prefix, the default Indonesian ones at /)
   const sitePath = !desk && (/^\/((en|zh)\/)?$/.test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : /^\/((en|zh)\/)?(work\/([\w-]+\/)?|labs\/|cv\/)(index\.html)?$/.test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
-  // (scripts/site.js is re-imported whenever it changes, so edits to the page templates show without a restart)
-  const renderPage = (rel, status = 200) => import(`./site.js?v=${fs.statSync(new URL('./site.js', import.meta.url)).mtimeMs}`).then((m) => m.renderSite()).then((pages) => {
+  // (rendered by the worker above: any edit to the templates, the dictionaries, labs or data.js shows without a restart)
+  const renderPage = (rel, status = 200) => renderSite().then((pages) => {
     const body = pages[rel];
     if (body === undefined) return renderPage('404.html', 404);
     const type = rel.endsWith('.xml') ? 'application/xml; charset=utf-8' : rel.endsWith('.txt') ? types['.txt'] : types['.html'];
