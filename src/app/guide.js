@@ -33,7 +33,11 @@ body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="enter
 /* the two corner buttons stand the same height side by side on a desktop */
 @media (min-width: 761px) and (pointer: fine), (min-width: 1025px) { #guide-btn, #quick-btn { box-sizing: border-box; height: 48px; } #quick-btn { display: flex; align-items: center; padding: 0 22px; } }
 body:not([data-state="loading"]):not([data-state="entering"]):not([data-state="detail"]) #quick-btn { opacity: 1; pointer-events: auto; }
-body[data-state="gate"] #quick-btn { left: 50%; bottom: 7%; transform: translateX(-50%); padding: 16px 26px; font-size: 16px; z-index: 70; }
+body[data-state="gate"] #quick-btn { left: 50%; bottom: 7%; transform: translateX(calc(-100% - 6px)); padding: 16px 26px; font-size: 16px; z-index: 70; }
+/* the gate's second way in: the story tour (the orange bookmark key's walk through the keyboard), for a visitor with a minute */
+#tour-btn { position: absolute; left: 50%; bottom: 7%; z-index: 70; transform: translateX(6px); padding: 15px 24px; border: 1px solid rgba(217,160,91,0.7); border-radius: 999px; background: rgba(18,15,10,0.72); backdrop-filter: blur(8px); color: var(--paper, #e7ddc8); font: 600 16px/1 var(--sans, system-ui); letter-spacing: 0.02em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .5s, transform .2s, border-color .2s; white-space: nowrap; }
+#tour-btn:hover { border-color: var(--accent, #d9a05b); transform: translateX(6px) translateY(-1px); }
+body[data-state="gate"] #tour-btn { opacity: 1; pointer-events: auto; }
 /* inside a world or the gallery the way out is the world's own button: the shortcut steps aside (important: the rule that
    shows it is more specific) */
 body[data-state="project"] #quick-btn, body[data-state="gallery"] #quick-btn, body[data-state="switching"] #quick-btn { opacity: 0 !important; pointer-events: none !important; }
@@ -48,6 +52,10 @@ body[data-state="gate"] #gate-tip { opacity: 1; }
    out), the project pages (they have their own back). */
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
   #quick-btn, body[data-state="gate"] #quick-btn { left: 16px; right: 16px; bottom: calc(16px + var(--safe-b, 0px)); transform: none; padding: 17px 18px; border-radius: 14px; font-size: 16px; text-align: center; box-shadow: 0 10px 28px rgba(0,0,0,0.45); }
+  #tour-btn { left: 16px; right: 16px; bottom: calc(80px + var(--safe-b, 0px)); transform: none; padding: 15px 18px; border-radius: 14px; text-align: center; }
+  #tour-btn:hover { transform: none; }
+  body[data-state="gate"] #guide-btn { bottom: calc(146px + var(--safe-b, 0px)); }
+  body[data-state="gate"] #gate-tip { bottom: calc(150px + var(--safe-b, 0px)); }
   #quick-btn:hover { transform: none; }
   #guide-btn { left: 16px; bottom: calc(82px + var(--safe-b, 0px)); padding: 9px 15px 9px 9px; font-size: 14px; }
   body[data-state="focus"] #guide-btn, body[data-state="focus"] #quick-btn,
@@ -109,9 +117,12 @@ export function initGuide(xp) {
   const quick = document.createElement('button'); quick.id = 'quick-btn'; quick.type = 'button'; quick.textContent = 'See the work →';
   // on the gate it skips straight in: enter without sound, land, and open the project pages
   quick.addEventListener('click', () => { if (document.body.dataset.state === 'gate') xp.enter({ music: false, direct: 'work' }); else xp.activate('work'); });
+  // the tour: in without sound, then the story walks the keyboard stop by stop (the same walk as the orange bookmark key, or T)
+  const tour = document.createElement('button'); tour.id = 'tour-btn'; tour.type = 'button'; tour.textContent = 'Take the 60-second tour';
+  tour.addEventListener('click', () => { if (document.body.dataset.state === 'gate') xp.enter({ music: false, direct: 'art4' }); });
   const tip = document.createElement('div'); tip.id = 'gate-tip'; tip.setAttribute('aria-hidden', 'true');
   tip.textContent = touch ? 'Tap the brass key to step in, or' : 'Press the brass key to step in, or';
-  document.body.append(btn, quick, tip, panel);
+  document.body.append(btn, quick, tour, tip, panel);
   // closed, the panel is inert: nothing in it can be focused or clicked by keyboard; closing hands focus back to the button
   let open = false; panel.inert = true;
   const show = () => { open = true; panel.inert = false; panel.classList.add('open'); btn.classList.remove('pulse'); panel.querySelector('.quick, .row')?.focus(); };

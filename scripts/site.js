@@ -244,7 +244,9 @@ function roll(text, em = '') {
 function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false }) {
   const url = `${ORIGIN}${PFX}${pathname}`;
   const alts = LANG_ORDER.map((l) => `<link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pathname}">`).join('\n') + `\n<link rel="alternate" hreflang="x-default" href="${ORIGIN}${LANGS[DEFAULT_LANG].prefix}${pathname}">`;
-  const forward = LANG === DEFAULT_LANG ? `try{var pl=localStorage.getItem('nv-lang');if(pl&&pl!=='${DEFAULT_LANG}'&&/^(en|zh)$/.test(pl)&&window.top===window.self){location.replace('/'+pl+location.pathname+location.search+location.hash)}}catch(e){}` : '';
+  // (never from a path that already carries a prefix, and never from the 404 page: an old server that does not know /en/ would
+  // answer it with this page, and the forward would then add /en/ again and again)
+  const forward = LANG === DEFAULT_LANG && pathname !== '/404' ? `try{var pl=localStorage.getItem('nv-lang');if(pl&&pl!=='${DEFAULT_LANG}'&&/^(en|zh)$/.test(pl)&&!/^\\/(en|zh)(\\/|$)/.test(location.pathname)&&window.top===window.self){location.replace('/'+pl+location.pathname+location.search+location.hash)}}catch(e){}` : '';
   return `<!doctype html>
 <html lang="${L.html}" class="no-js">
 <head>
@@ -283,6 +285,7 @@ ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alt
 ${ADOBE_KIT ? `<link rel="stylesheet" href="https://use.typekit.net/${esc(ADOBE_KIT)}.css">\n` : ''}<script>(function(d){${forward}d.classList.replace('no-js','js');try{if(window.top!==window.self)d.classList.add('in-desk')}catch(e){}try{var k=Math.max(1,Math.min(innerWidth/1600,innerHeight/900));if(k>1.02&&CSS.supports('zoom','1.5')){d.style.setProperty('--k',k.toFixed(4));d.style.zoom=k.toFixed(4)}}catch(e){}try{if(localStorage.getItem('nv-motion')==='off')d.classList.add('motion-off')}catch(e){}try{var s=sessionStorage,c=s.getItem('nv-curtain');if(c){d.classList.add('curtain-on');if(c!=='1'){d.style.setProperty('--curtain',c);d.classList.add('curtain-tint')}s.removeItem('nv-curtain')}${intro ? "if(!c&&!s.getItem('nv-intro')&&!d.classList.contains('in-desk')&&!d.classList.contains('motion-off')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro-on')" : ''}}catch(e){}})(document.documentElement)</script>
 <style>${css}</style>
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/3d/*"}}]},"eagerness":"moderate"},{"where":{"href_matches":"/3d/*"},"eagerness":"conservative"}]}</script>
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script>
 ${extra}</head>`;
 }
 
@@ -308,7 +311,7 @@ function header(current, pathname) {
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnet><span class="menu-word">${roll(t('menu'))}</span><span class="menu-lines" aria-hidden="true"><i></i><i></i></span></button>
   </div>
 </header>
-<a class="side-3d" href="/3d/" data-track="3d_cta_click" data-from="tab" aria-label="${esc(t('deskTabAria'))}"><b>3D</b><span>${esc(t('deskTab'))}</span></a>
+<nav class="side-3d-nav" aria-label="${esc(t('deskTabAria'))}"><a class="side-3d" href="/3d/" data-track="3d_cta_click" data-from="tab" aria-label="${esc(t('deskTabAria'))}"><b>3D</b><span>${esc(t('deskTab'))}</span></a></nav>
 <div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">
@@ -333,7 +336,7 @@ function footer(D) {
   <div class="wrap">
     <div class="foot-big" aria-hidden="true"><span class="fb-o">Navy Gibran</span><span class="fb-f">Navy Gibran</span></div>
     <div class="foot-cols">
-      <div><span class="lbl">${esc(t('f_site'))}</span><a href="${u('/#work')}">${esc(t('m_work'))}</a><a href="${u('/work/')}">${esc(t('f_all'))}</a><a href="${u('/labs/')}">${esc(t('m_labs'))}</a><a href="${u('/#clients')}">${esc(t('m_clients'))}</a><a href="${u('/#territories')}">${esc(t('m_terr'))}</a><a href="${u('/#path')}">${esc(t('m_path'))}</a><a href="${u('/#contact')}">${esc(t('m_contact'))}</a></div>
+      <div><span class="lbl">${esc(t('f_site'))}</span><a href="${u('/#work')}">${esc(t('m_work'))}</a><a href="${u('/work/')}">${esc(t('f_all'))}</a><a href="${u('/labs/')}">${esc(t('m_labs'))}</a><a href="${u('/cv/')}">${esc(t('m_cv'))}</a><a href="${u('/#clients')}">${esc(t('m_clients'))}</a><a href="${u('/#territories')}">${esc(t('m_terr'))}</a><a href="${u('/#path')}">${esc(t('m_path'))}</a><a href="${u('/#contact')}">${esc(t('m_contact'))}</a></div>
       <div><span class="lbl">${esc(t('elsewhere'))}</span>${links}</div>
       <div><span class="lbl">${esc(t('f_other'))}</span><a href="/3d/" data-track="3d_cta_click" data-from="footer">${esc(t('f_desk'))} ${arrow}</a></div>
     </div>
@@ -368,7 +371,7 @@ function home(D, ctx) {
         <div class="case-top"><span><b>${pad(i + 1)}</b> / ${esc(t('selected'))}</span><span>${esc(ft.kind)}</span></div>
         <div class="case-text">
           <span class="case-meta"><b>${esc(p.title)}</b> · ${f.meta.map(esc).join(' · ')}</span>
-          <h3 class="case-title">${esc(p.title)}</h3>
+          <h2 class="case-title">${esc(p.title)}</h2>
           <p class="case-line">${esc(ft.line)}</p>
           ${did ? `<ul class="case-did">${did.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
           <span class="case-cta">${esc(t('viewProject'))} ${circleGo}</span>
@@ -423,7 +426,8 @@ function home(D, ctx) {
   const how = (C().process || CONTENT.en.process).map((s, i) => `<li style="--i:${i}"><span class="n">${pad(i + 1)}</span><strong>${esc(s.step)}</strong><span>${esc(s.body)}</span></li>`).join('');
   const layers = C().stack || CONTENT.en.stack;
   const stack = STACK.map((items, i) => `<div class="st-col" style="--i:${i}"><span class="lbl">${esc(layers[i] || CONTENT.en.stack[i])}</span><ul>${items.map((tool) => `<li>${toolMark(tool)}<span>${esc(tool)}</span></li>`).join('')}</ul></div>`).join('');
-  const contactLinks = D.SITE.links.filter((l) => l.label !== 'WhatsApp').map((l, i) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}" style="--i:${i}"><span>${esc(l.label === 'Résumé' ? t('resumePdf') : l.label)}</span>${arrow}</a>`).join('');
+  const contactLinks = D.SITE.links.filter((l) => l.label !== 'WhatsApp').map((l, i) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}" style="--i:${i}"><span>${esc(l.label === 'Résumé' ? t('resumePdf') : l.label)}</span>${arrow}</a>`).join('')
+    + `<a href="${u('/cv/')}" data-track="contact_click" data-channel="Web CV" style="--i:${D.SITE.links.length}"><span>${esc(t('cv_web'))}</span>${arrowR}</a>`;
   // the desk as a turntable (public/site/turn, rendered from the engine by scripts/turntable.mjs): the teaser scrubs it with the scroll
   const countFrames = (pre) => { let n = 0; while (exists(`site/turn/${pre}${n}.webp`)) n++; return n; };
   const turnN = countFrames('desk-');
@@ -645,7 +649,7 @@ function archSection(p) {
       <div class="inside-head"><div data-reveal>${kick(a.kick)}</div><h2 class="serif-h" id="arch-h" data-split>${splitPair(a.title, a.em)}</h2></div>
       <p class="arch-lead" data-reveal>${esc(a.lead)}</p>
       <figure class="arch-fig" data-reveal>
-        <svg class="arch-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(a.aria)}">
+        <svg class="arch-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="${esc(a.aria)}">
           ${lines}
           <path class="al al--db" d="M${W / 2} ${apiY + 60} L${W / 2} ${dbY}"/>
           <path class="al al--ui" d="M${W / 2 + 160} ${apiY + 30} L${W - 210} ${apiY + 30}"/>
@@ -820,6 +824,54 @@ ${footer(D)}
 ` + tail(ctx.js);
 }
 
+// ---------- the CV as a page: one screen, printable, the same facts as the rest of the site (the PDF stays the download)
+function cvPage(D, ctx) {
+  const P = (k) => D.PROJECTS.find((p) => p.key === k);
+  const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design');
+  const pathAll = C().path || CONTENT.en.path, layers = C().stack || CONTENT.en.stack;
+  const edu = pathAll[pathAll.length - 1], exp = pathAll.slice(0, -1);
+  const pdf = D.SITE.links.find((l) => l.label === 'Résumé')?.href;
+  const links = D.SITE.links.filter((l) => l.label !== 'Résumé');
+  const facts = t('facts').map((f) => fill(f, { n: clientSites.length }));
+  const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => `<li><a ${pAttrs(p, 'cv')}><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(p.stack)}</span><p>${esc(featuredText(p.key).line)}</p></li>`).join('');
+  const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${t('cv_title')} | Navy Gibran`, url: `${ORIGIN}${u('/cv/')}`, inLanguage: L.html, mainEntity: { '@type': 'Person', name: 'Navy Gibran', jobTitle: t('jobTitle'), email: D.SITE.email ? `mailto:${D.SITE.email}` : undefined, url: `${ORIGIN}${u('/')}`, alumniOf: 'Universitas Multimedia Nusantara', worksFor: 'PT. Gajah Terbang Kreatif', knowsLanguage: ['id', 'en', 'zh'] } };
+  return head({ title: `${t('cv_title')} | Navy Gibran`, description: t('cv_desc'), pathname: '/cv/', css: ctx.css, imageAlt: t('ogDefaultAlt'), extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` }) + `
+<body class="cv-page">
+${header('cv', '/cv/')}
+<main id="main" class="wrap cv" tabindex="-1">
+  <div class="p-crumbs" data-reveal><a href="${u('/')}">${esc(t('backHome'))}</a><span class="cv-tools"><button type="button" class="cv-print" onclick="print()">${esc(t('cv_print'))}</button>${pdf ? ` <a href="${esc(pdf)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="Résumé" data-from="cv">${esc(t('cv_pdf'))} ↗</a>` : ''}</span></div>
+  <header class="cv-head">
+    <span class="p-kick" data-reveal>${kick(t('cv_kick'))}</span>
+    <h1 class="p-title cap" data-split>${split('Navy Gibran')}</h1>
+    <p class="cv-role" data-reveal>${esc(t('role'))} · ${esc(t('where'))} · <span class="dot dot--open" aria-hidden="true"></span> ${esc(t('status'))}</p>
+    <p class="cv-lead" data-reveal>${esc(t('cv_lead'))}</p>
+    <ul class="hero-facts cv-facts" data-reveal>${facts.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+  </header>
+  <div class="cv-grid">
+    <section class="cv-main">
+      <h2 class="lbl">${esc(t('inShort'))}</h2>
+      <p class="cv-sum">${esc(t('who'))} ${esc(t('whoEm'))}</p>
+      <h2 class="lbl">${esc(t('cv_exp'))}</h2>
+      <ol class="cv-list">${exp.map((r) => `<li><span class="cv-when">${esc(r.when)}</span><div><h3>${esc(r.role)}</h3><span class="cv-org">${esc(r.org)}</span><p>${esc(r.body)}</p></div></li>`).join('')}</ol>
+      <h2 class="lbl">${esc(t('cv_edu'))}</h2>
+      <ol class="cv-list"><li><span class="cv-when">${esc(edu.when)}</span><div><h3>${esc(edu.role)}</h3><span class="cv-org">${esc(edu.org)}</span><p>${esc(edu.body)}</p></div></li></ol>
+      <h2 class="lbl">${esc(t('cv_sel'))}</h2>
+      <ul class="cv-sel">${sel}</ul>
+    </section>
+    <aside class="cv-side">
+      <h2 class="lbl">${esc(t('cv_contact'))}</h2>
+      <ul class="cv-links">${D.SITE.email ? `<li><a href="mailto:${esc(D.SITE.email)}">${esc(D.SITE.email)}</a></li>` : ''}<li><a href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener">${esc(phone(D.SITE.whatsapp))}</a></li>${links.filter((l) => l.label !== 'WhatsApp' && l.label !== 'Email').map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}: ${esc(l.href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</a></li>`).join('')}<li><a href="${ORIGIN}${u('/')}">navygibran.dev</a></li></ul>
+      <h2 class="lbl">${esc(t('cv_skills'))}</h2>
+      ${STACK.map((items, i) => `<div class="cv-skill"><span class="cv-layer">${esc(layers[i] || CONTENT.en.stack[i])}</span><span>${items.map(esc).join(' · ')}</span></div>`).join('')}
+      <h2 class="lbl">${esc(t('cv_lang'))}</h2>
+      <p class="cv-langs">${esc(t('cv_langLine'))}</p>
+    </aside>
+  </div>
+</main>
+${footer(D)}
+` + tail(ctx.js);
+}
+
 function notFound(D, ctx) {
   return head({ title: `${t('nf')} | Navy Gibran`, description: t('nfDesc'), pathname: '/404', css: ctx.css, noindex: true }) + `
 <body class="nf">
@@ -898,12 +950,13 @@ export async function renderSite() {
     out[`${dir}index.html`] = fillAll(home(D, ctx));
     out[`${dir}work/index.html`] = fillAll(archivePage(D, ctx));
     out[`${dir}labs/index.html`] = fillAll(labsPage(D, ctx));
+    out[`${dir}cv/index.html`] = fillAll(cvPage(D, ctx));
     D.PROJECTS.forEach((p) => { out[`${dir}work/${p.key}/index.html`] = fillAll(projectPage(D, ctx, p)); });
     if (lang === DEFAULT_LANG) out['404.html'] = fillAll(notFound(D, ctx));
   }
   setLang(DEFAULT_LANG);
   const today = new Date().toISOString().slice(0, 10);
-  const paths = ['/', '/work/', '/labs/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
+  const paths = ['/', '/work/', '/labs/', '/cv/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
   const alt = (pth) => LANG_ORDER.map((l) => `<xhtml:link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pth}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${pth}"/>`;
   const urls = [];
   for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><lastmod>${today}</lastmod><priority>${pth === '/' ? '1.0' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}</url>`);

@@ -16,7 +16,7 @@ const splitPair = (plain, italic) => { const n = { i: 0 }; return `${split(plain
 const arrow = '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 
 // each kind's tint, in the site's warm dark: the plate's light and the mark
-const TINT = { chain: '#8fb4f0', ai: '#c9a7ff', play: '#e8b97a', tools: '#9fd9a8' };
+const TINT = { ai: '#c9a7ff', play: '#e8b97a', tools: '#9fd9a8' };
 const KIND = Object.fromEntries(LAB_KINDS);
 
 export const LABS_CSS = `
@@ -85,13 +85,13 @@ export function labsMain({ exists = () => false, img = null } = {}) {
     <div class="p-crumbs" data-reveal><a href="/">← Home</a><span>${n} experiments</span></div>
     <span class="p-kick" data-reveal>${kick('Labs')}</span>
     <h1 class="p-title cap" id="labs-h" data-split>${splitPair('No brief,', 'no client.')}</h1>
-    <p class="p-lead arc-lead" data-reveal>What I build when nobody asks: protocols on Robinhood Chain, agents that need a leash, a voice that answers in Indonesian, a fishing game. ${n} of them, every one on GitHub, most of them from the last few months.</p>
+    <p class="p-lead arc-lead" data-reveal>Side projects, made on my own time and kept open on GitHub. This is where I try things before a client ever asks for them: agents, games, machine learning, a desk in 3D.</p>
     <div class="lab-stats" data-reveal>${stats}</div>
     <div class="arc-filters" role="group" aria-label="Show labs by kind" data-reveal>${pills}</div>
     <p class="sr" role="status" id="arc-status"></p>
     <ol class="arc-grid lab-grid" data-stagger>${cards}</ol>
     <div class="labs-end" data-reveal>
-      <p>Every line above is from the repository's own README. The rest, forks and course work included, is on GitHub.</p>
+      <p>Each description follows the repository's own README. More of the work, forks and course projects included, is on GitHub.</p>
       <a class="btn" href="https://github.com/itsnevu" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub">github.com/itsnevu ${arrow}</a>
     </div>
   </section>
@@ -100,6 +100,6 @@ export function labsMain({ exists = () => false, img = null } = {}) {
 
 export const LABS_META = {
   title: 'Labs | Navy Gibran',
-  description: `${LABS.length} experiments by Navy Gibran, every one on GitHub: DeFi protocols on Robinhood Chain, an AI browser agent, guardrails for agents, a voice assistant in Indonesian, a Three.js fishing game and more.`,
+  description: `${LABS.length} experiments by Navy Gibran, every one on GitHub: an AI browser agent, guardrails for agents, a voice assistant in Indonesian, ad analytics with AI insight, a Three.js fishing game and more.`,
   menu: { label: 'Labs', sub: `${LABS.length} experiments, no client` },
 };

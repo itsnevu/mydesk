@@ -50,7 +50,7 @@ http.createServer((req, res) => {
   if (desk) p = p.slice(3);
   // the plain portfolio, rendered from data.js on every request
   // (the portfolio speaks three languages: /en/ and /zh/ hold the same pages under a prefix, the default Indonesian ones at /)
-  const sitePath = !desk && (/^\/((en|zh)\/)?$/.test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : /^\/((en|zh)\/)?(work\/([\w-]+\/)?|labs\/)(index\.html)?$/.test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
+  const sitePath = !desk && (/^\/((en|zh)\/)?$/.test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : /^\/((en|zh)\/)?(work\/([\w-]+\/)?|labs\/|cv\/)(index\.html)?$/.test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
   // (scripts/site.js is re-imported whenever it changes, so edits to the page templates show without a restart)
   const renderPage = (rel, status = 200) => import(`./site.js?v=${fs.statSync(new URL('./site.js', import.meta.url)).mtimeMs}`).then((m) => m.renderSite()).then((pages) => {
     const body = pages[rel];
@@ -59,7 +59,7 @@ http.createServer((req, res) => {
     res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(req.method === 'HEAD' ? undefined : body);
   }).catch((e) => { console.error('site:', e); res.writeHead(500, { 'Content-Type': 'text/plain' }); res.end(String(e.stack || e)); });
   if (sitePath) return renderPage(sitePath);
-  if (!desk && /^\/(((en|zh)\/)?(work(\/[\w-]+)?|labs)|en|zh)$/.test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
+  if (!desk && /^\/(((en|zh)\/)?(work(\/[\w-]+)?|labs|cv)|en|zh)$/.test(p)) { res.writeHead(301, { Location: p + '/' }); return res.end(); }
   if (p.endsWith('/')) p += 'index.html';
   const file = path.join(root, p);
   if (file !== root && !file.startsWith(root + path.sep)) { res.writeHead(403); return res.end(); }
