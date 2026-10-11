@@ -57,7 +57,9 @@ export const LABS_CSS = `
 `;
 
 /** The page's <main>: the archive's bones, each lab a card with its picture or plate, the kind filters, a line to GitHub at the end. */
-export function labsMain({ exists = () => false, img = null } = {}) {
+// `chapter`: rendered as the second chapter of the Labs page (after the worlds, scripts/labs-worlds.js): no <main>, no crumbs,
+// an h2 under a kick instead of the page's h1; `chapter.kick/title/em` are the words, in the page's language
+export function labsMain({ exists = () => false, img = null, chapter = null } = {}) {
   const n = LABS.length;
   const counts = Object.fromEntries(LAB_KINDS.map(([k]) => [k, LABS.filter((l) => l.kind === k).length]));
   const pills = [['all', 'All', n], ...LAB_KINDS.map(([k, label]) => [k, label, counts[k]])]
@@ -80,6 +82,19 @@ export function labsMain({ exists = () => false, img = null } = {}) {
       <div class="lab-links">${links}</div>
     </li>`;
   }).join('');
+  if (chapter) return `<section class="arc labs labs-chapter worlds-after wrap" aria-labelledby="labs-more-h">
+    <span class="p-kick" data-reveal>${kick(chapter.kick)}</span>
+    <h2 class="serif-h" id="labs-more-h" data-split>${splitPair(chapter.title, chapter.em)}</h2>
+    <p class="p-lead arc-lead" data-reveal>Side projects, made on my own time and kept open on GitHub. This is where I try things before a client ever asks for them: agents, games, machine learning, a desk in 3D.</p>
+    <div class="lab-stats" data-reveal>${stats}</div>
+    <div class="arc-filters" role="group" aria-label="Show labs by kind" data-reveal>${pills}</div>
+    <p class="sr" role="status"></p>
+    <ol class="arc-grid lab-grid" data-stagger>${cards}</ol>
+    <div class="labs-end" data-reveal>
+      <p>Each description follows the repository's own README. More of the work, forks and course projects included, is on GitHub.</p>
+      <a class="btn" href="https://github.com/itsnevu" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub">github.com/itsnevu ${arrow}</a>
+    </div>
+  </section>`;
   return `<main id="main" tabindex="-1">
   <section class="arc labs wrap" aria-labelledby="labs-h">
     <div class="p-crumbs" data-reveal><a href="/">← Home</a><span>${n} experiments</span></div>

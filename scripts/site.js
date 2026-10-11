@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { LANGS, DEFAULT_LANG, LANG_ORDER, OTHER_PREFIXES, UI, CONTENT, fill } from './i18n.js';
 import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META } from './labs.js';
+import { worldsSection, WORLDS, WORLDS_CSS } from './labs-worlds.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
 import { LABS } from '../src/app/labs.js';
 
@@ -343,7 +344,7 @@ function header(current, pathname, D = null) {
 ${D ? menuSimple(D, current) : `<div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">
-    ${item(u('/full/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: (LABS_META.menu.sub.match(/\d+/) || [''])[0] })))}
+    ${item(u('/full/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: WORLDS.length + (+(LABS_META.menu.sub.match(/\d+/) || [0])[0]) })))}
   </nav>
   <div class="menu-side">
     <div class="menu-pv" aria-hidden="true">${pv}<span class="menu-pv-mark">${MARK()}</span><span class="menu-pv-cap"><b></b><span></span></span></div>
@@ -845,11 +846,17 @@ ${footer(D)}
 }
 
 // ---------- labs: Navy's own experiments (scripts/labs.js holds the page's body, its CSS and its meta; the same bones as the archive)
+// (two chapters: the worlds first, scripts/labs-worlds.js, then the GitHub experiments as a chapter of their own)
 function labsPage(D, ctx) {
-  return head({ title: LABS_META.title, description: LABS_META.description, pathname: '/labs/', css: ctx.css + LABS_CSS, imageAlt: 'Labs: the experiments of Navy Gibran' }) + `
+  const labsCount = +(LABS_META.menu.sub.match(/\d+/) || [0])[0];
+  const description = `${WORLDS.length} crypto products told as 3D worlds, each with a working dApp and Solidity contracts running in the browser, and ${LABS_META.description.charAt(0).toLowerCase()}${LABS_META.description.slice(1)}`;
+  return head({ title: LABS_META.title, description, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: 'Labs: the worlds and experiments of Navy Gibran' }) + `
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
-${labsMain({ exists, img })}
+<main id="main" tabindex="-1">
+${worldsSection({ t, u, splitPair, labsCount })}
+${labsMain({ exists, img, chapter: { kick: t('lw_moreKick'), title: t('lw_moreTitle'), em: t('lw_moreEm') } })}
+</main>
 ${footer(D)}
 ` + tail(ctx.js);
 }

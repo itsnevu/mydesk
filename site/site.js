@@ -563,10 +563,12 @@
   });
 
   // ---------- the archive's filters: the grid fades, the cards of that kind come back in turn; the choice stays in the address
-  const arcGrid = document.querySelector('.arc-grid');
-  if (arcGrid) {
-    const pills = [...document.querySelectorAll('.pill-f')], cards = [...arcGrid.children];
-    const bar = document.querySelector('.arc-filters'), dock = document.querySelector('.arc-dock'), dockT = dock?.firstElementChild;
+  // (a page may hold several filtered grids, the Labs page its worlds and its experiments: each section's pills work its own
+  // grid, and only the first keeps its choice in the address)
+  document.querySelectorAll('.arc-grid').forEach((arcGrid, gi) => {
+    const sec = arcGrid.closest('section') || document;
+    const pills = [...sec.querySelectorAll('.pill-f')], cards = [...arcGrid.children];
+    const bar = sec.querySelector('.arc-filters'), dock = sec.querySelector('.arc-dock'), dockT = dock?.firstElementChild;
     let fadeT = 0;
     const apply = (kind, remember) => {
       pills.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kind === kind)));
@@ -574,11 +576,11 @@
         let n = 0;
         cards.forEach((c) => { c.hidden = !(kind === 'all' || c.dataset.kind === kind); if (!c.hidden) n++; });
         arcGrid.classList.add('in'); arcGrid.classList.remove('fading');
-        const st = document.getElementById('arc-status'); if (st && remember) st.textContent = `${n} ${n === 1 ? 'project' : 'projects'} shown`;
+        const st = sec.querySelector('[role="status"]'); if (st && remember) st.textContent = jt('filtered', { n, t: cards.length });
       };
       clearTimeout(fadeT);
       if (reduce) show(); else { arcGrid.classList.add('fading'); fadeT = setTimeout(show, 220); }
-      if (remember) { history.replaceState(null, '', kind === 'all' ? location.pathname : `#${kind}`); track('archive_filter', { kind }); }
+      if (remember) { if (gi === 0) history.replaceState(null, '', kind === 'all' ? location.pathname : `#${kind}`); track('archive_filter', { kind, group: gi }); }
     };
     pills.forEach((b) => b.addEventListener('click', () => {
       apply(b.dataset.kind, true);
@@ -606,9 +608,8 @@
       check();
     }
     const fromHash = () => { const k = location.hash.slice(1) || 'all'; if (pills.some((b) => b.dataset.kind === k)) apply(k, false); };
-    if (location.hash) fromHash();
-    addEventListener('hashchange', fromHash);
-  }
+    if (gi === 0) { if (location.hash) fromHash(); addEventListener('hashchange', fromHash); }
+  });
 
   // ---------- the rail beside the work: each number goes to its project
   rail?.addEventListener('click', (e) => {
