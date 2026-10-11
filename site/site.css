@@ -307,11 +307,12 @@ body.menu-open { overflow: hidden; }
 .head.compact .menu-btn { padding: 0 12px; }
 .menu-btn[aria-expanded="true"] .menu-word { margin-right: 12px; }
 @media (max-width: 900px) { .menu-btn { height: 40px; padding: 0 12px 0 16px; } .head.compact .menu-btn { padding: 0 11px; } }
-/* the Full / Simple switch in the header, beside the languages, on the home and the story page only */
+/* the Simple / Full / 3D switch in the header, beside the languages, on every page (it replaced the tab on the right edge) */
 .view { display: inline-flex; align-items: center; gap: 2px; margin-left: auto; padding: 4px; border: 1px solid var(--line-2); border-radius: 999px; background: rgba(14, 12, 9, 0.55); backdrop-filter: blur(8px); pointer-events: auto; }
 .head-in .view + .lang { margin-left: 0; }
 .view a { display: inline-flex; align-items: center; justify-content: center; height: 30px; padding: 0 12px; border-radius: 999px; font: 700 12px/1 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); transition: color 0.25s, background 0.25s; }
 .view a:hover, .view a:focus-visible { color: var(--ink); } .view a[aria-current="true"] { background: var(--accent); color: #140f09; }
+.view a[data-view="desk"] { padding: 0 10px; letter-spacing: 0.06em; }
 .cream .view { border-color: var(--cream-line); background: rgba(235, 227, 210, 0.6); }
 @media (max-width: 640px) { .intro-doors { grid-template-columns: 1fr 1fr; gap: 10px; } .door-s { display: none; } .intro-door { padding: 8px 8px 12px; } .intro-gate-t { font-size: clamp(28px, 8vw, 40px); } .head-in { gap: 8px; } }
 /* a phone has no room for three pills and the menu: the switch shows only the other reading (one short pill), the languages tighten */

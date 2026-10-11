@@ -299,8 +299,8 @@ ${extra}</head>`;
 // the language switch: the same page in each language (the page script remembers the choice)
 const langSwitch = (pathname) => `<nav class="lang" aria-label="${esc(t('langAria'))}">${LANG_ORDER.map((l) => `<a href="${LANGS[l].prefix}${pathname}" hreflang="${LANGS[l].html}" lang="${LANGS[l].html}" data-lang="${l}" title="${esc(LANGS[l].name)}"${l === LANG ? ' aria-current="true"' : ''}>${esc(LANGS[l].short)}</a>`).join('')}</nav>`;
 
-// the two readings of the home, Full (the story) and Simple (the profile page), beside the languages; only where it applies
-const viewSwitch = (current) => `<nav class="view" aria-label="${esc(t('viewAria'))}"><a href="${u('/full/')}" data-view="full"${current === 'home' ? ' aria-current="true"' : ''}>${esc(t('viewFull'))}</a><a href="${u('/')}" data-view="simple"${current === 'simple' ? ' aria-current="true"' : ''}>${esc(t('viewSimple'))}</a></nav>`;
+// the three readings, beside the languages on every page: Simple (the home), Full (the story at /full/) and the 3D desk
+const viewSwitch = (current) => `<nav class="view" aria-label="${esc(t('viewAria'))}"><a href="${u('/')}" data-view="simple"${current === 'simple' ? ' aria-current="true"' : ''}>${esc(t('viewSimple'))}</a><a href="${u('/full/')}" data-view="full"${current === 'home' ? ' aria-current="true"' : ''}>${esc(t('viewFull'))}</a><a href="/3d/" data-view="desk" data-track="3d_cta_click" data-from="switch" aria-label="${esc(t('deskTabAria'))}">3D</a></nav>`;
 
 // the top of every page: the skip link, the anchor "back to top" goes to, the curtain between pages, the header, the menu and
 // the tab on the right edge that opens the desk
@@ -317,12 +317,11 @@ function header(current, pathname) {
 <header class="head">
   <div class="head-in">
     <a class="brand" href="${u('/')}" aria-label="${esc(t('brandHome'))}">${MARK()}<span class="brand-n">Navy Gibran</span><span class="head-sec" aria-hidden="true"><span class="hs-in"></span></span></a>
-    ${current === 'home' || current === 'simple' ? viewSwitch(current) : ''}
+    ${viewSwitch(current)}
     ${langSwitch(pathname)}
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnet><span class="menu-word">${roll(t('menu'))}</span><span class="menu-lines" aria-hidden="true"><i></i><i></i></span></button>
   </div>
 </header>
-<nav class="side-3d-nav" aria-label="${esc(t('deskTabAria'))}"><a class="side-3d" href="/3d/" data-track="3d_cta_click" data-from="tab" aria-label="${esc(t('deskTabAria'))}"><b>3D</b><span>${esc(t('deskTab'))}</span></a></nav>
 <div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">

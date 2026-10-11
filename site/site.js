@@ -15,7 +15,7 @@
   // the language switch remembers the choice (the default pages forward to it on arrival)
   document.querySelectorAll('.lang a[data-lang]').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('nv-lang', a.dataset.lang); } catch {} }));
   // the reading of the home (Full or Simple), chosen at the intro's gate or in the header, remembered the same way
-  document.querySelectorAll('.view a[data-view]').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('nv-view', a.dataset.view); } catch {} }));
+  document.querySelectorAll('.view a[data-view]').forEach((a) => a.addEventListener('click', () => { if (a.dataset.view === 'desk') return; try { localStorage.setItem('nv-view', a.dataset.view); } catch {} }));
   const h0 = location.hash.slice(1);
   if (h0 && location.pathname === '/' && !document.getElementById(h0)) {
     const m = h0.match(/^project-(.+)$/);

@@ -8,7 +8,8 @@ raycasting, tween system). **Zero runtime dependencies**: nothing to install.
 
 **navygibran.dev/** is the plain portfolio: who Navy is, the selected work, the kinds of work on offer, the path so far, the stack and contact,
 readable in a minute with no WebGL, no sound and nothing to find. **navygibran.dev/3d/** is the desk below, unchanged: the gate, the
-worlds, the 37 discoveries, the sound. The portfolio links to the desk from the nav, the hero, a teaser section and the footer; the desk
+worlds, the 37 discoveries, the sound. The portfolio links to the desk from the header's Simple | Full | 3D switch (on every page), the
+menu, a teaser section and the footer; the desk
 links back from the loading screen and the gate (top left), the desk (bottom left, above "? Guide") and the menu ("Portfolio ↗").
 
 - `scripts/site.js` renders the portfolio from `src/app/data.js` (the same content the desk tells) into static HTML: `/`, one page per

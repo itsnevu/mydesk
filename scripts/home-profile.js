@@ -217,8 +217,9 @@ body.home-profile.has-field { background-image: none; }
 .pf-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg) 0%, transparent 45%); }
 .pf-card-in { padding: 0 clamp(18px, 3vw, 30px) clamp(18px, 3vw, 26px); }
 .pf-id { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: -58px; }
-/* (the ring is opaque: a translucent one vanished over the bright half of the banner) */
-.pf-face { width: 116px; height: 116px; border-radius: 50%; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 0 0 1.5px #8f8574, 0 20px 40px -20px rgba(0, 0, 0, 0.8); background: var(--bg-2); transition: transform 0.6s var(--ease), box-shadow 0.4s; }
+/* (positioned, so the whole figure, its ring included, paints above the banner it overlaps; the banner is positioned too, and
+   an unpositioned figure's ring was painted beneath it, leaving half a ring. The ring is opaque for the same bright half.) */
+.pf-face { position: relative; z-index: 1; width: 116px; height: 116px; border-radius: 50%; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 0 0 1.5px #8f8574, 0 20px 40px -20px rgba(0, 0, 0, 0.8); background: var(--bg-2); transition: transform 0.6s var(--ease), box-shadow 0.4s; }
 .pf-face:hover { box-shadow: 0 0 0 1.5px var(--accent-2), 0 20px 40px -20px rgba(0, 0, 0, 0.8); }
 .pf-face:hover { transform: translateY(-3px) rotate(-2deg); }
 .pf-face img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 28%; filter: saturate(0.85) contrast(1.05); }
