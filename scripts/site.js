@@ -302,9 +302,27 @@ const langSwitch = (pathname) => `<nav class="lang" aria-label="${esc(t('langAri
 // the three readings, beside the languages on every page: Simple (the home), Full (the story at /full/) and the 3D desk
 const viewSwitch = (current) => `<nav class="view" aria-label="${esc(t('viewAria'))}"><a href="${u('/')}" data-view="simple"${current === 'simple' ? ' aria-current="true"' : ''}>${esc(t('viewSimple'))}</a><a href="${u('/full/')}" data-view="full"${current === 'home' ? ' aria-current="true"' : ''}>${esc(t('viewFull'))}</a><a href="/3d/" data-view="desk" data-track="3d_cta_click" data-from="switch" aria-label="${esc(t('deskTabAria'))}">3D</a></nav>`;
 
-// the top of every page: the skip link, the anchor "back to top" goes to, the curtain between pages, the header, the menu and
-// the tab on the right edge that opens the desk
-function header(current, pathname) {
+// the simple reading's menu (the profile page): one column of plain links, the WhatsApp button, the email and the links elsewhere;
+// no preview panel, no blurb, no running line. The same overlay and the same button open and close it
+function menuSimple(D, current) {
+  const link = (href, label, id, extra = '') => `<a href="${href}"${current === id ? ' aria-current="page"' : ''}${extra}>${esc(label)}</a>`;
+  return `<div class="menu menu--simple" id="menu" aria-hidden="true">
+  <nav class="sm-links" aria-label="${esc(t('menuMain'))}">
+    ${link(u('/'), cap1(t('home')), 'simple')}${link(u('/work/'), t('f_all'), 'work')}${link(u('/labs/'), t('m_labs'), 'labs')}${link(u('/cv/'), t('m_cv'), 'cv')}${link(u('/full/'), t('viewFull'), 'home')}${link('/3d/', t('f_desk'), 'desk', ' data-track="3d_cta_click" data-from="menu"')}
+  </nav>
+  <div class="sm-side">
+    <a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="menu" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${esc(t('chat'))} ${arrow}</a>
+    <a class="sm-mail" href="mailto:${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="menu">${esc(D.SITE.email)}</a>
+    <div class="sm-else"><span class="lbl">${esc(t('elsewhere'))}</span><ul>__ELSE_LINKS__</ul></div>
+    <p class="menu-now menu-status"><span class="dot dot--open" aria-hidden="true"></span><span>${esc(`${t('status')} · ${t('where')}`)}</span></p>
+  </div>
+  <div class="menu-foot" aria-hidden="true"><em>${esc(t('motto'))}</em><span class="menu-esc if-hover"><kbd>Esc</kbd> ${esc(t('escClose'))}</span><span>© __YEAR__</span></div>
+</div>`;
+}
+
+// the top of every page: the skip link, the anchor "back to top" goes to, the curtain between pages, the header and the menu
+// (`D` given: the simple reading's menu instead of the editorial one)
+function header(current, pathname, D = null) {
   // each link shows a picture of where it leads in the panel beside the list (desktop)
   // (`sub` is the line beside the word: what the section holds, in a few words; the counts are filled in by build())
   const item = (href, n, label, id, k, em = '', sub = '') => `<a href="${href}" data-pv="${k}"${current === id ? ' aria-current="page"' : ''}><span class="mn">${n}</span><span class="ml">${roll(label, em)}</span>${sub ? `<span class="ml-sub" aria-hidden="true">${sub}</span>` : ''}</a>`;
@@ -322,7 +340,7 @@ function header(current, pathname) {
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-magnet><span class="menu-word">${roll(t('menu'))}</span><span class="menu-lines" aria-hidden="true"><i></i><i></i></span></button>
   </div>
 </header>
-<div class="menu" id="menu" aria-hidden="true">
+${D ? menuSimple(D, current) : `<div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">
     ${item(u('/full/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: (LABS_META.menu.sub.match(/\d+/) || [''])[0] })))}
@@ -337,11 +355,19 @@ function header(current, pathname) {
     <span class="lbl menu-clock" data-clock>${esc(t('clock'))}</span>
   </div>
   <div class="menu-foot" aria-hidden="true"><em>${esc(t('motto'))}</em><span class="menu-esc if-hover"><kbd>Esc</kbd> ${esc(t('escClose'))}</span><span>© __YEAR__</span></div>
-</div>`;
+</div>`}`;
 }
 
-function footer(D) {
+function footer(D, simple = false) {
   const links = D.SITE.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a>`).join('');
+  const bar = `<div class="foot-bar"><span>© ${esc(D.SITE.copyright || D.SITE.year)} Navy Gibran</span><button class="motion" type="button" aria-pressed="false">${esc(t('motion'))} <b>${esc(t('on'))}</b></button><em>${esc(t('motto'))}</em><span data-clock>${esc(t('clock'))}</span><a href="#top" class="to-top">${roll(t('toTop'))} <span class="up" aria-hidden="true">↑</span></a></div>`;
+  // the simple reading's footer: the mark and the name, the links elsewhere, the bar; no giant letters, no columns
+  if (simple) return `<footer class="foot foot--simple" data-scene="foot" data-hide-tab>
+  <div class="wrap">
+    <div class="sf-top"><a class="sf-brand" href="${u('/')}" aria-label="${esc(t('brandHome'))}">${MARK()}<span>Navy Gibran</span></a><nav class="sf-links" aria-label="${esc(t('elsewhere'))}">${links}<a href="/3d/" data-track="3d_cta_click" data-from="footer">${esc(t('f_desk'))}</a></nav></div>
+    ${bar}
+  </div>
+</footer>`;
   return `<footer class="foot" data-scene="foot" data-hide-tab>
   <div class="wrap">
     <div class="foot-big" aria-hidden="true"><span class="fb-o">Navy Gibran</span><span class="fb-f">Navy Gibran</span></div>
@@ -350,7 +376,7 @@ function footer(D) {
       <div><span class="lbl">${esc(t('elsewhere'))}</span>${links}</div>
       <div><span class="lbl">${esc(t('f_other'))}</span><a href="/3d/" data-track="3d_cta_click" data-from="footer">${esc(t('f_desk'))} ${arrow}</a></div>
     </div>
-    <div class="foot-bar"><span>© ${esc(D.SITE.copyright || D.SITE.year)} Navy Gibran</span><button class="motion" type="button" aria-pressed="false">${esc(t('motion'))} <b>${esc(t('on'))}</b></button><em>${esc(t('motto'))}</em><span data-clock>${esc(t('clock'))}</span><a href="#top" class="to-top">${roll(t('toTop'))} <span class="up" aria-hidden="true">↑</span></a></div>
+    ${bar}
   </div>
 </footer>`;
 }
@@ -963,9 +989,9 @@ function simplePage(D, ctx) {
   return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
 <body class="home home-profile">
 ${introHtml(D)}
-${header('simple', '/')}
+${header('simple', '/', D)}
 ${main}
-${footer(D)}
+${footer(D, true)}
 ` + tail(ctx.js + '\n' + HOME_PROFILE_JS);
 }
 
@@ -989,7 +1015,9 @@ export async function renderSite() {
       .replace('__INDEX__', JSON.stringify({ p: D.PROJECTS.map((p) => [p.key, p.title, industryLine(p), p.stack, tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [l.label, l.href]) }).replace(/</g, '\\u003c'))
       .replace('__PREFIX__', JSON.stringify(PFX)).replace('__LANG__', JSON.stringify(lang)).replace('__JS_T__', JSON.stringify(t('js')).replace(/</g, '\\u003c'));
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a></li>`).join('');
-    const fillAll = (html) => typeset(html.replace('__MENU_LINKS__', menuLinks).replace(/__N_PROJECTS__/g, counted(D).length).replace(/__N_CLIENTS__/g, nClients).replace(/__YEAR__/g, esc(D.SITE.copyright || D.SITE.year)));
+    // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
+    const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a></li>`).join('');
+    const fillAll = (html) => typeset(html.replace('__MENU_LINKS__', menuLinks).replace('__ELSE_LINKS__', elseLinks).replace(/__N_PROJECTS__/g, counted(D).length).replace(/__N_CLIENTS__/g, nClients).replace(/__YEAR__/g, esc(D.SITE.copyright || D.SITE.year)));
     const dir = PFX ? PFX.slice(1) + '/' : '';
     out[`${dir}index.html`] = fillAll(simplePage(D, ctx));
     out[`${dir}full/index.html`] = fillAll(home(D, ctx));
