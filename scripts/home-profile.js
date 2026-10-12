@@ -37,6 +37,8 @@ export const WORDS = {
     chat: 'Chat WhatsApp', see3d: 'Lihat versi 3D', cvBtn: 'Unduh CV', email: 'Email',
     waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
+    reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
+    reelOpen: 'Buka di Labs', reelAll: 'Jelajahi {n} dunia', reelHint: 'Arahkan ke gambar kecil untuk ganti dunia', reelHintTouch: 'Ketuk gambar kecil untuk ganti dunia', reelAlt: 'Satu frame dari dunia 3D {n}',
   },
 };
 WORDS.en = {
@@ -51,6 +53,8 @@ WORDS.en = {
   ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
   chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
+  reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
+  reelOpen: 'Open in Labs', reelAll: 'Explore {n} worlds', reelHint: 'Point at a small frame to change the world', reelHintTouch: 'Tap a small frame to change the world', reelAlt: 'A frame of the 3D world {n}',
 };
 WORDS.zh = { ...WORDS.en };
 
@@ -76,7 +80,7 @@ const STACK = [['Go', 'TypeScript', 'JavaScript', 'PHP', 'Solidity'], ['Next.js'
 const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'linkedin'], ['GitHub', 'github'], ['X', 'x']];
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `labs` the LABS list; `clients` [{key, name, word?}]. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, clients, exists, img, u = (p) => p, projectMedia, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, worlds = [], clients, exists, img, u = (p) => p, projectMedia, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(t)}</span>`; };
   const dur = (m) => {
@@ -132,6 +136,35 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, client
   const sec = (title, n, extra = '') => `<div class="pf-h"><h2><em>${esc(title)}</em><sup>(${n})</sup></h2>${extra}</div>`;
   const hatch = '<div class="pf-hatch" aria-hidden="true"></div>';
   const more = (label) => `<button type="button" class="pf-more" data-more-btn data-less="${esc(W.less)}"><span>${esc(label)}</span>${I.chev}</button>`;
+  // the reel: the 3D worlds of the Labs page (scripts/labs-worlds.js) as one stage over a strip of their frames, the last section
+  // before the closing banner (Navy: "paling bawah"). The page script walks the stage through the worlds and brings up the frame pointed
+  // at; the stage, every frame, the header's link and the button are all doors to /labs (the frame's own card, #w-<key>).
+  // Only the first frame is in the markup (the stage fetches the others as it goes); the strip uses the 360 px copies.
+  const shots = worlds.filter((w) => exists(`site/labs/${w.key}.webp`));
+  const reel = shots.length > 1 ? (() => {
+    const n = shots.length, w0 = shots[0], labsAt = (w) => `${u('/labs/')}#w-${w.key}`;
+    const small = (w) => exists(`site/labs/${w.key}-800.webp`) ? `/site/labs/${w.key}-800.webp` : '';
+    const thumb = (w, i) => { const s = exists(`site/labs/${w.key}-360.webp`) ? `/site/labs/${w.key}-360.webp` : small(w) || `/site/labs/${w.key}.webp`; return `<li><a class="pf-thumb${i ? '' : ' is-on'}" href="${labsAt(w)}" data-i="${i}" data-key="${esc(w.key)}" data-big="/site/labs/${w.key}.webp" data-small="${small(w)}" data-cat="${esc(w.category)}" data-tag="${esc(w.tagline)}" data-name="${esc(w.name)}" data-h="${w.hue}" aria-label="${esc(w.name)}: ${esc(w.tagline)}"${i ? '' : ' aria-current="true"'} data-track="lab_open" data-lab="${esc(w.key)}" data-channel="profile-reel"><img src="${s}" alt="" width="360" height="203" loading="lazy" decoding="async"></a></li>`; };
+    return `
+  <section class="pf-sec pf-reel" aria-label="${esc(W.reel)}" style="--h:${w0.hue}">
+    ${sec(W.reel, n, `<a class="pf-all" href="${u('/labs/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    <p class="pf-reel-line">${esc(W.reelLine.replace('{n}', n))}</p>
+    <a class="pf-stage" href="${labsAt(w0)}" data-track="lab_open" data-lab="${esc(w0.key)}" data-channel="profile-stage">
+      <span class="pf-stage-pics"><img class="pf-stage-pic is-on" src="/site/labs/${w0.key}.webp"${small(w0) ? ` srcset="${small(w0)} 800w, /site/labs/${w0.key}.webp 1280w" sizes="(min-width: 800px) 720px, 100vw"` : ''} width="1280" height="720" alt="${esc(W.reelAlt.replace('{n}', w0.name))}" loading="lazy" decoding="async"></span>
+      <span class="pf-stage-marks" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="pf-stage-top"><span class="pf-stage-n">${pad(1)} / ${pad(n)}</span><b class="pf-stage-cat">${esc(w0.category)}</b></span>
+      <span class="pf-stage-text"><em class="pf-stage-tag">${esc(w0.tagline)}</em><span class="pf-stage-row"><span class="pf-stage-name">${esc(w0.name)}</span><span class="pf-stage-open">${esc(W.reelOpen)} ${I.out}</span></span></span>
+      <span class="pf-stage-go">${esc(W.reelOpen)} ${I.out}</span>
+      <i class="pf-stage-bar" aria-hidden="true"></i>
+    </a>
+    <ul class="pf-strip" aria-label="${esc(W.reel)}">${shots.map(thumb).join('')}</ul>
+    <div class="pf-reel-row">
+      <a class="btn btn-fill" href="${u('/labs/')}" data-track="lab_open" data-channel="profile-reel-btn" data-magnet>${esc(W.reelAll.replace('{n}', n))} ${I.out}</a>
+      <span class="pf-reel-hint"><span class="if-hover">${esc(W.reelHint)}</span><span class="if-touch">${esc(W.reelHintTouch)}</span></span>
+    </div>
+  </section>
+  ${hatch}`;
+  })() : '';
 
   return `<main id="main" tabindex="-1">
 <div class="pf">
@@ -186,7 +219,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, client
     <ol class="pf-list" data-stagger data-fold>${labRows}</ol>
     ${more(W.more)}
   </section>
-  ${hatch}
+  ${hatch}${reel}
   <section class="pf-cta" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
@@ -307,6 +340,52 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-cta h2 { font: 400 clamp(30px, 3.4vw, 44px)/1.05 var(--serif); }
 .pf-cta p { max-width: 30em; font-size: 17px; color: var(--dim); text-wrap: pretty; }
 .pf-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+/* ---------- the reel: the Labs worlds as one 16:9 stage (the frame fading to the next, a slow push in, the words rising, a thin
+   clock along the bottom) over a strip of their frames that scrolls sideways; the colour of the words is the world's own hue */
+.pf-reel { --acc: hsl(var(--h, 40) 70% 72%); }
+.pf-reel-line { max-width: 40em; margin: -2px 0 16px; font-size: 16.5px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
+.pf-stage { position: relative; display: block; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 12px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--ink); isolation: isolate; touch-action: pan-y; transition: box-shadow 0.4s; }
+.pf-stage:hover, .pf-stage:focus-visible { box-shadow: 0 0 0 1px var(--line-2), 0 30px 60px -30px rgba(0, 0, 0, 0.8); }
+.pf-stage-pics { position: absolute; inset: 0; transform: translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -8px), 0) scale(1.04); transition: transform 0.9s var(--ease); }
+.pf-stage-pic { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1); transition: opacity 0.9s var(--ease), transform 0s 0.9s; }
+.pf-stage-pic.is-on { opacity: 1; transform: scale(1.07); transition: opacity 0.9s var(--ease), transform 7s linear; }
+.pf-stage::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, rgba(9, 8, 10, 0.9) 0%, rgba(9, 8, 10, 0.5) 34%, rgba(9, 8, 10, 0) 62%), linear-gradient(to bottom, rgba(9, 8, 10, 0.5), rgba(9, 8, 10, 0) 28%); }
+.pf-stage-marks { position: absolute; inset: 12px; z-index: 2; pointer-events: none; opacity: 0.6; transition: opacity 0.4s, inset 0.6s var(--ease); }
+.pf-stage-marks i { position: absolute; width: 14px; height: 14px; border: 0 solid var(--ink); }
+.pf-stage-marks i:nth-child(1) { left: 0; top: 0; border-width: 1.5px 0 0 1.5px; } .pf-stage-marks i:nth-child(2) { right: 0; top: 0; border-width: 1.5px 1.5px 0 0; }
+.pf-stage-marks i:nth-child(3) { left: 0; bottom: 0; border-width: 0 0 1.5px 1.5px; } .pf-stage-marks i:nth-child(4) { right: 0; bottom: 0; border-width: 0 1.5px 1.5px 0; }
+.pf-stage:hover .pf-stage-marks { inset: 8px; opacity: 1; }
+.pf-stage-top { position: absolute; left: 20px; right: 20px; top: 18px; z-index: 2; display: flex; justify-content: space-between; gap: 12px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(241, 234, 219, 0.8); }
+.pf-stage-top b { color: var(--acc); font-weight: 700; text-align: right; transition: color 0.6s; }
+.pf-stage-text { position: absolute; left: 20px; right: 20px; bottom: 18px; z-index: 2; display: grid; gap: 7px; padding-right: 160px; }
+.pf-stage-tag { font: italic 400 clamp(24px, 3.6vw, 34px)/1.1 var(--serif); color: var(--ink); text-wrap: balance; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
+.pf-stage-row { display: flex; align-items: baseline; gap: 10px; font: 700 12.5px var(--cond); letter-spacing: 0.2em; text-transform: uppercase; }
+.pf-stage-name { color: var(--acc); transition: color 0.6s; }
+.pf-stage-open { display: none; align-items: center; gap: 5px; color: rgba(241, 234, 219, 0.75); letter-spacing: 0.14em; font-weight: 600; } .pf-stage-open .ar { width: 0.8em; height: 0.8em; }
+.pf-reel.is-swap .pf-stage-text { animation: pf-rise 0.8s var(--ease); }
+@keyframes pf-rise { from { opacity: 0; transform: translateY(10px); } }
+.pf-stage-go { position: absolute; right: 18px; bottom: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border: 1px solid rgba(241, 234, 219, 0.45); border-radius: 999px; background: rgba(9, 8, 10, 0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); opacity: 0; transform: translateY(6px); transition: opacity 0.4s, transform 0.5s var(--ease), background 0.3s, border-color 0.3s, color 0.3s; }
+.pf-stage-go .ar { width: 0.8em; height: 0.8em; }
+.pf-stage:hover .pf-stage-go, .pf-stage:focus-visible .pf-stage-go { opacity: 1; transform: none; background: var(--ink); border-color: var(--ink); color: #140f09; }
+.pf-stage-bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; height: 2px; background: rgba(241, 234, 219, 0.12); }
+.pf-stage-bar::after { content: ""; position: absolute; inset: 0; background: var(--acc); transform: scaleX(0); transform-origin: left; }
+.pf-reel.is-swap .pf-stage-bar::after { animation: pf-bar 4.8s linear forwards; }
+.pf-reel.is-hold .pf-stage-bar::after { animation-play-state: paused; }
+@keyframes pf-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.pf-strip { --pad: clamp(18px, 3vw, 30px); display: flex; gap: 8px; margin: 10px calc(-1 * var(--pad)) 0; padding: 6px var(--pad); overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-mask: linear-gradient(90deg, transparent, #000 var(--pad), #000 calc(100% - var(--pad)), transparent); mask: linear-gradient(90deg, transparent, #000 var(--pad), #000 calc(100% - var(--pad)), transparent); }
+.pf-strip::-webkit-scrollbar { display: none; }
+.pf-strip li { flex: 0 0 auto; scroll-snap-align: center; }
+.pf-thumb { position: relative; display: block; width: 128px; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 7px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); opacity: 0.5; transform: scale(0.95); transition: opacity 0.35s, transform 0.5s var(--ease); }
+.pf-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pf-thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--acc); opacity: 0; transition: opacity 0.3s; }
+.pf-thumb:hover, .pf-thumb:focus-visible { opacity: 0.92; transform: none; }
+.pf-thumb.is-on { opacity: 1; transform: none; } .pf-thumb.is-on::after { opacity: 1; }
+.pf-strip.is-drag { cursor: grabbing; scroll-snap-type: none; } .pf-strip.is-drag .pf-thumb { pointer-events: none; }
+.pf-reel-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
+.pf-reel-row .btn { height: 50px; padding: 0 24px; font-size: 13.5px; }
+.pf-reel-hint { font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+.pf-reel-hint .if-touch { display: none; }
+@media (hover: none), (pointer: coarse) { .pf-reel-hint .if-touch { display: inline; } .pf-stage-go { display: none; } .pf-stage-open { display: inline-flex; } .pf-stage-text { padding-right: 0; } .pf-stage-marks { opacity: 0.4; } }
 /* margin notes on a wide screen only: the italic in the gutters, in after the column settles */
 .pf-notes { display: none; }
 @media (min-width: 1240px) {
@@ -321,11 +400,16 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
   .pf-logos { grid-template-columns: repeat(3, 1fr); }
   .pf-st { grid-template-columns: 1fr; row-gap: 8px; }
   .pf-pj a { grid-template-columns: 56px 1fr 20px; } .pf-th { width: 56px; height: 36px; }
+  .pf-stage { border-radius: 10px; } .pf-stage-top { left: 14px; right: 14px; top: 14px; } .pf-stage-text { left: 14px; right: 14px; bottom: 14px; gap: 5px; }
+  .pf-stage-marks { inset: 9px; } .pf-stage-marks i { width: 11px; height: 11px; }
+  .pf-thumb { width: 104px; } .pf-reel-row .btn { width: 100%; }
   .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 10.5px; letter-spacing: 0.08em; } .pf-tabs a svg { width: 14px; height: 14px; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
 @media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-stat { margin: 10px 0 0; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
 @media (prefers-reduced-motion: reduce) { .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
+.motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
 export const HOME_PROFILE_JS = DITHER_JS + `
@@ -340,6 +424,73 @@ export const HOME_PROFILE_JS = DITHER_JS + `
   document.querySelectorAll('.pf-more').forEach(function (btn) { var list = btn.previousElementSibling, label = btn.querySelector('span'), more = label.textContent, less = btn.dataset.less; btn.addEventListener('click', function () { var on = !btn.classList.contains('open'); btn.classList.toggle('open', on); list.querySelectorAll('[data-more]').forEach(function (li) { li.hidden = !on; }); label.textContent = on ? less : more; if (!on) list.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }); });
   // the margin notes come in with the column
   if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: 0.2 }); document.querySelectorAll('.pf-note').forEach(function (n) { io.observe(n); }); }
+  // the reel: one stage over a strip of frames. A frame pointed at (tapped once, or focused) comes up on the stage with its words;
+  // the stage walks on by itself while it is on screen and nobody is over it (the bar along its bottom is the clock: when its
+  // animation ends the next world comes up, and holding pauses it); a swipe or the arrow keys turn it by hand. Every frame and the
+  // stage lead to that world's card on /labs (a frame already on the stage navigates; on touch the first tap only brings it up).
+  (function () {
+    var reel = document.querySelector('.pf-reel'); if (!reel) return;
+    var stage = reel.querySelector('.pf-stage'), pics = reel.querySelector('.pf-stage-pics'), strip = reel.querySelector('.pf-strip'), bar = reel.querySelector('.pf-stage-bar');
+    var thumbs = [].slice.call(reel.querySelectorAll('.pf-thumb')), n = thumbs.length, cur = 0, imgs = {}, hoverT = 0, over = false, off = true, started = false;
+    var nEl = reel.querySelector('.pf-stage-n'), catEl = reel.querySelector('.pf-stage-cat'), tagEl = reel.querySelector('.pf-stage-tag'), nameEl = reel.querySelector('.pf-stage-name');
+    if (!stage || !pics || !strip || !bar || n < 2) return;
+    imgs[0] = pics.querySelector('img');
+    function two(i) { return (i < 9 ? '0' : '') + (i + 1); }
+    function pic(i) {   // the stage's picture of world i, made on first need (the next one is made ahead, so a fade finds it ready)
+      if (imgs[i]) return imgs[i];
+      var t = thumbs[i], im = new Image(); im.className = 'pf-stage-pic'; im.alt = ''; im.decoding = 'async';
+      if (t.dataset.small) { im.srcset = t.dataset.small + ' 800w, ' + t.dataset.big + ' 1280w'; im.sizes = '(min-width: 800px) 720px, 100vw'; }
+      im.src = t.dataset.big; pics.appendChild(im); imgs[i] = im; return im;
+    }
+    function hold() { reel.classList.toggle('is-hold', over || off || document.hidden); }
+    var restT = 0, auto = 0;
+    function rest() { clearTimeout(restT); over = true; hold(); restT = setTimeout(function () { over = false; hold(); }, 6000); }   // (a finger on the reel: it waits a while)
+    function centre(t) { clearTimeout(auto); auto = setTimeout(function () { auto = 0; }, 900); strip.scrollTo({ left: t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' }); }
+    function show(i, byHand) {
+      i = ((i % n) + n) % n; if (i === cur) return;
+      var im = pic(i), go = function () {
+        if (i === cur) return; cur = i;
+        Object.keys(imgs).forEach(function (k) { imgs[k].classList.toggle('is-on', +k === i); });
+        thumbs.forEach(function (t, k) { t.classList.toggle('is-on', k === i); if (k === i) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); });
+        var t = thumbs[i];
+        nEl.textContent = two(i) + ' / ' + two(n - 1); catEl.textContent = t.dataset.cat; tagEl.textContent = t.dataset.tag; nameEl.textContent = t.dataset.name;
+        reel.style.setProperty('--h', t.dataset.h); stage.href = t.href; stage.dataset.lab = t.dataset.key;
+        reel.classList.remove('is-swap'); void reel.offsetWidth; if (!reduce) reel.classList.add('is-swap');   // (the words rise again, the clock restarts)
+        if (!byHand) centre(t);   // (by hand the strip stays put: scrolling it under a resting pointer would bring up the next frame)
+        pic((i + 1) % n);
+      };
+      if (im.decode) im.decode().then(go, go); else go();
+    }
+    bar.addEventListener('animationend', function () { if (!reel.classList.contains('is-hold')) show(cur + 1); });
+    thumbs.forEach(function (t, i) {
+      if (fine) { t.addEventListener('pointerenter', function () { clearTimeout(hoverT); hoverT = setTimeout(function () { show(i, true); }, 80); }); t.addEventListener('pointerleave', function () { clearTimeout(hoverT); }); }
+      t.addEventListener('focus', function () { show(i, true); });
+      t.addEventListener('click', function (e) { if (strip.dataset.dragged) { e.preventDefault(); return; } if (!fine && i !== cur) { e.preventDefault(); show(i, true); } });
+    });
+    if (fine) {   // the strip drags sideways under a mouse (a drag is not a click)
+      var x0 = 0, s0 = 0, pid = -1, moved = false;
+      strip.addEventListener('pointerdown', function (e) { if (e.button !== 0 || e.pointerType !== 'mouse') return; pid = e.pointerId; x0 = e.clientX; s0 = strip.scrollLeft; moved = false; });
+      strip.addEventListener('pointermove', function (e) { if (e.pointerId !== pid) return; var d = e.clientX - x0; if (!moved && Math.abs(d) > 6) { moved = true; strip.classList.add('is-drag'); try { strip.setPointerCapture(pid); } catch (x) {} } if (moved) strip.scrollLeft = s0 - d; });
+      var end = function (e) { if (e.pointerId !== pid) return; pid = -1; if (moved) { strip.dataset.dragged = '1'; setTimeout(function () { strip.classList.remove('is-drag'); delete strip.dataset.dragged; }, 0); } };
+      strip.addEventListener('pointerup', end); strip.addEventListener('pointercancel', end);
+    }
+    if (fine && !reduce) {   // the picture leans a little toward the pointer
+      stage.addEventListener('pointermove', function (e) { var r = stage.getBoundingClientRect(); pics.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); pics.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
+      stage.addEventListener('pointerleave', function () { pics.style.removeProperty('--mx'); pics.style.removeProperty('--my'); });
+    }
+    var sx = 0, sy = 0, swiped = false;   // a swipe across the stage turns it; so do the arrow keys when it has the focus
+    stage.addEventListener('pointerdown', function (e) { sx = e.clientX; sy = e.clientY; swiped = false; });
+    stage.addEventListener('pointerup', function (e) { var dx = e.clientX - sx, dy = e.clientY - sy; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { swiped = true; show(cur + (dx < 0 ? 1 : -1), true); } });
+    stage.addEventListener('click', function (e) { if (swiped) { e.preventDefault(); swiped = false; } });
+    stage.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1, true); } else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1, true); } });
+    [stage, strip].forEach(function (el) { el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { clearTimeout(restT); over = true; hold(); } }); el.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { over = false; hold(); } }); });
+    reel.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') rest(); });
+    strip.addEventListener('scroll', function () { if (!auto && !fine) rest(); }, { passive: true });   // (the strip scrolled by hand, not by the reel itself)
+    document.addEventListener('visibilitychange', hold);
+    var start = function () { if (started) return; started = true; pic(1); if (!reduce) reel.classList.add('is-swap'); };
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { es.forEach(function (e) { off = !e.isIntersecting; hold(); if (!off) start(); }); }, { threshold: 0.35 }).observe(stage);
+    else { off = false; hold(); start(); }
+  })();
   // the background: the dither field (scripts/dither.js, react-bits' Dither in WebGL2) in the page's own tones. It drifts on its own,
   // the pointer erases it where it passes and leaves a short trail (mouse only), a click sends a ring out; a phone gets a coarser
   // cell at 30 fps, reduced motion gets one still frame, and without WebGL2 the CSS dots stay.

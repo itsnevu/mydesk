@@ -851,7 +851,7 @@ ${footer(D)}
 // (two chapters: the worlds first, scripts/labs-worlds.js, then the GitHub experiments as a chapter of their own)
 function labsPage(D, ctx) {
   const labsCount = +(LABS_META.menu.sub.match(/\d+/) || [0])[0];
-  const description = `${WORLDS.length} crypto products told as 3D worlds, each with a working dApp and Solidity contracts running in the browser, and ${LABS_META.description.charAt(0).toLowerCase()}${LABS_META.description.slice(1)}`;
+  const description = `${WORLDS.length} 3D web interactive designs, each a scroll-driven world with a working app running in the browser, and ${LABS_META.description.charAt(0).toLowerCase()}${LABS_META.description.slice(1)}`;
   return head({ title: LABS_META.title, description, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: 'Labs: the worlds and experiments of Navy Gibran' }) + `
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
@@ -993,7 +993,7 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: c.name, word: c.word || null }));
-  const main = homeProfileMain({ D, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, labs: LABS, clients, exists, img, u, projectMedia });
+  const main = homeProfileMain({ D, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, labs: LABS, worlds: WORLDS, clients, exists, img, u, projectMedia });
   const preload = ['site/desk-wide-800.webp', 'site/portrait.webp'].filter(exists).map((f) => `<link rel="preload" as="image" href="/${f}" fetchpriority="high">`).join('\n');
   return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
 <body class="home home-profile">
