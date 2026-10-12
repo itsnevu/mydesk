@@ -4,6 +4,7 @@
 // the long parts folded away behind a toggle. Our own palette and type stay, and so does the motion: the banner drifts with the
 // pointer, rows light as they arrive, chips answer the hover, notes appear in the margins on a wide screen.
 // This module renders only <main>, its CSS and its script; scripts/site.js (or the preview) wraps it in the page shell.
+import { DITHER_JS } from './dither.js';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
 const I = {
@@ -204,11 +205,12 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, client
 export const HOME_PROFILE_CSS = `
 /* ---------- the profile home (scripts/home-profile.js): one narrow column, lists not prose */
 body.home-profile { background-image: radial-gradient(rgba(241, 234, 219, 0.06) 1px, transparent 1px); background-size: 22px 22px; }
-/* the field behind the column (mouse only, drawn by the page script): the same dots, alive. They breathe in a slow wave, lift and
-   warm to amber around the pointer, keep its trail for a moment, and slide a little with the scroll */
+/* the field behind the column, drawn by the page script (scripts/dither.js): a dithered wave in the page's tones that drifts on its
+   own, erased around the pointer for a moment, ringed by a click; the CSS dots above are the fallback without WebGL2 */
 body.home-profile.has-field { background-image: none; }
 .pf-field { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity 1.2s; }
 .pf-field.on { opacity: 1; }
+canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf { position: relative; width: min(100%, 780px); margin: 0 auto; padding: calc(var(--head-h) + 8px) 0 clamp(60px, 7vw, 100px); }
 .pf-card, .pf-sec, .pf-cta, .pf-hatch { border-left: 1px solid var(--line); border-right: 1px solid var(--line); background: var(--bg); }
 .pf-card { overflow: hidden; border-top: 1px solid var(--line); border-radius: 14px 14px 0 0; }
@@ -326,7 +328,8 @@ body.home-profile.has-field { background-image: none; }
 @media (prefers-reduced-motion: reduce) { .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 `;
 
-export const HOME_PROFILE_JS = `(function(){
+export const HOME_PROFILE_JS = DITHER_JS + `
+(function(){
   var fine = matchMedia('(hover: hover) and (pointer: fine)').matches, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('motion-off');
   // the banner drifts a little toward the pointer
   var card = document.querySelector('.pf-card'), bimg = document.querySelector('.pf-banner img');
@@ -337,32 +340,11 @@ export const HOME_PROFILE_JS = `(function(){
   document.querySelectorAll('.pf-more').forEach(function (btn) { var list = btn.previousElementSibling, label = btn.querySelector('span'), more = label.textContent, less = btn.dataset.less; btn.addEventListener('click', function () { var on = !btn.classList.contains('open'); btn.classList.toggle('open', on); list.querySelectorAll('[data-more]').forEach(function (li) { li.hidden = !on; }); label.textContent = on ? less : more; if (!on) list.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }); });
   // the margin notes come in with the column
   if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: 0.2 }); document.querySelectorAll('.pf-note').forEach(function (n) { io.observe(n); }); }
-  // the field: a grid of dots on a canvas behind everything; each dot keeps a little heat from the pointer passing and cools down
-  if (!fine || reduce || !window.requestAnimationFrame) return;
-  var cv = document.createElement('canvas'); cv.className = 'pf-field'; cv.setAttribute('aria-hidden', 'true'); document.body.prepend(cv);
-  var ctx = cv.getContext('2d'); if (!ctx) return;
-  var W = 0, H = 0, dots = [], GAP = 26, R = 230, px = -9999, py = -9999, t0 = performance.now(), raf = 0, alive = true;
-  function size() { var d = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = Math.round(W * d); cv.height = Math.round(H * d); cv.style.width = W + 'px'; cv.style.height = H + 'px'; ctx.setTransform(d, 0, 0, d, 0, 0); dots = []; for (var y = GAP / 2; y < H + GAP; y += GAP) for (var x = GAP / 2; x < W; x += GAP) dots.push({ x: x, y: y, h: 0 }); }
-  function frame(now) {
-    if (!alive) return;
-    var t = (now - t0) / 1000, sy = (scrollY * 0.12) % GAP;
-    ctx.clearRect(0, 0, W, H);
-    if (px > -1000) { var g = ctx.createRadialGradient(px, py, 0, px, py, R * 1.5); g.addColorStop(0, 'rgba(217,160,91,0.075)'); g.addColorStop(1, 'rgba(217,160,91,0)'); ctx.fillStyle = g; ctx.fillRect(px - R * 1.5, py - R * 1.5, R * 3, R * 3); }
-    for (var i = 0; i < dots.length; i++) {
-      var d = dots[i], y = d.y - sy, dx = d.x - px, dy = y - py, dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < R) { var k = 1 - dist / R; if (k * k > d.h) d.h = k * k; }
-      d.h *= 0.956;
-      var wave = 0.5 + 0.5 * Math.sin(t * 0.55 + d.x * 0.011 + y * 0.008);
-      var a = 0.04 + wave * 0.045 + d.h * 0.62, r = 1 + d.h * 1.7, ox = 0, oy = 0;
-      if (d.h > 0.003 && dist > 0.1) { var push = d.h * 7; ox = dx / dist * push; oy = dy / dist * push; }
-      ctx.fillStyle = d.h > 0.04 ? 'rgba(217,160,91,' + a.toFixed(3) + ')' : 'rgba(241,234,219,' + a.toFixed(3) + ')';
-      ctx.beginPath(); ctx.arc(d.x + ox, y + oy, r, 0, 6.2832); ctx.fill();
-    }
-    raf = requestAnimationFrame(frame);
-  }
-  addEventListener('pointermove', function (e) { px = e.clientX; py = e.clientY; }, { passive: true });
-  document.addEventListener('mouseleave', function () { px = -9999; py = -9999; });
-  addEventListener('resize', size);
-  document.addEventListener('visibilitychange', function () { alive = !document.hidden; if (alive) raf = requestAnimationFrame(frame); else cancelAnimationFrame(raf); });
-  size(); document.body.classList.add('has-field'); requestAnimationFrame(function () { cv.classList.add('on'); }); raf = requestAnimationFrame(frame);
+  // the background: the dither field (scripts/dither.js, react-bits' Dither in WebGL2) in the page's own tones. It drifts on its own,
+  // the pointer erases it where it passes and leaves a short trail (mouse only), a click sends a ring out; a phone gets a coarser
+  // cell at 30 fps, reduced motion gets one still frame, and without WebGL2 the CSS dots stay.
+  if (!window.requestAnimationFrame || typeof nvDither !== 'function') return;
+  var field = nvDither({ waveColor: '#8c8c8c', backgroundColor: '#0e0c09', pixelSize: fine ? 2 : 3, dpr: fine ? 1.5 : 1, fps: fine ? 60 : 30, mouse: fine && !reduce, mouseRadius: 0.3, trail: 0.5, clickRipple: fine && !reduce, intro: !reduce, animate: !reduce });
+  if (!field) return;
+  document.body.prepend(field.canvas); document.body.classList.add('has-field'); requestAnimationFrame(function () { field.canvas.classList.add('on'); }); field.start();
 })();`;
