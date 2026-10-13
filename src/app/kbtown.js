@@ -1,5 +1,6 @@
 // The keyboard's districts, built so each one reads as what it stands for. The Blender shells (the stone steps a district
-// stands on) stay; what stands on them is made here. The client street is seventeen shops, one per live client site, each
+// stands on) stay; what stands on them is made here. The client street is seventeen shops, one per client of the first seventeen
+// sites (the 2026 ones that came after, Godtive, Duta Mesh, Kusen Tangsel, Ur Branded Bae, Nudelisius and Rathera, have no shop yet), each
 // with its trade on the roof (glasses over the optician, a ship over the model maker, a flying elephant over Gajah Terbang)
 // and its name over the door; point at one and it names itself, click it and its project page opens.
 // Units are the keyboard's own (1 = one key pitch); y = 0 is the plate the removed caps stood on, the district's origin.

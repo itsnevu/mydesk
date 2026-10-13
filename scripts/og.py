@@ -238,7 +238,7 @@ def project_card(p):
         drop_shadow(img, pl, (x0, y0))
         img.alpha_composite(pl, (x0, y0))
     d = ImageDraw.Draw(img, 'RGBA')
-    kicker(d, 72, 96, f"Project {p['n']:02d} / {p['total']:02d}", (241, 234, 219, 185), acc)
+    kicker(d, 72, 96, f"Project {p['n']:02d} / {p['total']:02d}" if p['counted'] else 'Every client site', (241, 234, 219, 185), acc)
     # the name: the largest size at which it fits the left column in three lines or fewer, with the industry under it
     industry = p['industry'] + (f", now {p['now']}" if p.get('now') else '')
     top, bottom, max_w = 146, 500, 452

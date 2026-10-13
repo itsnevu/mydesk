@@ -1,6 +1,6 @@
 // The profile home: the portfolio as one narrow column anyone can scan in a minute, the way a GitHub or LinkedIn profile reads
 // (Navy's reference: zickrian.dev). A card with the banner, the portrait, one paragraph and the links; a row of tabs to the rest of
-// the site; then lists, not prose: experience, projects, clients, stack, labs, each a row with a name, a line and a chip or two,
+// the site; then lists, not prose: experience, projects, clients, stack, each a row with a name, a line and a chip or two,
 // the long parts folded away behind a toggle. Our own palette and type stay, and so does the motion: the banner drifts with the
 // pointer, rows light as they arrive, chips answer the hover, notes appear in the margins on a wide screen.
 // This module renders only <main>, its CSS and its script; scripts/site.js (or the preview) wraps it in the page shell.
@@ -26,13 +26,14 @@ const mark = (slug, cls = '') => `<i class="pf-m${cls ? ' ' + cls : ''}" style="
 export const WORDS = {
   id: {
     handle: '@itsnevu', role: 'Full-stack developer', where: 'Indonesia', site: 'navygibran.dev', open: 'Menerima proyek baru',
-    bio: 'Full-stack developer dari Indonesia. Saya membangun sistem ERP dengan Go dan Next.js, serta website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Tujuh belas situs klien online hari ini.',
+    bio: 'Full-stack developer dari Indonesia. Saya membangun sistem ERP dengan Go dan Next.js, serta website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Dua puluh tiga situs klien online hari ini.',
     live: 'situs live', tabs: { home: 'Beranda', work: 'Karya', labs: 'Labs', cv: 'CV', desk: 'Desk 3D' },
-    exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack', labs: 'Labs',
+    exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack',
     viewAll: 'Lihat semua', more: 'Tampilkan lebih', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
     status: { live: 'Live', first: 'Versi pertama', done: 'Selesai' }, year: { 'godplan-erp': '2025', jakasn: '2025' },
     dur: { y: 'th', m: 'bl', d: 'hari' }, present: 'sekarang',
-    notes: ['Dari mengangkat TV ke lantai atas sampai membangun ERP.', 'Dua puluh proyek. Tujuh belas di antaranya online hari ini.', 'Satu pesan cukup untuk mulai.'],
+    thanks: 'Terima kasih sudah mempercayakan brand Anda kepada saya.',
+    notes: ['Dari mengangkat TV ke lantai atas sampai membangun ERP.', 'Dua puluh enam proyek. Dua puluh tiga di antaranya online hari ini.', 'Satu pesan cukup untuk mulai.'],
     ctaTitle: 'Ceritakan usaha Anda.', ctaLine: 'Website, toko online, atau sistem. Satu pesan cukup untuk mulai, dan saya sendiri yang membalas.',
     chat: 'Chat WhatsApp', see3d: 'Lihat versi 3D', cvBtn: 'Unduh CV', email: 'Email',
     waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
@@ -44,19 +45,44 @@ export const WORDS = {
 WORDS.en = {
   ...WORDS.id,
   role: 'Full-stack developer', where: 'Indonesia', open: 'Taking new projects',
-  bio: 'Full-stack developer from Indonesia. I build ERP systems in Go and Next.js, and websites for businesses: company profiles, online stores and custom applications. Seventeen client sites are live today.',
+  bio: 'Full-stack developer from Indonesia. I build ERP systems in Go and Next.js, and websites for businesses: company profiles, online stores and custom applications. Twenty-three client sites are live today.',
   live: 'live sites', tabs: { home: 'Home', work: 'Work', labs: 'Labs', cv: 'CV', desk: '3D desk' },
-  exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack', labs: 'Labs',
+  exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack',
   viewAll: 'View all', more: 'Show more', less: 'Show less', open_: 'Open', close_: 'Close',
   status: { live: 'Live', first: 'First version', done: 'Done' }, dur: { y: 'y', m: 'm', d: 'days' }, present: 'present',
-  notes: ['From carrying TVs upstairs to building an ERP.', 'Twenty projects. Seventeen of them are live today.', 'One message is enough to start.'],
+  thanks: 'Thank you for trusting me with your brand.',
+  notes: ['From carrying TVs upstairs to building an ERP.', 'Twenty-six projects. Twenty-three of them are live today.', 'One message is enough to start.'],
   ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
   chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   reelOpen: 'Open in Labs', reelAll: 'Explore {n} worlds', reelHint: 'Point at a small frame to change the world', reelHintTouch: 'Tap a small frame to change the world', reelAlt: 'A frame of the 3D world {n}',
 };
-WORDS.zh = { ...WORDS.en };
+WORDS.zh = {
+  ...WORDS.en,
+  role: '全栈开发者', where: '印度尼西亚', open: '接新项目',
+  bio: '来自印度尼西亚的全栈开发者。我用 Go 和 Next.js 做 ERP 系统，也为企业做网站：企业官网、网上商店和定制应用。如今有二十三个客户网站在线运行。',
+  live: '个上线网站', tabs: { home: '首页', work: '作品', labs: '实验室', cv: '简历', desk: '3D 桌面' },
+  exp: '经历', edu: '教育', projects: '项目', clients: '客户', stack: '技术栈',
+  viewAll: '查看全部', more: '显示更多', less: '收起', open_: '展开', close_: '收起',
+  status: { live: '上线', first: '第一版', done: '已完成' }, dur: { y: '年', m: '个月', d: '天' }, present: '至今',
+  thanks: '感谢你把品牌托付给我。',
+  notes: ['从扛电视上楼，到构建 ERP。', '二十六个项目，其中二十三个如今在线。', '一条消息就能开始。'],
+  ctaTitle: '说说你的生意。', ctaLine: '一个网站、一家网店或一套系统。一条消息就能开始，而且由我本人回复。',
+  chat: '用 WhatsApp 聊', see3d: '看 3D 版本', cvBtn: '下载简历', email: '邮箱',
+  waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
+  reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
+  reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
+};
+// the chips that are words rather than tool names, in the page's language (the tool names stay as they are written)
+const CHIP_T = {
+  id: { 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
+  zh: {
+    Hardware: '硬件', '341 laptops': '341 台笔记本', 'Field work': '现场工作', 'Competitive programming': '算法竞赛', 'Design patterns': '设计模式',
+    TK: '幼儿园', SD: '小学', SMP: '初中', SMA: '高中', 'REST APIs': 'REST API', 'Custom themes': '定制主题', 'Smart contracts': '智能合约',
+    'Wallet integration': '钱包集成', 'dApp frontends': 'dApp 前端',
+  },
+};
 
 // what each stop of the path carries beyond its words (the words come from i18n, in the same order): a logo, its chips, its
 // span in months (year, month; null = present) for the duration, and whether it is education
@@ -79,10 +105,10 @@ const TOOL_MARK = {
 const STACK = [['Go', 'TypeScript', 'JavaScript', 'PHP', 'Solidity'], ['Next.js', 'React', 'SvelteKit', 'Tailwind CSS'], ['Node.js', 'Bun', 'REST APIs', 'PostgreSQL', 'MySQL'], ['WordPress', 'WooCommerce', 'Elementor', 'Custom themes'], ['Docker', 'Vercel', 'Swagger', 'DBeaver', 'Figma'], ['GSAP', 'Framer Motion', 'Three.js', 'WebGL'], ['Smart contracts', 'Wallet integration', 'dApp frontends']];
 const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'linkedin'], ['GitHub', 'github'], ['X', 'x']];
 
-/** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `labs` the LABS list; `clients` [{key, name, word?}]. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, worlds = [], clients, exists, img, u = (p) => p, projectMedia, now = new Date() }) {
+/** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}]. */
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
-  const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(t)}</span>`; };
+  const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}</span>`; };
   const dur = (m) => {
     if (m.days) return `${m.days} ${W.dur.d}`;
     if (!m.from) return '';
@@ -115,7 +141,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, worlds
   const status = (p) => W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
       <span class="pf-th">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="64" height="40">` : I.folder}</span>
-      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(p.industry)}</span><i>·</i><span>${esc(status(p))}</span></span></span>
+      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i><span>${esc(status(p))}</span></span></span>
       <span class="pf-go">${I.out}</span></a></li>`; };
   const projects = counted.map(rowProject).join('');
 
@@ -123,11 +149,6 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, worlds
     ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
     : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(/site/logos/${c.key}.webp)"><img src="/site/logos/${c.key}.webp" alt="" loading="lazy" decoding="async"></span></a>`;
   const stack = STACK.map((items, i) => `<div class="pf-st" style="--i:${i}"><span class="pf-st-n"><b>${pad(i + 1)}</b>${esc(stackNames[i] || '')}</span><div class="pf-chips">${items.map(chip).join('')}</div></div>`).join('');
-  const rowLab = (l, i) => `<li class="pf-row pf-pj" style="--i:${i}"${i >= 4 ? ' hidden data-more' : ''}><a href="${esc(l.links[0][1])}"${l.links[0][1].startsWith('/') ? '' : ' target="_blank" rel="noopener"'} data-track="lab_open" data-lab="${esc(l.key)}" data-channel="profile">
-      <span class="pf-th pf-th--m">${mark(l.mark)}</span>
-      <span class="pf-body"><b>${esc(l.name)}</b><span class="pf-meta"><span>${esc(l.line)}</span></span></span>
-      <span class="pf-go">${I.out}</span></a></li>`;
-  const labRows = labs.map(rowLab).join('');
   const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
   const social = SOCIAL.map(([label, slug]) => {
     const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
@@ -204,20 +225,15 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, labs, worlds
     ${more(W.more)}
   </section>
   ${hatch}
-  <section class="pf-sec" aria-labelledby="pf-cl">
+  <section class="pf-sec pf-sec--cl" aria-labelledby="pf-cl">
     ${sec(W.clients, clientSites, `<a class="pf-all" href="${u('/work/client-websites/')}">${esc(W.viewAll)} ${I.out}</a>`)}
     <div class="pf-logos" data-stagger>${clients.map(logo).join('')}</div>
+    <span class="pf-note pf-note--cl" aria-hidden="true">${esc(W.thanks)}</span>
   </section>
   ${hatch}
   <section class="pf-sec" aria-labelledby="pf-st">
     ${sec(W.stack, STACK.reduce((n, s) => n + s.length, 0))}
     <div class="pf-stack" data-stagger>${stack}</div>
-  </section>
-  ${hatch}
-  <section class="pf-sec" aria-labelledby="pf-lb">
-    ${sec(W.labs, labs.length, `<a class="pf-all" href="${u('/labs/')}">${esc(W.viewAll)} ${I.out}</a>`)}
-    <ol class="pf-list" data-stagger data-fold>${labRows}</ol>
-    ${more(W.more)}
   </section>
   ${hatch}${reel}
   <section class="pf-cta" aria-label="${esc(W.ctaTitle)}" data-reveal>
@@ -315,7 +331,6 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-pj a:hover { color: var(--accent-2); padding-left: 8px; }
 .pf-th { display: grid; place-items: center; width: 64px; height: 40px; overflow: hidden; border-radius: 6px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--dim); }
 .pf-th img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.15) brightness(0.95); } .pf-th svg { width: 20px; height: 20px; }
-.pf-th--m .pf-m { width: 22px; height: 22px; color: var(--ink); }
 .pf-pj b { font: 700 clamp(17px, 1.6vw, 20px)/1.2 var(--cond); text-transform: uppercase; }
 .pf-pj .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 14.5px var(--text); color: var(--dim); }
 .pf-go { color: var(--faint); transition: color 0.3s, transform 0.4s var(--ease); } .pf-go .ar { width: 14px; height: 14px; } .pf-pj a:hover .pf-go { color: var(--accent-2); transform: translate(2px, -2px); }
@@ -387,9 +402,11 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-reel-hint .if-touch { display: none; }
 @media (hover: none), (pointer: coarse) { .pf-reel-hint .if-touch { display: inline; } .pf-stage-go { display: none; } .pf-stage-open { display: inline-flex; } .pf-stage-text { padding-right: 0; } .pf-stage-marks { opacity: 0.4; } }
 /* margin notes on a wide screen only: the italic in the gutters, in after the column settles */
-.pf-notes { display: none; }
+.pf-notes, .pf-note--cl { display: none; }
 @media (min-width: 1240px) {
-  .pf-notes { display: block; }
+  .pf-notes, .pf-note--cl { display: block; }
+  /* (the thanks rides beside the client logos: inside their section, so it stays with them whatever the lists above unfold to) */
+  .pf-sec--cl { position: relative; } .pf-note--cl { right: -230px; top: 50%; translate: 0 -50%; }
   .pf-note { position: absolute; width: 190px; font: italic 400 20px/1.3 var(--serif); color: var(--accent-2); opacity: 0; transform: translateY(14px) rotate(-2deg); transition: opacity 1s var(--ease), transform 1.2s var(--ease); }
   .pf-note.in { opacity: 0.9; transform: rotate(-2deg); }
   .pf-note--1 { left: -230px; top: 560px; text-align: right; } .pf-note--2 { right: -230px; top: 1360px; } .pf-note--3 { left: -230px; bottom: 120px; text-align: right; }

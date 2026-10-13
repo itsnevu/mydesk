@@ -11,10 +11,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANGS, DEFAULT_LANG, LANG_ORDER, OTHER_PREFIXES, UI, CONTENT, fill } from './i18n.js';
 import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
-import { labsMain, LABS_CSS, LABS_META } from './labs.js';
-import { worldsSection, WORLDS, WORLDS_CSS } from './labs-worlds.js';
+import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
+import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
-import { LABS } from '../src/app/labs.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const ORIGIN = 'https://navygibran.dev';
@@ -33,7 +32,17 @@ async function loadData() {
 let LANG = DEFAULT_LANG, L = LANGS[DEFAULT_LANG], PFX = '';
 const setLang = (lang) => { LANG = lang; L = LANGS[lang]; PFX = L.prefix; };
 const t = (k, vars) => { const v = UI[LANG]?.[k] ?? UI.en[k]; return vars && typeof v === 'string' ? fill(v, vars) : v; };
-const tp = (p, f) => PROJECTS_T[LANG]?.[p.key]?.[f] ?? p[f];   // a project's field, translated when a translation exists
+const tp = (p, f) => PROJECTS_T[LANG]?.[p.key]?.[f] ?? p[f];
+// the words among the tool names (a project's stack line, the featured meta, the toolbox), in the page's language: tool names
+// stay, the few words between them are said again (Navy: "waktu bahasa china ya china semua")
+const TERM_T = {
+  id: { 'custom build': 'build custom', 'Modern UI': 'UI modern', 'Custom UI': 'UI custom', 'Custom CSS': 'CSS custom', 'Creative theme': 'tema kreatif',
+    Payments: 'Pembayaran', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
+  zh: { 'custom build': '定制开发', 'Modern UI': '现代界面', 'Custom UI': '定制界面', 'Custom CSS': '定制 CSS', 'Creative theme': '创意主题',
+    Payments: '支付', Motion: '动效', 'REST APIs': 'REST API', 'Custom themes': '定制主题', 'Smart contracts': '智能合约', 'Wallet integration': '钱包集成', 'dApp frontends': 'dApp 前端' },
+};
+const term = (x) => TERM_T[LANG]?.[x] ?? x;
+const stackOf = (p) => p.stack.split(' · ').map(term).join(' · ');   // a project's field, translated when a translation exists
 const tw = (w) => { const x = WORLDS_T[LANG]?.[w.key]; return x ? { ...w, tagline: x.tagline ?? w.tagline, hotspots: Object.fromEntries(Object.entries(w.hotspots).map(([id, h]) => [id, { ...h, ...(x.hotspots?.[id] || {}) }])) } : w; };
 const C = () => CONTENT[LANG] || CONTENT.en;
 const u = (p) => `${PFX}${p}`;   // an internal page link, in this language
@@ -120,7 +129,11 @@ function tint(p) {
 // "Client Websites" is a hub, not a project: the page that lists every client site (and world 02's page on the desk). It keeps
 // its page but stays out of the counts, the archive, the index and the prev/next walk (Navy: twenty projects, 2026-10-12)
 const isHub = (p) => p.key === 'client-websites';
-const counted = (D) => D.PROJECTS.filter((p) => !isHub(p));
+// the order the site lists the work in: the client sites first, the two platforms last (Navy, 2026-10-14: "jakasn godplan erp
+// taro paling bawah"); data.js keeps its own order for the desk, whose quick shortcut opens its first project, GodPlan ERP
+const LAST = ['godplan-erp', 'jakasn'];
+const workOrder = (list) => [...list.filter((p) => !LAST.includes(p.key)), ...LAST.map((k) => list.find((p) => p.key === k)).filter(Boolean)];
+const counted = (D) => workOrder(D.PROJECTS.filter((p) => !isHub(p)));
 // the kind of work a project is: the archive's filters, and the first test for related projects
 const KIND_KEYS = ['platform', 'custom', 'store', 'wordpress'];
 const kindOf = (x) => (x.key === 'client-websites' ? 'overview' : /WooCommerce/.test(x.stack) ? 'store' : /WordPress/.test(x.stack) ? 'wordpress' : /\bGo\b|OJS/.test(x.stack) ? 'platform' : 'custom');
@@ -134,7 +147,10 @@ const CLIENTS = [
   { key: 'miniatur-kapal', name: 'Miniatur Kapal', word: ['Miniatur', 'Kapal'] }, { key: 'gracia-box', name: 'Gracia Box' },
   { key: 'orthobone', name: 'Orthobone' }, { key: 'recon', name: 'Recon' }, { key: 'fortunarack', name: 'Fortunarack' }, { key: 'izzi', name: 'Izzi' },
   { key: 'rameinaja', name: 'RameinAja, now Reparty Indonesia', word: ['Ramein', 'Aja'] }, { key: 'little-aivy', name: 'Little Aivy' }, { key: 'airon', name: 'Airon' },
-  { key: 'fls-group-indonesia', name: 'FLS Group Indonesia' }, { key: 'the-bedji-group', name: 'The Bedji Group' },
+  { key: 'fls-group-indonesia', name: 'FLS Group Indonesia' }, { key: 'the-bedji-group', name: 'The Bedji Group' }, { key: 'godtive', name: 'Godtive' },
+  { key: 'duta-mesh', name: 'CV. Duta Mesh' }, { key: 'kusen-tangsel', name: 'Kusen Tangsel, Gita Makmur Aluminium' }, { key: 'nudelisius', name: 'Nudelisius' },
+  // (Ur Branded Bae's mark is a pale gradient with white letters and Rathera's shows another studio's name: both by name instead)
+  { key: 'ur-branded-bae', name: 'Ur Branded Bae', word: ['Ur Branded', 'Bae'] }, { key: 'rathera-beauty-studio', name: 'Rathera Beauty Studio', word: ['Rathera', 'Beauty Studio'] },
 ];
 
 // what I build, by kind of work ("territories"): the proof (project pages) is here, the words are in i18n.js, in the same order
@@ -228,7 +244,7 @@ const plate = (p, full = false) => {
   return `<div class="plate${ns ? ' plate--note' : ''}"${ns ? '' : ' aria-hidden="true"'}>
     <span class="plate-top"><span class="plate-k"${hide}>${esc(tp(p, 'industry'))}</span>${ns ? kick(ns.tag, ' aria-hidden="true"') : ''}</span>
     <span class="plate-mid"><span class="plate-t"${hide}>${esc(p.title)}</span>${ns ? `<p class="plate-note">${esc(ns.line)}</p>` : ''}</span>
-    <span class="plate-s"${hide}>${esc(p.stack)}</span></div>`;
+    <span class="plate-s"${hide}>${esc(stackOf(p))}</span></div>`;
 };
 // +62 851 7953 6062: the country code, then groups of three, four and four
 const phone = (n) => { const d = String(n).replace(/\D/g, ''); const cc = d.slice(0, 2), r = d.slice(2); return `+${cc} ${r.slice(0, 3)} ${r.slice(3, 7)} ${r.slice(7)}`.trim(); };
@@ -409,7 +425,7 @@ function home(D, ctx) {
       <a class="case-in" ${pAttrs(p)} data-cursor="${esc(t('cursorView'))}">
         <div class="case-top"><span><b>${pad(i + 1)}</b> / ${esc(t('selected'))}</span><span>${esc(ft.kind)}</span></div>
         <div class="case-text">
-          <span class="case-meta"><b>${esc(p.title)}</b> · ${f.meta.map(esc).join(' · ')}</span>
+          <span class="case-meta"><b>${esc(p.title)}</b> · ${f.meta.map((x) => esc(term(x))).join(' · ')}</span>
           <h2 class="case-title">${esc(p.title)}</h2>
           <p class="case-line">${esc(ft.line)}</p>
           ${did ? `<ul class="case-did">${did.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
@@ -426,7 +442,7 @@ function home(D, ctx) {
   const rest = counted(D).filter((p) => !featuredKeys.has(p.key));
   const index = rest.map((p, i) => {
     const m = projectMedia(D, p);
-    return `<li style="--i:${i}"><a ${pAttrs(p)}${m.cover ? ` data-preview="/${m.cover}"` : ''}><span class="ix-n">${pad(i + 1)}</span>${m.cover ? `<span class="ix-thumb" aria-hidden="true"><img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'}<span class="ix-name">${esc(p.title)}</span><span class="ix-ind">${esc(industryLine(p))}</span><span class="ix-stack">${esc(p.stack)}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`;
+    return `<li style="--i:${i}"><a ${pAttrs(p)}${m.cover ? ` data-preview="/${m.cover}"` : ''}><span class="ix-n">${pad(i + 1)}</span>${m.cover ? `<span class="ix-thumb" aria-hidden="true"><img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'}<span class="ix-name">${esc(p.title)}</span><span class="ix-ind">${esc(industryLine(p))}</span><span class="ix-stack">${esc(stackOf(p))}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`;
   }).join('');
   // three rows of names, the way Ownitt closes its projects: big capitals, a dot between, each row its own direction
   const allNames = counted(D).filter((p) => p.date !== 'previous design').map((p) => p.title);
@@ -464,7 +480,7 @@ function home(D, ctx) {
   const diffMine = DIFF.mine.map((s, i) => `<li${i === DIFF.mine.length - 1 ? ' class="is-stack"' : ''}><span class="n">${pad(i + 1)}</span><strong class="diff-step">${esc(s.step)}</strong><span class="diff-body">${esc(s.body)}</span></li>`).join('');
   const how = (C().process || CONTENT.en.process).map((s, i) => `<li style="--i:${i}"><span class="n">${pad(i + 1)}</span><strong>${esc(s.step)}</strong><span>${esc(s.body)}</span></li>`).join('');
   const layers = C().stack || CONTENT.en.stack;
-  const stack = STACK.map((items, i) => `<div class="st-col" style="--i:${i}"><span class="lbl">${esc(layers[i] || CONTENT.en.stack[i])}</span><ul>${items.map((tool) => `<li>${toolMark(tool)}<span>${esc(tool)}</span></li>`).join('')}</ul></div>`).join('');
+  const stack = STACK.map((items, i) => `<div class="st-col" style="--i:${i}"><span class="lbl">${esc(layers[i] || CONTENT.en.stack[i])}</span><ul>${items.map((tool) => `<li>${toolMark(tool)}<span>${esc(term(tool))}</span></li>`).join('')}</ul></div>`).join('');
   const contactLinks = D.SITE.links.filter((l) => l.label !== 'WhatsApp').map((l, i) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}" style="--i:${i}"><span>${esc(l.label === 'Résumé' ? t('resumePdf') : l.label)}</span>${arrow}</a>`).join('')
     + `<a href="${u('/cv/')}" data-track="contact_click" data-channel="Web CV" style="--i:${D.SITE.links.length}"><span>${esc(t('cv_web'))}</span>${arrowR}</a>`;
   // the desk as a turntable (public/site/turn, rendered from the engine by scripts/turntable.mjs): the teaser scrubs it with the scroll
@@ -490,7 +506,7 @@ function home(D, ctx) {
 
   // (the story lives at /full/: the home itself is the simple page, which carries the intro and the gate; see simplePage)
   return head({
-    title: t('t_home'), description: t('d_home', { n: clientSites.length }), pathname: '/full/', css: ctx.css, imageAlt: t('ogHomeAlt'),
+    title: t('t_full'), description: t('d_home', { n: clientSites.length }), pathname: '/full/', css: ctx.css, imageAlt: t('ogHomeAlt'),
     extra: `${heroPreload}\n<script type="application/ld+json">${JSON.stringify(ld)}</script>\n`,
   }) + `
 <body class="home">
@@ -701,8 +717,8 @@ function archSection(p) {
 
 // ---------- one project
 function projectPage(D, ctx, p) {
-  const list = D.PROJECTS;
-  // the arrows and "next project" walk the twenty projects (both Gajah Terbang sites among them; the hub only from itself)
+  const list = workOrder(D.PROJECTS);
+  // the arrows and "next project" walk the twenty-six projects (all three Gajah Terbang sites among them; the hub only from itself)
   const browse = list.filter((x) => !isHub(x) || x.key === p.key), bi = browse.indexOf(p);
   const next = browse[(bi + 1) % browse.length], prev = browse[(bi - 1 + browse.length) % browse.length];
   const m = projectMedia(D, p);
@@ -718,9 +734,13 @@ function projectPage(D, ctx, p) {
   const tag = world ? world.tagline : tp(p, 'industry');
   // a business that has moved on under another name: said in words, with a link to where it is today (no picture)
   const now = p.now ? `<aside class="p-now" data-reveal>${kick(t('today'))}<p>${esc(t('nowNote', { t: p.title, n: '\u0001' })).replace('\u0001', `<a href="${esc(p.now.url)}" target="_blank" rel="noopener">${esc(p.now.name)} ${arrow}</a>`)}</p></aside>` : '';
-  // one company, two sites, both Navy's: each of the two pages says so and points at the other, so nobody wonders why a name repeats
-  const pair = redesign ? `<aside class="p-now" data-reveal>${kick(t('pairKick'))}<p>${esc(t('pairFirst', { t: p.title, link: '\u0001' })).replace('\u0001', toPage(redesign, `${esc(redesign.title)} ${arrowR}`))}</p></aside>`
-    : first ? `<aside class="p-now" data-reveal>${kick(t('pairKick'))}<p>${esc(t('pairSecond', { t: first.title, link: '\u0001' })).replace('\u0001', toPage(first, `${esc(t('aWordPressSite'))} ${arrowR}`))}</p></aside>` : '';
+  // one company, three sites, all Navy's (Gajah Terbang: the WordPress site, its Next.js upgrade at the same address, and Godtive,
+  // whose `company` names the first): each page says so and points at the other two, so nobody wonders why a name repeats
+  const v1 = redesign ? p : first || (p.company ? list.find((x) => x.key === p.company) : null);
+  const v2 = v1 && list.find((x) => x.url === v1.url && x.key !== v1.key), v3 = v1 && list.find((x) => x.company === v1.key);
+  const toWp = (x) => toPage(x, `${esc(t('aWordPressSite'))} ${arrowR}`), toNamed = (x) => toPage(x, `${esc(x.title)} ${arrowR}`);
+  const pairNote = (key, a, b) => `<aside class="p-now" data-reveal>${kick(t('pairKick'))}<p>${esc(t(key, { t: v1.title, link: '\u0001', link2: '\u0002', link3: '\u0002' })).replace('\u0001', a).replace('\u0002', b)}</p></aside>`;
+  const pair = !v1 || !v2 || !v3 ? '' : p === v1 ? pairNote('pairFirst', toNamed(v2), toNamed(v3)) : p === v2 ? pairNote('pairSecond', toWp(v1), toNamed(v3)) : pairNote('pairThird', toWp(v1), toNamed(v2));
   // what Navy did on it, in short lines (data.js `did`), with his role and, for GodPlan, the modules of the system
   const didList = tp(p, 'did'), role = tp(p, 'role'), modules = tp(p, 'modules');
   const did = didList ? `<section class="did wrap" aria-labelledby="did-h">
@@ -736,7 +756,7 @@ function projectPage(D, ctx, p) {
     </section>` : '';
   const sitesList = list.filter((x) => x.url && x.date !== 'previous design');
   const sites = p.key === 'client-websites' ? `<section class="wrap sites-all" aria-labelledby="sites-h"><div class="inside-head"><div data-reveal>${kick(t('allN', { n: sitesList.length }))}</div><h2 class="serif-h" id="sites-h" data-split>${splitPair(t('everySiteTitle'), t('everySiteEm'))}</h2></div>
-      <ul class="index-list" data-stagger>${sitesList.map((x, k) => `<li style="--i:${k}"><a ${pAttrs(x)}><span class="ix-n">${pad(k + 1)}</span>${(() => { const c = projectMedia(D, x).cover; return c ? `<span class="ix-thumb" aria-hidden="true"><img src="/${c}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'; })()}<span class="ix-name">${esc(x.title)}</span><span class="ix-ind">${esc(tp(x, 'industry'))}</span><span class="ix-stack">${esc(x.stack)}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`).join('')}</ul></section>` : '';
+      <ul class="index-list" data-stagger>${sitesList.map((x, k) => `<li style="--i:${k}"><a ${pAttrs(x)}><span class="ix-n">${pad(k + 1)}</span>${(() => { const c = projectMedia(D, x).cover; return c ? `<span class="ix-thumb" aria-hidden="true"><img src="/${c}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'; })()}<span class="ix-name">${esc(x.title)}</span><span class="ix-ind">${esc(tp(x, 'industry'))}</span><span class="ix-stack">${esc(stackOf(x))}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`).join('')}</ul></section>` : '';
   const gallery = m.shots.length > 1 ? `<section class="gallery wrap" aria-label="${esc(t('screenshots'))}">
       ${m.shots.slice(1).map((s, k) => `<figure class="shot g-${k % 3}" data-reveal="clip">${img(s, t('screenshotN', { t: p.title, n: k + 2 }), { sizes: k % 3 ? '(min-width: 900px) 62vw, 100vw' : '(min-width: 1100px) 1300px, 100vw' })}</figure>`).join('')}
     </section>` : '';
@@ -780,7 +800,7 @@ ${header('work', pathname)}
         <p class="p-lead" data-reveal>${esc(lead)}</p>
         <dl class="p-meta" data-stagger>
           <div style="--i:0"><dt>${esc(t('industry'))}</dt><dd>${esc(tp(p, 'industry'))}</dd></div>
-          <div style="--i:1"><dt>${esc(t('stackLbl'))}</dt><dd>${esc(p.stack)}</dd></div>
+          <div style="--i:1"><dt>${esc(t('stackLbl'))}</dt><dd>${esc(stackOf(p))}</dd></div>
           ${role ? `<div style="--i:2"><dt>${esc(t('roleLbl'))}</dt><dd>${esc(role)}</dd></div>` : ''}
           <div style="--i:2"><dt>${esc(p.date === 'live' ? t('statusLbl') : t('when'))}</dt><dd>${esc(status)}</dd></div>
           ${p.url ? `<div style="--i:3"><dt>${esc(t('address'))}</dt><dd>${p.now ? `${esc(host(p.url))} <span class="was">${esc(t('formerAddress'))}</span>` : redesign ? `${esc(host(p.url))} <span class="was">${esc(t('servesUpgrade'))}</span>` : `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(host(p.url))}</a>`}</dd></div>` : ''}
@@ -820,7 +840,7 @@ function archivePage(D, ctx) {
     const m = projectMedia(D, p);
     return `<li class="arc-card" data-kind="${kindOf(p)}" style="--i:${i % 9}"><a ${pAttrs(p, 'archive')} data-cursor="${esc(t('cursorView'))}">
       <span class="arc-pic">${m.cover ? img(m.cover, t('screenshot', { t: p.title }), { sizes: '(min-width: 1100px) 31vw, (min-width: 560px) 46vw, 92vw' }) : plate(p)}</span>
-      <span class="arc-n">${pad(i + 1)}</span><span class="arc-t">${esc(p.title)}</span><span class="arc-i">${esc(industryLine(p))}</span><span class="arc-s">${esc(p.stack)}</span>
+      <span class="arc-n">${pad(i + 1)}</span><span class="arc-t">${esc(p.title)}</span><span class="arc-i">${esc(industryLine(p))}</span><span class="arc-s">${esc(stackOf(p))}</span>
     </a></li>`;
   }).join('');
   const ld = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: t('t_work'), url: `${ORIGIN}${u('/work/')}`, inLanguage: L.html, hasPart: list.map((p) => ({ '@type': 'CreativeWork', name: p.title, url: `${ORIGIN}${u(`/work/${p.key}/`)}` })) };
@@ -850,14 +870,14 @@ ${footer(D)}
 // ---------- labs: Navy's own experiments (scripts/labs.js holds the page's body, its CSS and its meta; the same bones as the archive)
 // (two chapters: the worlds first, scripts/labs-worlds.js, then the GitHub experiments as a chapter of their own)
 function labsPage(D, ctx) {
-  const labsCount = +(LABS_META.menu.sub.match(/\d+/) || [0])[0];
-  const description = `${WORLDS.length} 3D web interactive designs, each a scroll-driven world with a working app running in the browser, and ${LABS_META.description.charAt(0).toLowerCase()}${LABS_META.description.slice(1)}`;
-  return head({ title: LABS_META.title, description, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: 'Labs: the worlds and experiments of Navy Gibran' }) + `
+  // (the worlds and the experiments speak the page's language: scripts/labs-worlds.js and labs.js hold their translations)
+  const M = labsMetaFor(LANG), labsCount = M.count;
+  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: M.imageAlt }) + `
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
 <main id="main" tabindex="-1">
-${worldsSection({ t, u, splitPair, labsCount, exists, img })}
-${labsMain({ exists, img, chapter: { kick: t('lw_moreKick'), title: t('lw_moreTitle'), em: t('lw_moreEm') } })}
+${worldsSection({ t, u, splitPair, labsCount, exists, img, lang: LANG })}
+${labsMain({ exists, img, splitPair, lang: LANG, chapter: { kick: t('lw_moreKick'), title: t('lw_moreTitle'), em: t('lw_moreEm') } })}
 </main>
 ${footer(D)}
 ` + tail(ctx.js);
@@ -872,7 +892,7 @@ function cvPage(D, ctx) {
   const pdf = D.SITE.links.find((l) => l.label === 'Résumé')?.href;
   const links = D.SITE.links.filter((l) => l.label !== 'Résumé');
   const facts = t('facts').map((f) => fill(f, { n: clientSites.length }));
-  const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => `<li><a ${pAttrs(p, 'cv')}><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(p.stack)}</span><p>${esc(featuredText(p.key).line)}</p></li>`).join('');
+  const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => `<li><a ${pAttrs(p, 'cv')}><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(stackOf(p))}</span><p>${esc(featuredText(p.key).line)}</p></li>`).join('');
   const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${t('cv_title')} | Navy Gibran`, url: `${ORIGIN}${u('/cv/')}`, inLanguage: L.html, mainEntity: { '@type': 'Person', name: 'Navy Gibran', jobTitle: t('jobTitle'), email: D.SITE.email ? `mailto:${D.SITE.email}` : undefined, url: `${ORIGIN}${u('/')}`, alumniOf: 'Universitas Multimedia Nusantara', worksFor: 'PT. Gajah Terbang Kreatif', knowsLanguage: ['id', 'en', 'zh'] } };
   return head({ title: `${t('cv_title')} | Navy Gibran`, description: t('cv_desc'), pathname: '/cv/', css: ctx.css, imageAlt: t('ogDefaultAlt'), extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` }) + `
 <body class="cv-page">
@@ -901,7 +921,7 @@ ${header('cv', '/cv/')}
       <h2 class="lbl">${esc(t('cv_contact'))}</h2>
       <ul class="cv-links">${D.SITE.email ? `<li><a href="mailto:${esc(D.SITE.email)}">${esc(D.SITE.email)}</a></li>` : ''}<li><a href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener">${esc(phone(D.SITE.whatsapp))}</a></li>${links.filter((l) => l.label !== 'WhatsApp' && l.label !== 'Email').map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}: ${esc(l.href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</a></li>`).join('')}<li><a href="${ORIGIN}${u('/')}">navygibran.dev</a></li></ul>
       <h2 class="lbl">${esc(t('cv_skills'))}</h2>
-      ${STACK.map((items, i) => `<div class="cv-skill"><span class="cv-layer">${esc(layers[i] || CONTENT.en.stack[i])}</span><span>${items.map(esc).join(' · ')}</span></div>`).join('')}
+      ${STACK.map((items, i) => `<div class="cv-skill"><span class="cv-layer">${esc(layers[i] || CONTENT.en.stack[i])}</span><span>${items.map((x) => esc(term(x))).join(' · ')}</span></div>`).join('')}
       <h2 class="lbl">${esc(t('cv_lang'))}</h2>
       <p class="cv-langs">${esc(t('cv_langLine'))}</p>
     </aside>
@@ -993,7 +1013,7 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: c.name, word: c.word || null }));
-  const main = homeProfileMain({ D, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, labs: LABS, worlds: WORLDS, clients, exists, img, u, projectMedia });
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, exists, img, u, tp, projectMedia });
   const preload = ['site/desk-wide-800.webp', 'site/portrait.webp'].filter(exists).map((f) => `<link rel="preload" as="image" href="/${f}" fetchpriority="high">`).join('\n');
   return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
 <body class="home home-profile">
@@ -1021,7 +1041,7 @@ export async function renderSite() {
     setLang(lang);
     const ctx = { css: cssAll, js: jsSrc };
     ctx.js = ctx.js.replace('__DESK_TARGETS__', JSON.stringify(targets)).replace('__PROJECTS__', JSON.stringify(D.PROJECTS.map((p) => p.key)))
-      .replace('__INDEX__', JSON.stringify({ p: D.PROJECTS.map((p) => [p.key, p.title, industryLine(p), p.stack, tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [l.label, l.href]) }).replace(/</g, '\\u003c'))
+      .replace('__INDEX__', JSON.stringify({ p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [l.label, l.href]) }).replace(/</g, '\\u003c'))
       .replace('__PREFIX__', JSON.stringify(PFX)).replace('__LANG__', JSON.stringify(lang)).replace('__JS_T__', JSON.stringify(t('js')).replace(/</g, '\\u003c'));
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a></li>`).join('');
     // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
@@ -1053,7 +1073,8 @@ export async function renderSite() {
 // node scripts/site.js → writes the pages into KW_OUT or dist/ (the build calls renderSite itself)
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes('--og-data')) {
   const D = await loadData();
-  process.stdout.write(JSON.stringify(D.PROJECTS.map((p, i) => ({ key: p.key, n: i + 1, total: counted(D).length, counted: !isHub(p), title: p.title, industry: p.industry, stack: p.stack, date: p.date, now: p.now?.name || null, ...tint(p), ...projectMedia(D, p) }))));
+  const order = counted(D);   // (numbered as the site numbers them; the hub after the projects)
+  process.stdout.write(JSON.stringify([...order, ...D.PROJECTS.filter(isHub)].map((p) => ({ key: p.key, n: order.indexOf(p) + 1, total: order.length, counted: !isHub(p), title: p.title, industry: p.industry, stack: p.stack, date: p.date, now: p.now?.name || null, ...tint(p), ...projectMedia(D, p) }))));
 } else if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const dist = process.env.KW_OUT ? path.resolve(process.env.KW_OUT) : path.join(root, 'dist');
   const pages = await renderSite();
