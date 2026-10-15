@@ -537,6 +537,7 @@ export const STACK_JS = `
     var j = e.target.closest('[data-jump]'); if (j) { var t = sec.querySelector('.pf-tool[data-tool="' + j.dataset.jump + '"]'); if (t) { if (cur !== t) open(t, true); else rowOf(t).scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); } }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur && sec.contains(document.activeElement)) { var back = cur; shut(); back.focus(); } });
-  var h = location.hash.match(/^#stack-([a-z0-9-]+)$/); if (h) { var t0 = sec.querySelector('.pf-tool[data-tool="' + h[1] + '"]'); if (t0) open(t0, true); }
+  function fromHash() { var h = location.hash.match(/^#stack-([a-z0-9-]+)$/); if (!h) return; var t0 = sec.querySelector('.pf-tool[data-tool="' + h[1] + '"]'); if (t0 && cur !== t0) open(t0, true); }
+  fromHash(); addEventListener('hashchange', fromHash);
 })();
 `;

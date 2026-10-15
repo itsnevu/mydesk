@@ -14,7 +14,7 @@ import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
 import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
-import { STACK, stackModel, toolboxGrid, STACK_CSS, TOOLBOX_CSS, TOOLBOX_JS } from './stack-tools.js';
+import { STACK, stackModel, stackParts, slugOf, toolboxGrid, STACK_CSS, TOOLBOX_CSS, TOOLBOX_JS } from './stack-tools.js';
 import { minifyJS, minifyCSS } from './jsmin.js';
 import vm from 'node:vm';
 import { createHash } from 'node:crypto';
@@ -1190,7 +1190,8 @@ export async function renderSite() {
     const D = DL;
     const ctx = { css: cssAll, js: jsSrc };
     // (this language's data for the page script: the desk's old targets, the projects, the index the search reads, the words)
-    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]) }, prefix: PFX, lang, t: t('js') }).replace(/</g, '\\u003c');
+    const SP = stackParts({ M: stackModel({ D, gh: GH }), lang, name: term, icon: () => '', u, worlds: WORLDS.length });
+    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]), s: STACK.flat().map((x) => [slugOf(x), term(x), SP.tip(x)]) }, prefix: PFX, lang, t: t('js') }).replace(/</g, '\\u003c');
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
     // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
     const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');

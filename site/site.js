@@ -731,6 +731,7 @@
       ...[[jt('selectedWork'), `${PFX}/full/#work`, jt('sixClose')], [jt('allProjects'), `${PFX}/work/`, jt('everyOne', { n: INDEX.p.length })], [jt('clients'), `${PFX}/full/#clients`, jt('whoTrusted')], [jt('whatIBuild'), `${PFX}/full/#territories`, jt('territories')], [jt('thePath'), `${PFX}/full/#path`, jt('fromStairs')], [jt('contact'), `${PFX}/full/#contact`, jt('yourTurn')], [jt('theDesk'), '/3d/', jt('otherWay')], [jt('home'), `${PFX}/`, 'navygibran.dev']]
         .map(([t, href, d]) => ({ g: jt('goTo'), t, d, href })),
       ...INDEX.p.map(([key, t, d, s, bg, kind], i) => ({ g: jt('projects'), n: String(i + 1).padStart(2, '0'), t, d, s: `${s} ${kind}`, href: `${PFX}/work/${key}/`, bg, here: location.pathname === `${PFX}/work/${key}/` })),
+      ...(INDEX.s || []).map(([slug, t, d]) => ({ g: jt('stackGroup'), t, d, s: 'stack', href: `${PFX}/#stack-${slug}`, tool: slug })),
       ...INDEX.l.map(([t, href]) => ({ g: jt('elsewhere'), t, d: href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), href, ext: true })),
     ];
     const ico = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
@@ -738,7 +739,7 @@
     pal.className = 'pal'; pal.setAttribute('aria-label', jt('palAria'));
     pal.innerHTML = `<div class="pal-bar">${ico}<input class="pal-in" type="search" role="combobox" aria-label="${jt('palInput')}" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" placeholder="${jt('palPh')}" autocomplete="off" spellcheck="false"><button class="pal-esc" type="button" aria-label="Close">esc</button></div>`
       + `<ul class="pal-list" id="pal-list" role="listbox" aria-label="${jt('palResults')}"></ul>`
-      + `<div class="pal-foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> choose</span><span><kbd>↵</kbd> go</span><span><kbd>esc</kbd> close</span></div>`;
+      + `<div class="pal-foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> ${jt('palChoose')}</span><span><kbd>↵</kbd> ${jt('palGo')}</span><span><kbd>esc</kbd> ${jt('palClose')}</span></div>`;
     document.body.append(pal);
     const input = pal.querySelector('.pal-in'), list = pal.querySelector('.pal-list');
     let shown = [], sel = 0;
@@ -753,7 +754,7 @@
       shown = items.filter((it) => { const hay = norm(`${it.t} ${it.d || ''} ${it.s || ''} ${it.g}`); return words.every((w) => hay.includes(w)); });
       if (q) shown.sort((a, b) => (norm(b.t).startsWith(q) - norm(a.t).startsWith(q)) || (norm(b.t).includes(q) - norm(a.t).includes(q)));
       sel = Math.min(sel, Math.max(0, shown.length - 1));
-      if (!shown.length) { list.innerHTML = '<li class="pal-empty" role="presentation">Nothing by that name. Try a project, a client or a tool.</li>'; input.removeAttribute('aria-activedescendant'); return; }
+      if (!shown.length) { list.innerHTML = `<li class="pal-empty" role="presentation">${jt('palEmpty')}</li>`; input.removeAttribute('aria-activedescendant'); return; }
       let g = '', html = '';
       shown.forEach((it, i) => {
         if (it.g !== g && !q) { g = it.g; html += `<li class="pal-g" role="presentation">${g}</li>`; }
@@ -773,6 +774,10 @@
       pal.close();
       track('palette_go', { to: it.href });
       if (it.ext) { window.open(it.href, '_blank', 'noopener'); return; }
+      if (it.tool) {
+        const b = document.querySelector(`[data-tool-open="${it.tool}"], .pf-tool[data-tool="${it.tool}"]`);
+        if (b) { if (b.classList.contains('pf-tool')) { b.closest('.pf-st')?.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); if (b.getAttribute('aria-expanded') === 'true') return; } b.click(); return; }
+      }
       const url = new URL(it.href, location.href);
       if (url.pathname === location.pathname) {
         const el = url.hash && document.getElementById(url.hash.slice(1));
