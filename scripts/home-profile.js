@@ -96,10 +96,12 @@ WORDS.zh = {
   reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
 };
 // the chips that are words rather than tool names, in the page's language (the tool names stay as they are written)
+// (a chip that is a project with its own page links to it)
+const CHIP_LINK = { 'GodPlan ERP': 'godplan-erp', JAKASN: 'jakasn' };
 const CHIP_T = {
   en: { TK: 'Kindergarten', SD: 'Primary school', SMP: 'Junior high', SMA: 'Senior high' },
-  id: { 'GPA 3.71': 'IPK 3.71', 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
-  zh: { 'GPA 3.71': '绩点 3.71',
+  id: { 'GPA 3.71': 'IPK 3.71', 'Teaching assistant': 'Asisten dosen', 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
+  zh: { 'GPA 3.71': '绩点 3.71', 'Teaching assistant': '助教',
     Hardware: '硬件', '341 laptops': '341 台笔记本', 'Field work': '现场工作', 'Competitive programming': '算法竞赛', 'Design patterns': '设计模式',
     TK: '幼儿园', SD: '小学', SMP: '初中', SMA: '高中', 'REST APIs': 'REST API', 'Custom themes': '定制主题', 'Smart contracts': '智能合约',
     'Wallet integration': '钱包集成', 'dApp frontends': 'dApp 前端',
@@ -115,7 +117,7 @@ const PATH_META = [
   { logo: 'umn', mono: 'PC', chips: ['C++', 'Competitive programming'], from: [2024, 1], to: [2025, 1], loose: true },
   { logo: 'compnet', big: true, mono: 'NCI', chips: ['Hardware', '341 laptops', 'BNI'], days: 2 },   // (the BNI laptops: Compnet's job, BNI the client)
   { logo: 'compnet', big: true, mono: 'NCI', chips: ['Field work', 'Pertamina'] },
-  { logo: 'umn', mono: 'UMN', chips: ['OOP', 'SOLID', 'Design patterns', 'GPA 3.71'], from: [2022, 8], to: [2026, 6], loose: true, edu: true },
+  { logo: 'umn', mono: 'UMN', chips: ['Teaching assistant', 'OOP', 'SOLID', 'Design patterns', 'GPA 3.71'], from: [2022, 8], to: [2026, 6], loose: true, edu: true },
   { logo: 'pahoa', mono: 'PH', chips: ['TK', 'SD', 'SMP', 'SMA', '2021'], edu: true },
 ];
 const TOOL_MARK = {
@@ -128,9 +130,9 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', roll = (x) => esc(x), now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
-  const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}</span>`; };
+  const chip = (t) => { const s = TOOL_MARK[t], inner = `${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}`; return CHIP_LINK[t] ? `<a class="pf-chip pf-chip--a" href="${u(`/work/${CHIP_LINK[t]}/`)}" data-track="project_open" data-project="${CHIP_LINK[t]}" data-from="profile-chip">${inner}</a>` : `<span class="pf-chip">${inner}</span>`; };
   const dur = (m) => {
     if (m.days) return `${m.days} ${W.dur.d}`;
     if (!m.from) return '';
@@ -143,10 +145,10 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const logoFile = (m) => m.logo && (m.logo.includes('.') ? m.logo : `${m.logo}.webp`);
   // (`big` lets a fine-lined mark fill more of its circle, or it reads as a smudge at 44 px)
   const avatar = (m) => logoFile(m) && exists(`site/logos/${logoFile(m)}`) ? `<i class="pf-av pf-av--m" style="--m:url(/site/logos/${logoFile(m)})${m.big ? ';--ms:92%' : ''}" aria-hidden="true"></i>` : `<i class="pf-av" aria-hidden="true">${esc(m.mono || '')}</i>`;
-  const rowPath = (r, m, i) => `<li class="pf-row pf-exp${m.from && m.to === null ? ' pf-row--now' : ''}" style="--i:${i}">
+  const rowPath = (r, m, i, open = false) => `<li class="pf-row pf-exp${m.from && m.to === null ? ' pf-row--now' : ''}${open ? ' open' : ''}" style="--i:${i}">
       ${m.from && m.to === null ? '<i class="pf-pulse" aria-hidden="true"></i>' : ''}${avatar(m)}
       <div class="pf-body">
-        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="false" aria-label="${esc(W.aboutRow.replace('{o}', r.org))}">${I.chev}</button></div>
+        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="${open}" aria-label="${esc(W.aboutRow.replace('{o}', r.org))}">${I.chev}</button></div>
         <span class="pf-role">${esc(r.role)}</span>
         <span class="pf-meta"><span>${esc(r.when)}</span>${dur(m) ? `<i>·</i><span>${esc(dur(m))}</span>` : ''}</span>
         <div class="pf-chips">${m.chips.map(chip).join('')}</div>
@@ -156,7 +158,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const rows = path.map((r, i) => [r, PATH_META[i] || { chips: [] }, i]);
   const expRows = rows.filter(([, m]) => !m.edu), eduRows = rows.filter(([, m]) => m.edu);
   const nowOrg = (rows.find(([, m]) => m.from && m.to === null) || [])[0]?.org || '';   // (the job with no end: shown in the hero)
-  const exp = expRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
+  const exp = expRows.map(([r, m, i], k) => rowPath(r, m, i, k < 2)).join('');   // (the two jobs open: a recruiter reads them without a click)
   const edu = eduRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
 
   const counted = D.PROJECTS.filter((p) => p.key !== 'client-websites');
@@ -191,6 +193,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(/site/logos/${c.key}.webp)"><img src="/site/logos/${c.key}.webp" alt="" loading="lazy" decoding="async"></span></a>`;
   const marq = clients.filter((c) => !c.word && exists(`site/logos/${c.key}.webp`));
   const marquee = marq.length > 5 ? `<div class="pf-marq" aria-hidden="true"><div class="pf-marq-t">${[...marq, ...marq].map((c) => `<i class="pf-marq-i" style="--m:url(/site/logos/${c.key}.webp)"></i>`).join('')}</div></div>` : '';
+  const cvHref = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href || '';
   const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
   const social = SOCIAL.map(([label, slug]) => {
     const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
@@ -246,7 +249,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     </a>
     <ul class="pf-strip" aria-label="${esc(W.reel)}">${shots.map(thumb).join('')}</ul>
     <div class="pf-reel-row">
-      <a class="btn btn-fill" href="${u('/labs/')}" data-track="lab_open" data-channel="profile-reel-btn" data-magnet>${esc(W.reelAll.replace('{n}', n))} ${I.out}</a>
+      <a class="btn btn-fill" href="${u('/labs/')}" data-track="lab_open" data-channel="profile-reel-btn" data-magnet>${roll(W.reelAll.replace('{n}', n))} ${I.out}</a>
       <button type="button" class="pf-reel-pause" data-pause="${esc(W.pause)}" data-play="${esc(W.play)}">${I.pause}${I.play}<span>${esc(W.pause)}</span></button>
       <span class="pf-reel-hint"><span class="if-hover">${esc(W.reelHint)}</span><span class="if-touch">${esc(W.reelHintTouch)}</span></span>
     </div>
@@ -266,7 +269,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <div class="pf-card-in">
       <div class="pf-id">
         <div class="pf-face-w"><figure class="pf-face">${exists('site/portrait-240.webp') ? `<img src="/site/portrait.webp" srcset="/site/portrait-240.webp 240w, ${exists('site/portrait-360.webp') ? '/site/portrait-360.webp 360w, ' : ''}/site/portrait.webp 640w" sizes="(max-width: 480px) 100px, 116px" alt="${esc(W.altPortrait)}" width="640" height="800" fetchpriority="high" decoding="async">` : img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure><svg class="pf-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="pf-ring-p" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#pf-ring-p" textLength="536" lengthAdjust="spacing">${esc(ringText)}</textPath></text></svg></div>
-        <div class="pf-hero-cta"><a class="btn btn-fill pf-hero-wa" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="profile-hero" data-magnet>${esc(W.chat)} ${I.out}</a>${exists('cv/Navy-Gibran-CV.pdf') ? `<a class="btn pf-hero-cv" href="/cv/Navy-Gibran-CV.pdf" download data-track="cv_download" data-from="profile-hero" data-magnet>${I.doc}<span>${esc(W.cvBtn)}</span></a>` : ''}</div>
+        <div class="pf-hero-cta"><a class="btn btn-fill pf-hero-wa" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="profile-hero" data-magnet>${roll(W.chat)} ${I.out}</a>${cvHref ? `<a class="btn pf-hero-cv" href="${esc(cvHref)}" download="${esc(cvHref.split('/').pop())}" data-track="cv_download" data-from="profile-hero" data-magnet>${I.doc}${roll(W.cvBtn)}</a>` : ''}</div>
       </div>
       <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
       <span class="pf-handle">${esc(W.handle)}</span>
@@ -320,10 +323,10 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <h2>${esc(W.ctaTitle)}</h2>
       <p>${esc(W.ctaLine)}</p>
       <div class="pf-cta-row">
-        <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${esc(W.chat)} ${I.out}</a>
+        <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(W.chat)} ${I.out}</a>
         ${D.SITE.whatsapp ? `<button class="btn pf-cta-mail pf-cta-num" type="button" aria-label="${esc(W.copyNum)} ${esc(phoneOf(D.SITE.whatsapp))}" data-copy="+${esc(D.SITE.whatsapp)}" data-track="contact_click" data-channel="WhatsApp number" data-from="profile-cta" data-magnet>${exists('site/tools/whatsapp.svg') ? mark('whatsapp') : ''}<span>${esc(phoneOf(D.SITE.whatsapp))}</span></button>` : ''}
         ${D.SITE.email ? `<button class="btn pf-cta-mail" type="button" aria-label="${esc(W.copyMail)} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="profile-cta" data-magnet>${exists('site/tools/gmail.svg') ? mark('gmail') : ''}<span>${esc(D.SITE.email)}</span></button>` : ''}
-        <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${esc(W.see3d)} ${I.right}</a>
+        <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${roll(W.see3d)} ${I.right}</a>
       </div>
     </div>
   </section>
@@ -432,6 +435,10 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; font: 500 12px var(--cond); letter-spacing: 0.08em; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.4s var(--ease); }
 .pf-chip .pf-m { width: 13px; height: 13px; opacity: 0.85; }
 .pf-chip:hover { border-color: var(--line-2); color: var(--ink); transform: translateY(-2px); }
+.pf-chip--a { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--ink); } .pf-chip--a::after { content: "↗"; margin-left: 2px; font-size: 0.85em; opacity: 0.7; } .pf-chip--a:hover, .pf-chip--a:focus-visible { border-color: var(--accent); color: var(--accent-2); }
+.pf-pj.rise { animation: pf-rise 0.6s var(--ease) both; animation-delay: calc(var(--k, 0) * 45ms); }
+.pf-hx .pf-tl::before { transform: scaleY(0); transform-origin: top; transition: transform 1.6s var(--ease); } .pf-hx .pf-tl.in::before { transform: none; }
+.pf-hx .pf-proc-l::before { transform: scaleX(0); transform-origin: left; transition: transform 1.4s var(--ease) 0.2s; } .pf-hx .pf-proc-l.in::before { transform: none; }
 .pf-tg { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--dim); cursor: pointer; transition: border-color 0.3s, color 0.3s, transform 0.4s var(--ease); }
 .pf-tg svg { width: 14px; height: 14px; } .pf-tg:hover { border-color: var(--ink); color: var(--ink); }
 .pf-tg[aria-expanded="true"] { transform: rotate(180deg); }
@@ -751,7 +758,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   if (!reduce && 'IntersectionObserver' in window) {
     document.body.classList.add('pf-hx');
     var rise = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); rise.unobserve(e.target); } }); }, { threshold: 0.4 });
-    document.querySelectorAll('.pf-h, .pf-bio').forEach(function (h) { rise.observe(h); });
+    document.querySelectorAll('.pf-h, .pf-bio, .pf-tl, .pf-proc-l').forEach(function (h) { rise.observe(h); });
   }
   // the chapter rail: the section in view is lit; a click glides to its section without touching the address
   (function () {
@@ -764,7 +771,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     secs.forEach(function (sec) { if (sec) io.observe(sec); });
   })();
   // the lists fold after a few rows
-  document.querySelectorAll('.pf-more').forEach(function (btn) { var list = btn.previousElementSibling, label = btn.querySelector('span'), more = label.textContent, less = btn.dataset.less; btn.addEventListener('click', function () { var on = !btn.classList.contains('open'); btn.classList.toggle('open', on); list.querySelectorAll('[data-more]').forEach(function (li) { li.hidden = !on; }); label.textContent = on ? less : more; if (!on) list.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }); });
+  document.querySelectorAll('.pf-more').forEach(function (btn) { var list = btn.previousElementSibling, label = btn.querySelector('span'), more = label.textContent, less = btn.dataset.less; btn.addEventListener('click', function () { var on = !btn.classList.contains('open'); btn.classList.toggle('open', on); list.querySelectorAll('[data-more]').forEach(function (li, k) { li.hidden = !on; if (on && !reduce) { li.style.setProperty('--k', k); li.classList.remove('rise'); void li.offsetWidth; li.classList.add('rise'); } }); label.textContent = on ? less : more; if (!on) list.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }); });
   // the margin notes come in with the column
   if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('in'); }); }, { threshold: 0.2 }); document.querySelectorAll('.pf-note').forEach(function (n) { io.observe(n); }); }
   // the reel: one stage over a strip of frames. A frame pointed at (tapped once, or focused) comes up on the stage with its words;

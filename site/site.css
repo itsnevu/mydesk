@@ -1578,4 +1578,5 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .p-wa-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
 .p-wa-mail { background: none; color: var(--ink); text-transform: none; letter-spacing: 0.04em; cursor: pointer; }
 .p-wa-mail:hover, .p-wa-mail:focus-visible { background: var(--ink); border-color: var(--ink); color: #140f09; }
+.p-wa-cv { background: none; color: var(--ink); }
 @media (max-width: 640px) { .p-wa-row .btn { width: 100%; } }

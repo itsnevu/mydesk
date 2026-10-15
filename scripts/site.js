@@ -860,7 +860,7 @@ function projectPage(D, ctx, p) {
       <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
       <h2 class="p-wa-t" id="pwa-h">${esc(t('pwaTitle', { t: p.title }))}</h2>
       <p class="p-wa-l">${esc(t('pwaLine'))}</p>
-      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, t('waSimilar', { t: p.title })))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-from="project-band" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="project-band">${esc(D.SITE.email)}</button>` : ''}</div>
+      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, `${t('waSimilar', { t: p.title })} ${ORIGIN}${u(`/work/${p.key}/`)}`))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-from="project-band" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="project-band">${esc(D.SITE.email)}</button>` : ''}${(() => { const cv = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href; return cv ? `<a class="btn p-wa-cv" href="${esc(cv)}" download="${esc(cv.split('/').pop())}" data-track="cv_download" data-from="project-band">${roll(t('cv'))}</a>` : ''; })()}</div>
     </div>
   </section>`;
   const pathname = `/work/${p.key}/`;
@@ -1114,7 +1114,7 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: clientName(c), word: c.word || null }));
-  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf,
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf, roll,
     services: (Cn.territories || CONTENT.en.territories).map((x, i) => ({ title: x.title, body: x.body, items: x.items || [], also: TERRITORIES[i]?.also || '', proof: (TERRITORIES[i]?.proof || []).map((k) => D.PROJECTS.find((q) => q.key === k)).filter(Boolean).map((q) => ({ key: q.key, title: q.title })) })),
     process: Cn.process || CONTENT.en.process });
   const set = (list) => list.filter(([f]) => exists(f)).map(([f, w]) => `/${f} ${w}w`).join(', ');
