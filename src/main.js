@@ -7,7 +7,7 @@ import { audio } from 'app/audio';
 import { PROJECTS, SITE, WORLDS, projectByKey, DISCOVERY_TOTAL } from 'app/data';
 import { parseRoute, onRoute, setRoute } from 'app/router';
 import * as ui from 'app/ui';
-import { initGuide } from 'app/guide';
+import { initGuide, gateTip } from 'app/guide';
 import { initLikes } from 'app/likes';
 import { initSite, openSite } from 'app/simplesite';
 
@@ -69,6 +69,14 @@ async function boot() {
   // ---------- UI wiring
   ui.menu.build((m) => xp.activate(m.target));
   initGuide(xp);
+  // the gate says where a deep link leads (the brass keys and Enter follow it; "See the work" and the tour go their own way): a world or a project page by its title, a desk target by its name in the discoveries; the secret stays unnamed and nothing from the address is printed
+  const linkName = (route, direct) => {
+    if (!route || !direct) return null;
+    if (typeof direct === 'string') { const t = xp.resolveTarget(direct); return t && t.kind !== 'secret' && t.discover ? t.discover.replace(/^The /, 'the ') : null; }
+    return route.type === 'project' || route.type === 'page' ? projectByKey(route.slug)?.title || null : null;
+  };
+  xp.refreshGateTip = () => gateTip(linkName(parseRoute(), xp.pendingDirect));
+  xp.refreshGateTip();
   initLikes();
   initSite(xp);
   ui.syncFaded();   // (app/guide and app/hints have made their buttons)

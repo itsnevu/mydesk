@@ -45,7 +45,7 @@ function build() {
     if (!hash || hash === 'site') return;
     location.hash = hash;
     const s = document.body.dataset.state;
-    if (xp && (s === 'loading' || s === 'gate' || s === 'entering')) xp.pendingDirect = xp.directFor?.(parseRoute()) || null;
+    if (xp && (s === 'loading' || s === 'gate' || s === 'entering')) { xp.pendingDirect = xp.directFor?.(parseRoute()) || null; xp.refreshGateTip?.(); }
   });
   // while the sheet is up the desk hears no keys (Esc puts the sheet away; inside the frame the site handles its own keys)
   window.addEventListener('keydown', (e) => { if (!isSiteOpen()) return; e.stopImmediatePropagation(); if (e.key === 'Escape') { e.preventDefault(); closeSite(); } }, true);

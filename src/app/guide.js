@@ -65,7 +65,8 @@ body[data-state="gate"] #gate-tip { opacity: 1; }
   body[data-state="project"] #guide-btn, body[data-state="gallery"] #guide-btn, body[data-state="switching"] #guide-btn,
   body[data-state="detail"] #guide-btn { opacity: 0 !important; pointer-events: none !important; }
   #guide .row .go { display: none; }
-  #gate-tip { bottom: calc(88px + var(--safe-b, 0px)); font-size: 15px; }
+  /* a link's destination can be a long client name: it wraps inside the screen instead of running off both edges */
+  #gate-tip { bottom: calc(88px + var(--safe-b, 0px)); left: 16px; right: 16px; transform: none; white-space: normal; text-align: center; font-size: 15px; }
 }
 /* a phone held sideways: a full-width bar would eat the short screen, so "? Guide" and "See the work" take the two bottom
    corners, clear of the notch. On the gate "See the work" and the tour stand side by side under the two keys, the same pill,
@@ -104,6 +105,13 @@ body[data-state="gate"] #gate-tip { opacity: 1; }
 }
 `;
 
+// the gate's one line: what the brass key does. A deep link's destination is named (main.js passes it); with a mouse, Enter is offered too (it presses the brass key: experience.onKeyDown); the trailing "or" leads into the two buttons
+export function gateTip(name) {
+  const tip = document.getElementById('gate-tip'); if (!tip) return;
+  const touch = matchMedia('(pointer: coarse)').matches;
+  tip.textContent = `${touch ? 'Tap the brass key' : 'Press the brass key (or Enter)'} to ${name ? `go to ${name}` : 'step in'}, or`;
+}
+
 export function initGuide(xp) {
   const style = document.createElement('style'); style.textContent = CSS; document.head.appendChild(style);
   const btn = document.createElement('button'); btn.id = 'guide-btn'; btn.type = 'button'; btn.className = 'pulse';
@@ -130,8 +138,8 @@ export function initGuide(xp) {
   const tour = document.createElement('button'); tour.id = 'tour-btn'; tour.type = 'button'; tour.textContent = 'Take the 60-second tour';
   tour.addEventListener('click', () => { if (document.body.dataset.state === 'gate') xp.enter({ music: false, direct: 'art4' }); });
   const tip = document.createElement('div'); tip.id = 'gate-tip'; tip.setAttribute('aria-hidden', 'true');
-  tip.textContent = touch ? 'Tap the brass key to step in, or' : 'Press the brass key to step in, or';
   document.body.append(btn, quick, tour, tip, panel);
+  gateTip();
   // closed, the panel is inert: nothing in it can be focused or clicked by keyboard; closing hands focus back to the button
   let open = false; panel.inert = true;
   const show = () => { open = true; panel.inert = false; panel.classList.add('open'); btn.classList.remove('pulse'); panel.querySelector('.quick, .row')?.focus(); };
