@@ -98,7 +98,9 @@ body[data-state="gate"] #gate-tip { opacity: 1; }
 /* big (or zoomed-out) windows: grow with the rest of the HUD (styles.css, --ui); the card's height cap is divided back out of the zoom */
 @media (min-width: 1025px) {
   #guide .card, #guide-btn, #quick-btn { zoom: var(--ui, 1); }
-  #guide .card { width: min(780px, 100%); max-height: calc((100vh - 32px) / var(--ui, 1)); max-height: calc((100dvh - 32px) / var(--ui, 1)); }
+  #guide .card { width: min(780px, 100%); max-height: calc((100vh - 32px) / var(--ui, 1)); }
+  /* the dvh cap sits behind @supports: a line with var() in it is checked only after the cascade, so a browser without dvh would end with no cap at all */
+  @supports (height: 100dvh) { #guide .card { max-height: calc((100dvh - 32px) / var(--ui, 1)); } }
   /* two columns of destinations, so the whole card fits a 16:9 window without scrolling */
   #guide .rows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   #guide .rows .row { margin: 0; }

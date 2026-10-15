@@ -474,7 +474,7 @@ a.detail-3d.detail-ghost:hover, a.detail-3d.detail-ghost:focus-visible { backgro
   /* the small closers (story card, discoveries list, an object's panel): an invisible 44 px square centred on the x */
   .st-close, .dl-close { position: relative; }
   .st-close::before, .dl-close::before, .sp-close::before { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
-  /* the About and Contact links (Résumé among them): 9 px around each, so neighbours and wrapped rows still meet inside the 18 px gap (the project page's own row under the strip already stands 44 px tall) */
+  /* the About and Contact links (Résumé among them): 9 px around each, so neighbours and wrapped rows still meet inside the 18 px gap (not the project page's own row under the strip: its rows stand only 4 px apart) */
   #spatial .contact-links a { position: relative; }
   #spatial .contact-links a::before { content: ""; position: absolute; inset: -9px; }
   /* the story's buttons and the timeline's rows stand a thumb tall */
