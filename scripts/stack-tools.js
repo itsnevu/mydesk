@@ -472,6 +472,9 @@ export const TOOLBOX_CSS = `
 .tl-dlg .pf-tdx-i { font-size: 22px; } .tl-dlg .pf-tdx-i .tool-i { opacity: 1; }
 .tl-dlg[open] .pf-tdx:not([hidden]) { animation: pf-tdx-in 0.45s var(--ease); }
 html.dlg-open { overflow: hidden; }
+/* (on a phone the names wrap: the meter and the dot follow the last word instead of standing at the far edge) */
+@media (max-width: 560px) { .st-col li:has(.st-tool) { font-size: 19px; } .st-tool { display: block; } .st-tool .tool-i { display: inline-block; vertical-align: -0.12em; margin-right: 0.35em; } .st-tool .tool-i--txt { display: inline-grid; vertical-align: middle; margin: -0.2em 6px 0 0; } .st-tool .tool-i--wide { width: 1.5em; height: 1em; margin: 0 0.3em 0 0; vertical-align: -0.12em; } .st-tool span { display: inline; } .st-tool .pf-u { display: inline-flex; margin-left: 0.4em; vertical-align: 0.05em; } .st-tool.is-now::after { display: inline-block; margin-left: 0.35em; vertical-align: 0.35em; transform: none; } }
+@media (max-width: 400px) { .st-col li:has(.st-tool) { font-size: 17.5px; } }
 @media (prefers-reduced-motion: reduce) { .tl-dlg[open] .pf-tdx:not([hidden]) { animation: none; } }
 .motion-off .tl-dlg[open] .pf-tdx:not([hidden]) { animation: none; }
 `;
