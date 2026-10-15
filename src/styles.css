@@ -564,17 +564,19 @@ body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1
 @keyframes like-pop { 0% { transform: scale(1); } 35% { transform: scale(1.45); } 100% { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { #like-btn.pop svg { animation: none; } }
 @media (min-width: 1025px) { #like-btn { zoom: var(--ui, 1); } }
-/* a phone: the row above "? Guide" and the sound toggle, on the right; it steps aside with the guide button while something
-   else owns the screen (an object's sheet, a world, a project page) */
+/* a phone: the row above "? Guide", on the left (WhatsApp holds the right end of that row, over the sound toggle); it steps aside
+   with the guide button while something else owns the screen (an object's sheet, a world, a project page), in the overview (its
+   name card docks in this corner) and while the hints bar lies over the row */
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
-  #like-btn { right: 20px; bottom: calc(136px + var(--safe-b)); font-size: 12px; }
+  #like-btn { left: 20px; right: auto; bottom: calc(136px + var(--safe-b)); font-size: 12px; }
   #like-btn svg { width: 15px; height: 15px; }
   #like-btn::before { content: ""; position: absolute; inset: -15px -10px; }
   body[data-state="focus"] #like-btn, body[data-state="project"] #like-btn, body[data-state="gallery"] #like-btn,
-  body[data-state="switching"] #like-btn, body[data-state="detail"] #like-btn { opacity: 0 !important; pointer-events: none !important; }
+  body[data-state="switching"] #like-btn, body[data-state="detail"] #like-btn, body[data-state="overview"] #like-btn,
+  body.hints-on #like-btn { opacity: 0 !important; pointer-events: none !important; }
 }
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
-  #like-btn { right: calc(20px + var(--safe-r)); bottom: calc(118px + var(--safe-b)); }
+  #like-btn { left: auto; right: calc(20px + var(--safe-r)); bottom: calc(118px + var(--safe-b)); }
 }
 
 /* the project page's screenshots: the window and its phone stand together, the other pages sit in a row under them */
