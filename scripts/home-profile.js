@@ -693,6 +693,13 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 @media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { grid-column: auto; } .pf-feat:nth-child(3) > a { grid-template-columns: none; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
 @media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
+/* on a phone: the small uppercase labels get a floor, and "View all" / the expand button a 44 px tall touch area with the same look */
+@media (max-width: 640px) {
+  .pf-meta, .pf-svc-p a, .pf-reel-hint, .pf-reel-pause, .pf-num span, .pf-stage-top, .pf-banner-go { font-size: 12.5px; }
+  .pf-h sup, .pf-pj-st, .pf-proc-n { font-size: 12px; }
+  .pf-all { min-height: 44px; margin: -8px 0; }
+}
+@media (pointer: coarse) { .pf-banner-go, .pf-reel-pause { height: 44px; min-width: 44px; justify-content: center; } }
 .motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 

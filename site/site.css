@@ -1483,7 +1483,7 @@ html[lang="zh-Hans"] .roll .ch { letter-spacing: 0.04em; }
 html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at { letter-spacing: 0.04em; }
 /* the brief: WhatsApp first, email as the quieter second */
 .brief-send { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
-@media (max-width: 900px) { .story-grid { grid-template-columns: 1fr; } .arch-svg .am text { font-size: 18px; } .arch-say { font-size: 17px; } }
+@media (max-width: 900px) { .story-grid { grid-template-columns: 1fr; } .arch-say { font-size: 17px; } }
 @media (prefers-reduced-motion: reduce), print { .arch-svg .al.on, .arch-svg.lit .al--db { animation: none; } }
 
 /* ---------- the CV page: one column of facts beside a narrow one of contact and skills; on paper, white, no chrome */
@@ -1587,3 +1587,29 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .p-grid > .p-actions { grid-column: 1 / 8; grid-row: 2; align-self: start; margin-top: 0; }
 .p-grid > .p-meta { grid-row: 1 / span 2; align-self: start; }
 @media (max-width: 900px) { .p-grid > .p-lead, .p-grid > .p-actions, .p-grid > .p-meta { grid-column: 1 / 13; grid-row: auto; } }
+
+/* ---------- 2026-10-16, the phone pass on the project pages (scripts/site.js archSection, projectPage) */
+/* GodPlan's diagram is drawn twice in one <svg>: wide above 900 px, standing at or below it (its height in --tall, set by site.js) */
+.arch-svg { aspect-ratio: 960 / 400; }
+.arch-svg > .arch-tall { display: none; }
+.arch-svg .am text { pointer-events: none; }
+@media (max-width: 900px) {
+  .arch-svg { aspect-ratio: 360 / var(--tall, 560); max-width: 520px; }
+  .arch-svg > .arch-wide { display: none; }
+  .arch-svg > .arch-tall { display: inline; }
+  .arch-svg .arch-tall .am text { font-size: 15px; }
+  .arch-svg .arch-tall .an .at { font-size: 17px; }
+  .arch-svg .arch-tall .an .as { font-size: 13px; }
+  .arch-svg .arch-tall .an--ship .at, .arch-svg .arch-tall .an--ui .at { font-size: 16px; }
+  .arch-svg .arch-tall .an--ship .as, .arch-svg .arch-tall .an--ui .as { font-size: 12.5px; }
+  /* the modules share one spine down to the API: a lit module's path alone stays, so it reads as one line */
+  .arch-svg.lit .arch-tall .al[data-mod]:not(.on) { opacity: 0; }
+  .arch-fig { max-width: 520px; }
+  .arch-say { min-height: 4.4em; }
+}
+/* a project hero's phone shot on a phone-width screen: small enough, and moving little enough with the scroll, to stay inside the
+   figure's clip (the reveal leaves 30 % around the frame; the covers are about 2.2 : 1, so the frame is short) */
+@media (max-width: 560px) {
+  .phone { width: clamp(72px, 22vw, 104px); bottom: -20px; border-width: 3px; border-radius: 14px; }
+  .p-hero .phone { transform: translate3d(0, calc((var(--ph, 0.5) - 0.5) * -40px), 0); }
+}

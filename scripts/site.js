@@ -753,29 +753,78 @@ function storySection(p) {
 
 // ---------- the architecture of GodPlan ERP, as a diagram the pointer can question: hover a module and its path to the API and
 // the database lights, with a line that says what travels. Inline SVG, nothing fetched. The words are in i18n.js (arch).
+// Two drawings in one <svg>: the wide one above 900 px, a standing one at or below it (the modules two by two, a spine down to the
+// API, Docker and Next.js under it either side, the database at the foot), because the wide one shrunk to a phone left its words at
+// six pixels. site/site.js lights every [data-mod] inside the outer <svg>, so both answer the same pointer and keys; CSS shows one.
+// A line too long for its box breaks in two (a CJK character is about 1 em wide, a Latin letter about half; caps a little more).
+const archWid = (s, em) => [...s].reduce((n, ch) => n + (/[\u2e80-\uffef]/.test(ch) ? 1 : em), 0);
+function archWrap(s, maxEm, em = 0.52) {
+  if (archWid(s, em) <= maxEm) return [s];
+  const tok = s.match(/[A-Za-z0-9.+#'-]+|\s+|./gu) || [s];
+  let line = '';
+  for (let i = 0; i < tok.length; i++) {
+    if (/^[\uff0c\u3002\u3001\uff1b\uff1a\uff01\uff1f\uff09]/.test(tok[i])) { line += tok[i]; continue; }   // (CJK punctuation ends a line, never starts one)
+    if (line.trim() && archWid(line + tok[i], em) > maxEm) return [line.trim(), tok.slice(i).join('').trim()];
+    line += tok[i];
+  }
+  return [s];
+}
+// a module: its name in one or two rows, centred in its box (the name is the button's label either way)
+const archMod = ([k, label], x, y, w, h, fs) => {
+  const ls = archWrap(label, (w - 14) / fs, 0.56);
+  return `<g class="am" data-mod="${k}" tabindex="0" role="button" aria-label="${esc(label)}" aria-describedby="arch-say" transform="translate(${x}, ${y})"><rect width="${w}" height="${h}" rx="8"/>${ls.map((l, j) => `<text x="${w / 2}" y="${(h / 2 + fs * 0.34 + (j - (ls.length - 1) / 2) * (fs + 3)).toFixed(1)}" text-anchor="middle" aria-hidden="true">${esc(l)}</text>`).join('')}</g>`;
+};
+// a part (the API, the database, Docker, Next.js): its title and, under it, its line in one or two rows
+const archPart = (cls, x, y, w, h, title, subs, tf, sf) => {
+  const gap = sf + 4, top = (h - (tf + 6 + subs.length * gap)) / 2;
+  return `<g class="an ${cls}" transform="translate(${x}, ${y})"><rect width="${w}" height="${h}" rx="10"/><text x="${w / 2}" y="${(top + tf * 0.8).toFixed(1)}" text-anchor="middle" class="at">${esc(title)}</text>${subs.map((l, j) => `<text x="${w / 2}" y="${(top + tf + 6 + sf * 0.8 + j * gap).toFixed(1)}" text-anchor="middle" class="as">${esc(l)}</text>`).join('')}</g>`;
+};
+function archWide(a, mods) {
+  const W = 960, H = 400, mw = 120, gap = 14, my = 30, mh = 54, apiY = 170, dbY = 300;
+  const mx0 = (W - (mods.length * mw + (mods.length - 1) * gap)) / 2;
+  const cx = (i) => mx0 + i * (mw + gap) + mw / 2;
+  const side = [archWrap(a.shipSub, 164 / 12), archWrap(a.uiSub, 164 / 12)], sh = Math.max(...side.map((x) => x.length)) > 1 ? 74 : 60, sy = apiY + 30 - sh / 2;
+  return `<svg class="arch-wide" viewBox="0 0 ${W} ${H}" width="100%" height="100%" overflow="visible">
+          ${mods.map((m, i) => `<path class="al" data-mod="${m[0]}" d="M${cx(i)} ${my + mh} C ${cx(i)} ${my + mh + 50}, ${W / 2} ${apiY - 40}, ${W / 2} ${apiY}"/>`).join('')}
+          <path class="al al--db" d="M${W / 2} ${apiY + 60} L${W / 2} ${dbY}"/>
+          <path class="al al--ui" d="M${W / 2 + 160} ${apiY + 30} L${W - 210} ${apiY + 30}"/>
+          <path class="al al--ship" d="M${W / 2 - 160} ${apiY + 30} L${210} ${apiY + 30}"/>
+          ${mods.map((m, i) => archMod(m, mx0 + i * (mw + gap), my, mw, mh, 15)).join('')}
+          ${archPart('an--api', W / 2 - 160, apiY, 320, 60, a.api, archWrap(a.apiSub, 304 / 12), 17, 12)}
+          ${archPart('an--db', W / 2 - 150, dbY, 300, 60, 'PostgreSQL', archWrap(a.dbSub, 284 / 12), 17, 12)}
+          ${archPart('an--ui', W - 210, sy, 180, sh, a.ui, side[1], 17, 12)}
+          ${archPart('an--ship', 30, sy, 180, sh, 'Docker', side[0], 17, 12)}
+        </svg>`;
+}
+function archTall(a, mods) {
+  const W = 360, mw = 160, mh = 46, colX = [14, 186], rowY = (r) => 2 + r * 56, spine = 180;
+  const apiY = rowY(Math.ceil(mods.length / 2)) + 26, apiH = 62;
+  const side = [archWrap(a.shipSub, 144 / 12.5), archWrap(a.uiSub, 144 / 12.5)], sh = Math.max(...side.map((x) => x.length)) > 1 ? 78 : 62;
+  const sideY = apiY + apiH + 40, dbY = sideY + sh + 40, H = dbY + 64;
+  return `<svg class="arch-tall" viewBox="0 0 ${W} ${H}" width="100%" height="100%" overflow="visible">
+          ${mods.map(([k], i) => `<path class="al" data-mod="${k}" d="M${i % 2 ? colX[1] : colX[0] + mw} ${rowY(Math.floor(i / 2)) + mh / 2} H${spine} V${apiY}"/>`).join('')}
+          <path class="al al--db" d="M${spine} ${apiY + apiH} V${dbY}"/>
+          <path class="al al--ship" d="M${colX[0] + mw / 2} ${apiY + apiH} V${sideY}"/>
+          <path class="al al--ui" d="M${colX[1] + mw / 2} ${apiY + apiH} V${sideY}"/>
+          ${mods.map((m, i) => archMod(m, colX[i % 2], rowY(Math.floor(i / 2)), mw, mh, 15)).join('')}
+          ${archPart('an--api', 30, apiY, 300, apiH, a.api, archWrap(a.apiSub, 284 / 13), 17, 13)}
+          ${archPart('an--ship', colX[0], sideY, mw, sh, 'Docker', side[0], 16, 12.5)}
+          ${archPart('an--ui', colX[1], sideY, mw, sh, a.ui, side[1], 16, 12.5)}
+          ${archPart('an--db', 30, dbY, 300, 62, 'PostgreSQL', archWrap(a.dbSub, 284 / 13), 17, 13)}
+        </svg>`;
+}
 function archSection(p) {
   if (p.key !== 'godplan-erp') return '';
   const a = t('arch');
   const mods = a.modules;   // [[key, label, note], ...]
-  const W = 960, H = 400, mw = 120, gap = 14, my = 30, mh = 54, apiY = 170, dbY = 300;
-  const mx0 = (W - (mods.length * mw + (mods.length - 1) * gap)) / 2;
-  const cx = (i) => mx0 + i * (mw + gap) + mw / 2;
-  const modsSvg = mods.map(([k, label], i) => `<g class="am" data-mod="${k}" tabindex="0" role="button" aria-describedby="arch-say" transform="translate(${mx0 + i * (mw + gap)}, ${my})"><rect width="${mw}" height="${mh}" rx="8"/><text x="${mw / 2}" y="${mh / 2 + 5}" text-anchor="middle">${esc(label)}</text></g>`).join('');
-  const lines = mods.map((m, i) => `<path class="al" data-mod="${m[0]}" d="M${cx(i)} ${my + mh} C ${cx(i)} ${my + mh + 50}, ${W / 2} ${apiY - 40}, ${W / 2} ${apiY}"/>`).join('');
+  const tallH = (() => { const m = archTall(a, mods).match(/viewBox="0 0 360 (\d+(?:\.\d+)?)"/); return m ? +m[1] : 560; })();
   return `<section class="arch wrap" aria-labelledby="arch-h">
       <div class="inside-head"><div data-reveal>${kick(a.kick)}</div><h2 class="serif-h" id="arch-h" data-split>${splitPair(a.title, a.em)}</h2></div>
       <p class="arch-lead" data-reveal>${esc(a.lead)}</p>
-      <figure class="arch-fig" data-reveal>
-        <svg class="arch-svg" viewBox="0 0 ${W} ${H}" role="group" aria-label="${esc(a.aria)}">
-          ${lines}
-          <path class="al al--db" d="M${W / 2} ${apiY + 60} L${W / 2} ${dbY}"/>
-          <path class="al al--ui" d="M${W / 2 + 160} ${apiY + 30} L${W - 210} ${apiY + 30}"/>
-          <path class="al al--ship" d="M${W / 2 - 160} ${apiY + 30} L${210} ${apiY + 30}"/>
-          ${modsSvg}
-          <g class="an an--api" transform="translate(${W / 2 - 160}, ${apiY})"><rect width="320" height="60" rx="10"/><text x="160" y="26" text-anchor="middle" class="at">${esc(a.api)}</text><text x="160" y="46" text-anchor="middle" class="as">${esc(a.apiSub)}</text></g>
-          <g class="an an--db" transform="translate(${W / 2 - 120}, ${dbY})"><rect width="240" height="60" rx="10"/><text x="120" y="26" text-anchor="middle" class="at">PostgreSQL</text><text x="120" y="46" text-anchor="middle" class="as">${esc(a.dbSub)}</text></g>
-          <g class="an an--ui" transform="translate(${W - 210}, ${apiY})"><rect width="180" height="60" rx="10"/><text x="90" y="26" text-anchor="middle" class="at">${esc(a.ui)}</text><text x="90" y="46" text-anchor="middle" class="as">${esc(a.uiSub)}</text></g>
-          <g class="an an--ship" transform="translate(30, ${apiY})"><rect width="180" height="60" rx="10"/><text x="90" y="26" text-anchor="middle" class="at">Docker</text><text x="90" y="46" text-anchor="middle" class="as">${esc(a.shipSub)}</text></g>
+      <figure class="arch-fig" data-reveal style="--tall:${tallH}">
+        <svg class="arch-svg" role="group" aria-label="${esc(a.aria)}">
+        ${archWide(a, mods)}
+        ${archTall(a, mods)}
         </svg>
         <figcaption class="arch-say" id="arch-say" aria-live="polite" data-idle="${esc(a.idle)}">${esc(a.idle)}</figcaption>
       </figure>
