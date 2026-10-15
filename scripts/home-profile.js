@@ -143,8 +143,10 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     return [y ? `${y} ${W.dur.y}` : '', mo ? `${mo} ${W.dur.m}` : ''].filter(Boolean).join(' ') || `1 ${W.dur.m}`;
   };
   const logoFile = (m) => m.logo && (m.logo.includes('.') ? m.logo : `${m.logo}.webp`);
+  // a logo as the home draws it, a mask: its small alpha-only copy when scripts/thumbs.py made one (<name>-mask.webp), else the original
+  const logoUrl = (f) => { const k = f.replace(/.[a-z]+$/, '-mask.webp'); return `/site/logos/${exists(`site/logos/${k}`) ? k : f}`; };
   // (`big` lets a fine-lined mark fill more of its circle, or it reads as a smudge at 44 px)
-  const avatar = (m) => logoFile(m) && exists(`site/logos/${logoFile(m)}`) ? `<i class="pf-av pf-av--m" style="--m:url(/site/logos/${logoFile(m)})${m.big ? ';--ms:92%' : ''}" aria-hidden="true"></i>` : `<i class="pf-av" aria-hidden="true">${esc(m.mono || '')}</i>`;
+  const avatar = (m) => logoFile(m) && exists(`site/logos/${logoFile(m)}`) ? `<i class="pf-av pf-av--m" style="--m:url(${logoUrl(logoFile(m))})${m.big ? ';--ms:92%' : ''}" aria-hidden="true"></i>` : `<i class="pf-av" aria-hidden="true">${esc(m.mono || '')}</i>`;
   const rowPath = (r, m, i, open = false) => `<li class="pf-row pf-exp${m.from && m.to === null ? ' pf-row--now' : ''}${open ? ' open' : ''}" style="--i:${i}">
       ${m.from && m.to === null ? '<i class="pf-pulse" aria-hidden="true"></i>' : ''}${avatar(m)}
       <div class="pf-body">
@@ -190,9 +192,9 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
     ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
-    : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(/site/logos/${c.key}.webp)"><img src="/site/logos/${c.key}.webp" alt="" loading="lazy" decoding="async"></span></a>`;
+    : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(${logoUrl(`${c.key}.webp`)})"><img src="${logoUrl(`${c.key}.webp`)}" alt="" loading="lazy" decoding="async"></span></a>`;
   const marq = clients.filter((c) => !c.word && exists(`site/logos/${c.key}.webp`));
-  const marquee = marq.length > 5 ? `<div class="pf-marq" aria-hidden="true"><div class="pf-marq-t">${[...marq, ...marq].map((c) => `<i class="pf-marq-i" style="--m:url(/site/logos/${c.key}.webp)"></i>`).join('')}</div></div>` : '';
+  const marquee = marq.length > 5 ? `<div class="pf-marq" aria-hidden="true"><div class="pf-marq-t">${[...marq, ...marq].map((c) => `<i class="pf-marq-i" style="--m:url(${logoUrl(`${c.key}.webp`)})"></i>`).join('')}</div></div>` : '';
   const cvHref = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href || '';
   const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
   const social = SOCIAL.map(([label, slug]) => {
