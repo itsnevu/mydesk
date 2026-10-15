@@ -370,8 +370,6 @@ body.menu-open { overflow: hidden; }
 @media (max-width: 359px) { .head-in > .lang { display: none; } }
 /* pages outside the two readings show all three pills (head--3): under 400 px those drop the header's languages too, the menu keeps them */
 @media (max-width: 399px) { .head--3 .head-in > .lang { display: none; } }
-/* between a phone and a wide screen the hero's status line (left) and the rotating "Navy builds" (centre) would meet: the rotation sits out */
-@media (min-width: 901px) and (max-width: 1240px) { .hero-rot { display: none; } }
 
 /* ---------- hero: the sentence on the left, the picture in the dark on the right, one word that keeps changing at the bottom.
    As the page moves (--q, 0 to 1) the sentence lifts away and the picture sinks and grows */
@@ -402,6 +400,11 @@ body.menu-open { overflow: hidden; }
 .hero-title em { display: inline-block; padding-right: 0.06em; color: var(--ink); font-size: 1.16em; }
 .hero-rot { position: absolute; left: 50%; bottom: clamp(26px, 5vh, 52px); transform: translateX(-50%); display: flex; align-items: baseline; gap: 14px; white-space: nowrap; opacity: calc(1 - var(--q, 0) * 3); }
 .hero-rot .lbl { color: var(--dim); }
+/* (between a phone and a wide screen the status line, left, and the rotating "Navy builds", centre, would meet: the rotation sits out;
+   this has to come after .hero-rot above, whose display: flex would otherwise put it back) */
+@media (min-width: 901px) and (max-width: 1240px) { .hero-rot { display: none; } }
+/* (the Indonesian status line is longer: the two would meet, or nearly, up to 1500 px) */
+@media (min-width: 901px) and (max-width: 1500px) { html[lang="id"] .hero-rot { display: none; } }
 .rot { position: relative; display: inline-block; height: 1.2em; overflow: hidden; font: italic 400 clamp(22px, 1.9vw, 30px)/1.2 var(--serif); color: var(--ink); vertical-align: bottom; }
 .rot-t { display: flex; flex-direction: column; animation: rot 15s var(--ease-io) infinite; }
 .rot-t span { height: 1.3em; }
