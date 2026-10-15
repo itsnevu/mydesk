@@ -106,7 +106,7 @@ WORDS.zh = {
 const CHIP_LINK = { 'GodPlan ERP': 'godplan-erp', JAKASN: 'jakasn' };
 const CHIP_T = {
   en: { TK: 'Kindergarten', SD: 'Primary school', SMP: 'Junior high', SMA: 'Senior high' },
-  id: { 'GPA 3.71': 'IPK 3.71', 'Teaching assistant': 'Asisten dosen', 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
+  id: { 'GPA 3.71': 'IPK 3.71', 'Teaching assistant': 'Asisten dosen', 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp', 'REST APIs': 'REST API', 'Smart contracts': 'Smart contract', 'Design patterns': 'Design pattern' },
   zh: { 'GPA 3.71': '绩点 3.71', 'Teaching assistant': '助教',
     Hardware: '硬件', '341 laptops': '341 台笔记本', 'Field work': '现场工作', 'Competitive programming': '算法竞赛', 'Design patterns': '设计模式',
     TK: '幼儿园', SD: '小学', SMP: '初中', SMA: '高中', 'REST APIs': 'REST API', 'Custom themes': '定制主题', 'Smart contracts': '智能合约',
@@ -136,7 +136,7 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', kindEn = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   // the home's four steps in a business owner's words (the same four stages as /full/ and the desk; /full/ keeps CONTENT.process)
   const steps = W.steps || given;
@@ -180,9 +180,10 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     return `<span>${esc(status(p))}</span>`;
   };
   // what kind of build a project is (site.js: the /work/ filter's word, in the singular), before its trade; the stack chip never
-  // repeats it (stackOf: site.js, the words translated)
+  // repeats it (stackOf: site.js, the words translated), compared on the English words too: a stack word and the kind can be
+  // translated differently, as 'build custom' and 'Aplikasi custom' are
   const kindTag = (p) => { const k = kind(p); return k ? `<span class="pf-kind">${esc(k)}</span><i>·</i>` : ''; };
-  const stk = (p) => { const k = String(kind(p) || '').toLowerCase(); return (p.stack ? stackOf(p) : '').split(' · ').filter((x) => x && x.toLowerCase() !== k).slice(0, 2).join(' · '); };
+  const stk = (p) => { const k = String(kind(p) || '').toLowerCase(), ke = String(kindEn(p) || '').toLowerCase(), en = String(p.stack || '').split(' · '); return (p.stack ? stackOf(p) : '').split(' · ').filter((x, i) => x && x.toLowerCase() !== k && (en[i] || '').toLowerCase() !== ke).slice(0, 2).join(' · '); };
   const sm = (rel, w) => { const x = rel.replace(/\.webp$/, `-${w}.webp`); return x !== rel && exists(x) ? x : null; };
   const cover = (rel, sizes, w, h) => { const set = [[sm(rel, 384), 384], [sm(rel, 800), 800]].filter(([x]) => x).map(([x, n]) => `/${x} ${n}w`).join(', '); return `<img src="/${rel}"${set ? ` srcset="${set}" sizes="${sizes}"` : ''} alt="" loading="lazy" decoding="async" width="${w}" height="${h}">`; };
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
@@ -211,7 +212,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const social = SOCIAL.map(([label, slug]) => {
     const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
     return `<a class="pf-soc" href="${esc(l.href)}" target="_blank" rel="noopener" title="${esc(label)}" aria-label="${esc(label)}" data-track="contact_click" data-channel="${esc(label)}">${exists(`site/tools/${slug}.svg`) ? mark(slug) : esc(label[0])}</a>`;
-  }).join('') + `<a class="pf-soc pf-soc--w" href="${u('/cv/')}" title="CV">${I.doc}<span>CV</span></a>`;
+  }).join('') + `<a class="pf-soc pf-soc--w" href="${u('/cv/')}" title="${esc(W.tabs.cv)}">${I.doc}<span>${esc(W.tabs.cv)}</span></a>`;
   const sec = (title, n, extra = '', id = '') => `<div class="pf-h"><h2${id ? ` id="${id}"` : ''}><em>${esc(title)}</em><sup>(${n})</sup></h2>${extra}</div>`;
   // the stack: how often each tool shows up in the work (GitHub and the shipped projects), and what was done with it (scripts/stack-tools.js)
   const toolIcon = (t) => { const s = TOOL_MARK[t]; return s && exists(`site/tools/${s}.svg`) ? mark(s) : ''; };

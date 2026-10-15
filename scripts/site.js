@@ -941,7 +941,8 @@ function projectPage(D, ctx, p) {
     : { title: t('pwaTitle', { t: p.title }), msg: `${t('waSimilar', { t: p.title })} ${ORIGIN}${u(`/work/${p.key}/`)}`, from: 'project-band', project: p.key });
   const pathname = `/work/${p.key}/`;
 
-  const ld = { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: desc, url: `${ORIGIN}${u(pathname)}`, inLanguage: L.html, creator: { '@id': PERSON_ID }, ...(p.year ? { dateCreated: String(p.year) } : {}), keywords: p.stack.split(' · ').join(', '), ...(p.url && !p.now ? { sameAs: p.url } : {}), ...(m.cover ? { image: `${ORIGIN}/${m.cover}` } : {}) };
+  // the project for search engines: its own @id (the /work/ list names the same node), Navy named as its creator (his full entry lives on the home), its live address as sameAs only while that address still serves this site
+  const ld = { '@context': 'https://schema.org', '@type': 'CreativeWork', '@id': `${ORIGIN}${u(pathname)}#work`, name: p.title, description: desc, url: `${ORIGIN}${u(pathname)}`, inLanguage: L.html, creator: { '@type': 'Person', '@id': PERSON_ID, name: 'Navy Gibran', url: `${ORIGIN}/` }, ...(p.year ? { dateCreated: String(p.year) } : {}), keywords: p.stack.split(' · ').join(', '), ...(p.url && !p.now && p.date !== 'previous design' ? { sameAs: p.url } : {}), ...(m.cover ? { image: `${ORIGIN}/${m.cover}` } : {}) };
   // where the page sits, for search results: the portfolio, then this project
   const crumbs = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Navy Gibran', item: `${ORIGIN}${u('/')}` },
@@ -953,7 +954,7 @@ function projectPage(D, ctx, p) {
     description: metaDesc,
     pathname, css: ctx.css,
     image: exists(`site/og/${p.key}.jpg`) ? `${ORIGIN}/site/og/${p.key}.jpg` : undefined, imageAlt: t('ogProjectAlt', { t: p.title }), theme: tint(p).bg,
-    extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n<script type="application/ld+json">${JSON.stringify(crumbs)}</script>\n`,
+    extra: `${ldScript(ld)}\n${ldScript(crumbs)}\n`,
   }) + `
 <body class="project" data-project="${p.key}" data-prev="${u(`/work/${prev.key}/`)}" data-prev-bg="${tint(prev).bg}" data-prev-name="${esc(prev.title)}" data-next="${u(`/work/${next.key}/`)}" data-next-bg="${tint(next).bg}" data-next-name="${esc(next.title)}" style="--acc:${tint(p).acc};--bgc:${tint(p).bg}">
 ${header('work', pathname)}
@@ -1014,7 +1015,7 @@ function archivePage(D, ctx) {
     </a></li>`;
   }).join('');
   const ld = { '@context': 'https://schema.org', '@graph': [
-    { '@type': 'CollectionPage', '@id': `${ORIGIN}${u('/work/')}#page`, name: t('t_work'), url: `${ORIGIN}${u('/work/')}`, inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, hasPart: list.map((p) => ({ '@type': 'CreativeWork', name: p.title, url: `${ORIGIN}${u(`/work/${p.key}/`)}` })) },
+    { '@type': 'CollectionPage', '@id': `${ORIGIN}${u('/work/')}#page`, name: t('t_work'), url: `${ORIGIN}${u('/work/')}`, inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, hasPart: list.map((p) => ({ '@type': 'CreativeWork', '@id': `${ORIGIN}${u(`/work/${p.key}/`)}#work`, name: p.title, url: `${ORIGIN}${u(`/work/${p.key}/`)}` })) },
     { '@type': 'BreadcrumbList', itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Navy Gibran', item: `${ORIGIN}${u('/')}` },
       { '@type': 'ListItem', position: 2, name: t('m_work'), item: `${ORIGIN}${u('/work/')}` },
@@ -1195,7 +1196,7 @@ function typeset(html) {
 // ---------- the intro (once a visit, on the home): posters of the work, the mark, the name; then the gate, two doors, Simple (this
 // page) or Full (the story at /full/). The page script shows the gate once the name has played and skips it once a reading has been
 // chosen; the choice is remembered (nv-view), the header's switch changes it
-function introHtml(D) {
+function introHtml(D, faceSet = '', faceSizes = '') {
   const posters = ['godplan-erp', 'godjah-studio', 'winfaith', 'flora-indonesia', 'fls-group-indonesia', 'dams-garage'].filter((k) => exists(`site/intro/${k}.webp`));
   const deskShot = exists('site/desk-wide-800.webp') ? 'site/desk-wide-800.webp' : exists('site/desk-wide.webp') ? 'site/desk-wide.webp' : 'og.png';
   return `<div class="intro" id="intro">
@@ -1205,7 +1206,7 @@ function introHtml(D) {
     <span class="kick">${esc(t('gateKick'))}</span>
     <h2 class="intro-gate-t" id="intro-gate-t">${esc(t('gateTitle'))}</h2>
     <div class="intro-doors">
-      <button class="intro-door" type="button" data-view="simple"><span class="door-pic door-pic--simple" aria-hidden="true"><i class="door-face">${exists('site/portrait.webp') ? '<img src="/site/portrait.webp" alt="" width="640" height="800" loading="lazy" decoding="async">' : ''}</i><i class="door-line door-line--1"></i><i class="door-line door-line--2"></i><i class="door-line door-line--3"></i><i class="door-rows"><b></b><b></b><b></b></i></span><b class="door-t">${esc(t('gateSimple'))}</b><small class="door-s">${esc(t('gateSimpleSub'))}</small></button>
+      <button class="intro-door" type="button" data-view="simple"><span class="door-pic door-pic--simple" aria-hidden="true"><i class="door-face">${exists('site/portrait.webp') ? `<img src="/site/portrait.webp"${faceSet.includes('portrait-240') ? ` srcset="${faceSet}" sizes="${faceSizes}"` : ''} alt="" width="640" height="800" loading="lazy" decoding="async">` : ''}</i><i class="door-line door-line--1"></i><i class="door-line door-line--2"></i><i class="door-line door-line--3"></i><i class="door-rows"><b></b><b></b><b></b></i></span><b class="door-t">${esc(t('gateSimple'))}</b><small class="door-s">${esc(t('gateSimpleSub'))}</small></button>
       <a class="intro-door" href="${u('/full/')}" data-view="full"><span class="door-pic door-pic--full" aria-hidden="true"><img src="/${deskShot}" alt="" width="800" height="450" loading="lazy" decoding="async"><i class="door-cap"><b>Navy</b><b>Gibran</b></i></span><b class="door-t">${esc(t('gateFull'))}</b><small class="door-s">${esc(t('gateFullSub'))}</small></a>
     </div>
     <p class="intro-gate-hint">${esc(t('gateHint'))} <a href="/3d/" data-track="3d_cta_click" data-from="gate">${esc(t('gate3d'))} ${arrow}</a></p>
@@ -1221,16 +1222,19 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: clientName(c), word: c.word || null }));
-  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf, roll, kind: (p) => (t('kindOne') || {})[kindOf(p)] || '', faq: { title: Cn.faqTitle || '', items: Cn.faq || [] },
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf, roll, kind: (p) => (t('kindOne') || {})[kindOf(p)] || '', kindEn: (p) => (UI.en.kindOne || {})[kindOf(p)] || '', faq: { title: Cn.faqTitle || '', items: Cn.faq || [] },
     services: (Cn.territories || CONTENT.en.territories).map((x, i) => ({ title: x.title, body: x.body, items: x.items || [], also: TERRITORIES[i]?.also || '', proof: (TERRITORIES[i]?.proof || []).map((k) => D.PROJECTS.find((q) => q.key === k)).filter(Boolean).map((q) => ({ key: q.key, title: q.title })) })),
     process: Cn.process || CONTENT.en.process });
   const set = (list) => list.filter(([f]) => exists(f)).map(([f, w]) => `/${f} ${w}w`).join(', ');
   const bannerSet = set([['site/desk-wide-800.webp', 800], ['site/desk-wide.webp', 1920]]);
   const faceSet = set([['site/portrait-240.webp', 240], ['site/portrait-360.webp', 360], ['site/portrait.webp', 640]]);
+  // (the hero portrait's own sizes in scripts/home-profile.js: its preload and the gate's door take the same srcset and sizes, so all
+  // three resolve to one file in every browser; the door's face is smaller, but the hero's sizes keep the file sharp enough for it)
+  const faceSizes = '(max-width: 480px) 100px, 116px';
   const preload = [
     bannerSet && `<link rel="preload" as="image" href="/site/desk-wide-800.webp" imagesrcset="${bannerSet}" imagesizes="(min-width: 800px) 760px, 100vw" fetchpriority="high">`,
     // (the portrait only by its srcset once the small copies exist; before that, the one file the <img> asks for)
-    faceSet.includes('portrait-240') ? `<link rel="preload" as="image" href="/site/portrait.webp" imagesrcset="${faceSet}" imagesizes="(max-width: 480px) 100px, 116px">` : exists('site/portrait.webp') ? '<link rel="preload" as="image" href="/site/portrait.webp">' : '',
+    faceSet.includes('portrait-240') ? `<link rel="preload" as="image" href="/site/portrait.webp" imagesrcset="${faceSet}" imagesizes="${faceSizes}">` : exists('site/portrait.webp') ? '<link rel="preload" as="image" href="/site/portrait.webp">' : '',
   ].filter(Boolean).join('\n');
   const graph = { '@context': 'https://schema.org', '@graph': [
     { '@type': 'WebSite', '@id': `${ORIGIN}/#website`, url: `${ORIGIN}/`, name: 'Navy Gibran', inLanguage: LANG_ORDER.map((l) => LANGS[l].html), publisher: { '@id': PERSON_ID } },
@@ -1239,7 +1243,7 @@ function simplePage(D, ctx) {
   ] };
   return head({ title: t('t_home'), description: t('d_simple', { n: D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length }), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' + ldScript(graph) + '\n' }) + `
 <body class="home home-profile">
-${introHtml(D)}
+${introHtml(D, faceSet, faceSizes)}
 ${header('simple', '/', D)}
 ${main}
 ${footer(D, true)}
