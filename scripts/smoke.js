@@ -5,6 +5,8 @@
 //  2. the world is built the way Experience.init builds it (buildWorld), with a stub canvas and without the Blender assets, through
 //     the same import/export rewrite as scripts/build.js, so it fails exactly where the bundle would.
 // ("target … has no camera stage" warnings are expected here: those stages come from the Blender assets, which aren't loaded.)
+//  1b. the static site (scripts/smoke-site.js): every page renders in memory, and its links, pictures, anchors, ids, languages
+//     and words hold together (no em or en dash, no template leftover).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -38,6 +40,20 @@ for (const [spec, s] of Object.entries(src)) {
 }
 if (problems.length) { for (const p of problems) console.log('FAIL  ' + p); process.exit(1); }
 console.log(`ok    imports: ${Object.keys(src).length} modules, every imported name is exported`);
+
+// ---- 1b. the static site holds together: every page renders, its links, pictures and anchors land, no dash or template
+// leftover in what people read (scripts/smoke-site.js; it runs before the world is built, which stubs browser globals)
+{
+  const { checkSite } = await import('./smoke-site.js');
+  const r = await checkSite(root);
+  for (const n of r.notes) console.log('note  ' + n);
+  if (r.problems.length) {
+    for (const p of r.problems.slice(0, 40)) console.log('FAIL  ' + p);
+    if (r.problems.length > 40) console.log(`FAIL  ... and ${r.problems.length - 40} more`);
+    process.exit(1);
+  }
+  console.log(`ok    site: ${r.pages} pages, ${r.links} internal links, ${r.anchors} anchors and references, nothing broken`);
+}
 
 // ---- 2. build the world in Node
 const ctx2d = new Proxy({}, { get: (t, k) => {
