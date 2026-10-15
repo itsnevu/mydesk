@@ -120,7 +120,7 @@
   };
   if (smooth) {
     addEventListener('wheel', (e) => {
-      if (e.ctrlKey || locked || e.defaultPrevented || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      if (e.ctrlKey || locked || e.defaultPrevented || Math.abs(e.deltaX) > Math.abs(e.deltaY) || document.querySelector('dialog[open]')) return;
       e.preventDefault();
       const d = e.deltaY * (e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? innerHeight : 1);
       if (!gliding) current = scrollY;

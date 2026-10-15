@@ -14,7 +14,7 @@ import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
 import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
-import { STACK } from './stack-tools.js';
+import { STACK, stackModel, toolboxGrid, STACK_CSS, TOOLBOX_CSS, TOOLBOX_JS } from './stack-tools.js';
 import { minifyJS, minifyCSS } from './jsmin.js';
 import vm from 'node:vm';
 import { createHash } from 'node:crypto';
@@ -542,7 +542,8 @@ function home(D, ctx) {
   const diffMine = DIFF.mine.map((s, i) => `<li${i === DIFF.mine.length - 1 ? ' class="is-stack"' : ''}><span class="n">${pad(i + 1)}</span><strong class="diff-step">${esc(s.step)}</strong><span class="diff-body">${esc(s.body)}</span></li>`).join('');
   const how = (C().process || CONTENT.en.process).map((s, i) => `<li style="--i:${i}"><span class="n">${pad(i + 1)}</span><strong>${esc(s.step)}</strong><span>${esc(s.body)}</span></li>`).join('');
   const layers = C().stack || CONTENT.en.stack;
-  const stack = STACK.map((items, i) => `<div class="st-col" style="--i:${i}"><span class="lbl">${esc(layers[i] || CONTENT.en.stack[i])}</span><ul>${items.map((tool) => `<li>${toolMark(tool)}<span>${esc(term(tool))}</span></li>`).join('')}</ul></div>`).join('');
+  // the toolbox: how often each tool shows up in the work and, a click away, what was done with it (scripts/stack-tools.js)
+  const TB = toolboxGrid({ M: stackModel({ D, gh: GH }), lang: LANG, layers: layers.map((x, i) => x || CONTENT.en.stack[i]), name: term, icon: toolMark, u, worlds: WORLDS.length });
   const contactLinks = D.SITE.links.filter((l) => l.label !== 'WhatsApp').map((l, i) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}" style="--i:${i}"><span>${esc(l.label === 'Résumé' ? t('resumePdf') : l.label)}</span>${arrow}</a>`).join('')
     + `<a href="${u('/cv/')}" data-track="contact_click" data-channel="Web CV" style="--i:${D.SITE.links.length}"><span>${esc(t('cv_web'))}</span>${arrowR}</a>`;
   // the desk as a turntable (public/site/turn, rendered from the engine by scripts/turntable.mjs): the teaser scrubs it with the scroll
@@ -559,7 +560,7 @@ function home(D, ctx) {
 
   // (the story lives at /full/: the home itself is the simple page, which carries the intro and the gate; see simplePage)
   return head({
-    title: t('t_full'), description: t('d_home', { n: clientSites.length }), pathname: '/full/', css: ctx.css, imageAlt: t('ogHomeAlt'),
+    title: t('t_full'), description: t('d_home', { n: clientSites.length }), pathname: '/full/', css: ctx.css + STACK_CSS + TOOLBOX_CSS, imageAlt: t('ogHomeAlt'),
     extra: `${heroPreload}\n<script type="application/ld+json">${JSON.stringify(ld)}</script>\n`,
   }) + `
 <body class="home">
@@ -666,10 +667,14 @@ ${header('home', '/full/')}
     <ol class="how" data-stagger data-sec="${esc(t('process'))}">${how}</ol>
     <div class="stack" data-sec="${esc(t('toolbox'))}">
       <div class="stack-head"><h2 class="serif-h" data-split>${splitPair(t('stackTitle'), t('stackEm'))}</h2><div data-reveal>${kick(t('stack'))}</div></div>
-      <div class="stack-grid" data-stagger>${stack}</div>
+      ${TB.lead}
+      ${TB.card}
+      <div class="stack-grid" data-stagger>${TB.cols}</div>
+      ${TB.legend}
     </div>
   </section>
   </div>
+  ${TB.dialog}
 
   <section class="teaser" id="desk" aria-labelledby="desk-h" data-teaser data-scene="teaser" data-hide-tab data-sec="${esc(t('deskSec'))}">
     <div class="teaser-pin">
@@ -718,7 +723,7 @@ ${header('home', '/full/')}
   </section>
 </main>
 ${footer(D)}
-` + tail(ctx.js);
+` + tail(ctx.js + '\n' + TOOLBOX_JS);
 }
 
 // ---------- the case study on a project page: the problem, the approach, the decisions, what comes next (i18n-projects STORY)

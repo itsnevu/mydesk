@@ -235,10 +235,11 @@ const OUT_I = '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M
 const GO_I = '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 
 /**
- * The Stack section of the profile home. `M` is stackModel(); `layers` the row names in the page's language; `name(tool)` a
- * tool's name in it; `icon(tool)` its mark; `u` the language's link maker; `worlds` the number of Labs worlds.
+ * The pieces of the stack any page can show: the words (W), the usage meter, a tool's description (tip), its panel (detail),
+ * the GitHub card, the legend and a layer's tools in order of use. `M` is stackModel(); `name(tool)` a tool's name in the
+ * page's language; `icon(tool)` its mark; `u` the language's link maker; `worlds` the number of Labs worlds.
  */
-export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, sec }) {
+export function stackParts({ M, lang = 'en', name, icon, u, worlds }) {
   const W = { ...STACK_UI.en, ...(STACK_UI[lang] || {}) };
   const TX = (tool) => STACK_TEXT[lang]?.[tool] || STACK_TEXT.en[tool] || ['', ''];
   const nf = new Intl.NumberFormat(W.locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
@@ -254,12 +255,8 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
     return bits.join(' · ');
   };
   const total = STACK.flat().length;
-
-  // a tool's chip: a button that opens what was done with it, under its row
-  const chip = (t, i) => {
-    const x = M.tools[t], s = slugOf(t);
-    return `<button type="button" class="pf-chip pf-tool${x.now ? ' is-now' : ''}" id="pf-tc-${s}" data-tool="${s}" data-u="${x.level}" aria-expanded="false" aria-controls="pf-td-${i}"${tip(t) ? ` title="${esc(tip(t))}" aria-description="${esc(tip(t))}"` : ''} data-track="stack_tool" data-name="${esc(t)}">${icon(t)}<span>${esc(name(t))}</span>${meter(x.level)}</button>`;
-  };
+  // a layer's tools, the most used first
+  const sorted = (items) => items.map((t, k) => [t, k]).sort((a, b) => M.tools[b[0]].places - M.tools[a[0]].places || a[1] - b[1]).map(([t]) => t);
   // what was done with it: the plain words, then the evidence, each with its links
   const detail = (t) => {
     const x = M.tools[t], s = slugOf(t), [what, how] = TX(t);
@@ -295,16 +292,6 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
       ${also ? `<div class="pf-tdx-also">${also}</div>` : ''}
     </article>`;
   };
-  // a row: its tools, the most used first, and the place under them where one opens
-  const row = (items, i) => {
-    const sorted = items.map((t, k) => [t, k]).sort((a, b) => M.tools[b[0]].places - M.tools[a[0]].places || a[1] - b[1]).map(([t]) => t);
-    return `<div class="pf-st" style="--i:${i}">
-      <span class="pf-st-n"><b>${pad(i + 1)}</b>${esc(layers[i] || '')}</span>
-      <div class="pf-chips">${sorted.map((t) => chip(t, i)).join('')}</div>
-      <div class="pf-td" id="pf-td-${i}" inert><div class="pf-td-in">${sorted.map(detail).join('')}</div></div>
-    </div>`;
-  };
-
   // the GitHub card: the languages as one bar (share of his own code), the tools as bars (repositories that use them)
   const L = M.langs;
   const seg = (l, k) => `<i style="--w:${(l.share * 100).toFixed(2)}%;--c:${l.color || 'var(--line-2)'};--k:${k}"></i>`;
@@ -323,7 +310,29 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
       <p class="pf-gh-note">${esc(W.note)}</p>
     </div>` : '';
   const legend = `<div class="pf-st-key" aria-hidden="true"><span class="pf-st-key-t">${esc(W.legend)}</span><span>${meter(1)}${esc(W.l1)}</span><span>${meter(2)}${esc(W.l2)}</span><span>${meter(3)}${esc(W.l3)}</span><span><span class="dot dot--open"></span>${esc(W.now)}</span></div>`;
+  return { W, meter, tip, detail, card, legend, sorted, total };
+}
 
+/**
+ * The Stack section of the profile home: the GitHub card, then the tools by layer as chips, each opening its panel under its row.
+ * `layers` are the row names in the page's language; `sec(n)` draws the heading; the rest as stackParts.
+ */
+export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, sec }) {
+  const { W, meter, tip, detail, card, legend, sorted, total } = stackParts({ M, lang, name, icon, u, worlds });
+  // a tool's chip: a button that opens what was done with it, under its row
+  const chip = (t, i) => {
+    const x = M.tools[t], s = slugOf(t);
+    return `<button type="button" class="pf-chip pf-tool${x.now ? ' is-now' : ''}" id="pf-tc-${s}" data-tool="${s}" data-u="${x.level}" aria-expanded="false" aria-controls="pf-td-${i}"${tip(t) ? ` title="${esc(tip(t))}" aria-description="${esc(tip(t))}"` : ''} data-track="stack_tool" data-name="${esc(t)}">${icon(t)}<span>${esc(name(t))}</span>${meter(x.level)}</button>`;
+  };
+  // a row: its tools, the most used first, and the place under them where one opens
+  const row = (items, i) => {
+    const list = sorted(items);
+    return `<div class="pf-st" style="--i:${i}">
+      <span class="pf-st-n"><b>${pad(i + 1)}</b>${esc(layers[i] || '')}</span>
+      <div class="pf-chips">${list.map((t) => chip(t, i)).join('')}</div>
+      <div class="pf-td" id="pf-td-${i}" inert><div class="pf-td-in">${list.map(detail).join('')}</div></div>
+    </div>`;
+  };
   return `<section class="pf-sec pf-sec--st" id="stack" aria-labelledby="pf-st">
     ${sec(total)}
     <p class="pf-st-lead">${esc(W.lead)}</p>
@@ -331,6 +340,23 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
     <div class="pf-stack" data-stagger>${STACK.map(row).join('')}</div>
     ${legend}
   </section>`;
+}
+
+/**
+ * The toolbox on /full/: each layer a column of buttons (mark, name, meter), the GitHub card above, the legend under, and one
+ * dialog holding every tool's panel (TOOLBOX_JS opens the one asked for). `layers` the column names; `icon` the story's marks.
+ */
+export function toolboxGrid({ M, lang = 'en', layers, name, icon, u, worlds }) {
+  const { W, meter, tip, detail, card, legend, sorted } = stackParts({ M, lang, name, icon, u, worlds });
+  const tool = (t) => {
+    const x = M.tools[t], s = slugOf(t);
+    return `<li><button type="button" class="st-tool${x.now ? ' is-now' : ''}" id="pf-tc-${s}" data-tool-open="${s}" aria-haspopup="dialog" aria-controls="tool-dlg"${tip(t) ? ` title="${esc(tip(t))}" aria-description="${esc(tip(t))}"` : ''} data-track="stack_tool" data-name="${esc(t)}">${icon(t)}<span>${esc(name(t))}</span>${meter(x.level)}</button></li>`;
+  };
+  const cols = STACK.map((items, i) => `<div class="st-col" style="--i:${i}"><span class="lbl">${esc(layers[i] || '')}</span><ul>${sorted(items).map(tool).join('')}</ul></div>`).join('');
+  return {
+    lead: `<p class="stack-lead" data-reveal>${esc(W.lead)}</p>`, card, cols, legend,
+    dialog: `<dialog class="tl-dlg" id="tool-dlg" aria-label="${esc(W.how)}">${STACK.flat().map(detail).join('')}</dialog>`,
+  };
 }
 
 export const STACK_CSS = `
@@ -418,6 +444,61 @@ export const STACK_CSS = `
 @media (max-width: 420px) { .pf-gh-leg { grid-template-columns: 1fr; gap: 0; } .pf-gh-leg li > * { padding: 4px 6px; } }
 @media (prefers-reduced-motion: reduce) { .pf-td, .pf-gh-bar i, .pf-gh-tb i, .pf-tdx::before { transition: none; } .pf-tdx.is-in { animation: none; } }
 .motion-off .pf-td, .motion-off .pf-gh-bar i, .motion-off .pf-gh-tb i { transition: none; } .motion-off .pf-tdx.is-in { animation: none; }
+`;
+
+export const TOOLBOX_CSS = `
+/* ---------- /full/'s toolbox (scripts/stack-tools.js toolboxGrid): on cream, so the dark tokens the card and the meter use are
+   given cream values here; the dialog keeps the dark ones */
+.stack .pf-m, .tl-dlg .pf-m { display: inline-block; width: 15px; height: 15px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+.stack { --ink: var(--cream-ink); --dim: var(--cream-dim); --faint: rgba(23, 18, 12, 0.58); --line: var(--cream-line); --line-2: rgba(23, 18, 12, 0.26); --accent: #8f5418; --accent-2: #8f5418; }
+.stack-lead { max-width: 40em; margin: -12px 0 22px; font-size: clamp(17px, 1.3vw, 20px); line-height: 1.55; color: var(--cream-dim); text-wrap: pretty; }
+.stack .pf-gh { margin-bottom: 30px; background: rgba(23, 18, 12, 0.03); }
+.stack .pf-gh-bar { background: rgba(23, 18, 12, 0.08); }
+.stack .pf-gh-bar i, .stack .pf-gh-dot { filter: saturate(0.9); }
+.stack .pf-gh-leg button:hover, .stack .pf-gh-leg button:focus-visible, .stack .pf-gh-top6 button:hover, .stack .pf-gh-top6 button:focus-visible { background: rgba(23, 18, 12, 0.06); }
+.stack .pf-gh-tb { background: rgba(23, 18, 12, 0.1); }
+.st-tool { display: inline-flex; align-items: center; gap: 0.5em; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.st-tool .pf-u { margin-left: 0.15em; transform: translateY(-0.1em); }
+.st-tool.is-now::after { content: ""; width: 7px; height: 7px; margin-left: 2px; border-radius: 50%; background: #3f9a62; box-shadow: 0 0 0 3px rgba(63, 154, 98, 0.16); align-self: flex-start; transform: translateY(0.35em); }
+.st-col li:has(.st-tool) { transition: color 0.3s, transform 0.45s var(--ease); }
+.st-col li:has(.st-tool:focus-visible) { color: #8f5418; transform: translateX(8px); }
+.stack .pf-st-key { margin-top: 34px; border-top-color: var(--cream-line); color: rgba(23, 18, 12, 0.58); }
+.stack .pf-st-key-t { color: var(--cream-dim); }
+.tl-dlg { --ink: #f1eadb; --dim: rgba(241, 234, 219, 0.68); --faint: rgba(241, 234, 219, 0.52); --line: rgba(241, 234, 219, 0.13); --line-2: rgba(241, 234, 219, 0.24); --accent: #d9a05b; --accent-2: #e8b97a;
+  width: min(660px, calc(100vw - 32px)); max-height: calc(88vh / var(--k, 1)); margin: auto; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible; }
+.tl-dlg::backdrop { background: rgba(9, 8, 6, 0.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.tl-dlg .pf-tdx { margin: 0; max-height: calc(88vh / var(--k, 1)); overflow: auto; overscroll-behavior: contain; box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.85); }
+.tl-dlg .pf-tdx::before { display: none; }
+.tl-dlg .pf-tdx-i { font-size: 22px; } .tl-dlg .pf-tdx-i .tool-i { opacity: 1; }
+.tl-dlg[open] .pf-tdx:not([hidden]) { animation: pf-tdx-in 0.45s var(--ease); }
+html.dlg-open { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .tl-dlg[open] .pf-tdx:not([hidden]) { animation: none; } }
+.motion-off .tl-dlg[open] .pf-tdx:not([hidden]) { animation: none; }
+`;
+
+export const TOOLBOX_JS = `
+(function(){
+  // /full/'s toolbox: a tool (or a language or tool in the GitHub card) opens its panel in the dialog; the cross, Escape or a click
+  // beside it closes it, and the focus goes back to what opened it; the page behind stays still while it is open
+  var dlg = document.getElementById('tool-dlg'); if (!dlg || typeof dlg.showModal !== 'function') return;
+  var back = null, html = document.documentElement;
+  function open(slug, from) {
+    var art = null;
+    dlg.querySelectorAll('.pf-tdx').forEach(function (a) { var on = a.dataset.tool === slug; a.hidden = !on; if (on) art = a; });
+    if (!art) return;
+    back = from || null;
+    if (!dlg.open) { html.style.paddingRight = (innerWidth - html.clientWidth) + 'px'; html.classList.add('dlg-open'); dlg.showModal(); }
+    art.scrollTop = 0;
+    var x = art.querySelector('.pf-tdx-x'); if (x) x.focus({ preventScroll: true });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tool-open], .stack [data-jump]');
+    if (b) { e.preventDefault(); open(b.dataset.toolOpen || b.dataset.jump, b); return; }
+    if (e.target.closest('#tool-dlg .pf-tdx-x')) dlg.close();
+  });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('close', function () { html.classList.remove('dlg-open'); html.style.paddingRight = ''; if (back && back.focus) back.focus({ preventScroll: true }); });
+})();
 `;
 
 export const STACK_JS = `
