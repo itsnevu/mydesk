@@ -1484,6 +1484,8 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .cv-role { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font: 600 13px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); }
 .cv-lead { max-width: 36em; font-size: clamp(17px, 1.3vw, 20px); line-height: 1.5; color: var(--dim); }
 .cv-facts { margin-top: 4px; }
+.cv-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+@media (max-width: 560px) { .cv-actions .btn { flex: 1 1 100%; justify-content: center; } }
 .cv-grid { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: clamp(32px, 5vw, 80px); }
 .cv h2.lbl { margin: clamp(28px, 3.5vw, 44px) 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line-2); color: var(--accent); }
 .cv h2.lbl:first-child { margin-top: 0; }
@@ -1512,7 +1514,7 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 @media print {
   body.cv-page { background: #fff; color: #111; }
   body.cv-page .cv { padding: 0; }
-  body.cv-page .p-crumbs, body.cv-page .foot, body.cv-page .head, body.cv-page .side-3d, body.cv-page .cv-tools, body.cv-page .dot, body.cv-page .cv-lead, body.cv-page .cv-head .p-kick { display: none !important; }
+  body.cv-page .p-crumbs, body.cv-page .foot, body.cv-page .head, body.cv-page .side-3d, body.cv-page .cv-tools, body.cv-page .dot, body.cv-page .cv-lead, body.cv-page .cv-head .p-kick, body.cv-page .cv-actions { display: none !important; }
   body.cv-page .cv-head .p-title { font-size: 44pt; }
   body.cv-page .cv-grid { grid-template-columns: 2fr 1fr; gap: 24pt; }
   body.cv-page .cv h2.lbl { color: #8a5a1a; border-color: #ccc; }

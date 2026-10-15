@@ -233,6 +233,7 @@ const MENU_PV = ['shots/gallery/godplan-erp-1.webp', 'shots/gallery/orthobone-1.
 
 // ---------- pieces
 const arrow = '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
+const arrowD = '<svg class="ar ar-d" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v11M4 9l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 const arrowR = '<svg class="ar ar-r" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>';
 // Navy's mark, the two strokes of the N as filled outlines traced from his own logo (site/mark.svg, made by scripts/trace-mark.py);
 // pathLength lets the intro draw each outline with a dash of one
@@ -997,6 +998,7 @@ ${header('cv', '/cv/')}
     <p class="cv-role" data-reveal>${esc(t('role'))} · ${esc(t('where'))} · <span class="dot dot--open" aria-hidden="true"></span> ${esc(t('status'))}</p>
     <p class="cv-lead" data-reveal>${esc(t('cv_lead'))}</p>
     <ul class="hero-facts cv-facts" data-reveal>${facts.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    <div class="cv-actions" data-reveal>${pdf ? `<a class="btn btn-fill" href="${esc(pdf)}" download="Navy-Gibran-CV.pdf" data-track="contact_click" data-channel="Résumé" data-from="cv-button" data-magnet>${roll(t('cv_download'))} ${arrowD}</a>` : ''}<a class="btn" href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="cv" data-magnet>${roll(t('chat'))} ${arrow}</a></div>
   </header>
   <div class="cv-grid">
     <section class="cv-main">
