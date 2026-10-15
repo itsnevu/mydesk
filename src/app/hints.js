@@ -3,7 +3,7 @@
 // screen says what the labels mean, opens the full guide or puts them away.
 import { TARGETS } from 'app/data';
 import { TIP_LIFT, SHORTCUTS } from 'app/experience';
-import { declutter } from 'app/ui';
+import { declutter, isTouch } from 'app/ui';
 
 const CSS = `
 #hints { position: absolute; inset: 0; z-index: 31; pointer-events: none; opacity: 0; transition: opacity .35s; }
@@ -102,7 +102,7 @@ export function showHints() {
   items = ids.map((id, i) => {
     const d = TARGETS[id], el = document.createElement('button');
     el.type = 'button'; el.className = 'hn off'; el.dataset.id = id; el.style.setProperty('--i', i);
-    const key = d.shortcut || SHORTCUTS[id];
+    const key = isTouch ? null : d.shortcut || SHORTCUTS[id];   // (a letter means nothing to a finger: the badge shows the dot)
     el.innerHTML = `<b>${key || '•'}</b>${d.hint || d.label?.title || d.title}`;
     root.appendChild(el); return { id, t: targets[id], el };
   });

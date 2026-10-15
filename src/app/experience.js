@@ -174,7 +174,10 @@ export class Experience {
       this.updateHints();
       // a deep link either names a target or hands over its own way in (a world, a project page)
       if (direct) tween.delayed(quick ? 0.1 : 0.4, () => (typeof direct === 'function' ? direct() : this.activate(direct)));
-      else this._hintTimer = setTimeout(() => { if (state.is(S.DESK)) ui.hud.toast(ui.isTouch ? '<b>tap</b> anything to see what it is. the <b>note</b> is about me' : '<b>hover</b> anything to see what it is. <b>A</b> opens about me'); }, 3200);
+      // a finger has no hover and no navigation list (styles.css hides #nav-hints on touch): the gestures are said as the desk settles,
+      // on their own clock, so the first touch (a tap or a drag) does not cancel them
+      else if (ui.isTouch) tween.delayed(0.8, () => { if (state.is(S.DESK) && !this.flight) ui.hud.toast('<b>drag</b> to look around, <b>pinch</b> to zoom, <b>tap</b> anything to see what it is', 5600); });
+      else this._hintTimer = setTimeout(() => { if (state.is(S.DESK)) ui.hud.toast('<b>hover</b> anything to see what it is. <b>A</b> opens about me'); }, 3200);
       // a little later, once: the keyboard can tell its own story (unless the visitor has already found it)
       if (!direct) this._storyHint = setTimeout(() => { if (state.is(S.DESK) && !this.flight && !this.found.has('art4')) ui.hud.toast(ui.isTouch ? 'the <b>orange bookmark key</b> tells the story, stop by stop' : '<b>T</b> or the <b>orange bookmark key</b>: the keyboard tells its story', 3400); }, 16000);
       // later still, once: the cat on the chair is out of the desk view, so say so (unless Tupac has been found already)

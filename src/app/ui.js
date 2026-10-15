@@ -110,7 +110,7 @@ function discoveryGroups(order) {
 }
 function renderDiscoveryList() {
   const { found, groups } = disc;
-  const tip = isTouch ? 'Tap anything that glows. Each new thing counts once; tap one you have found to go back to it.'
+  const tip = isTouch ? 'Tap anything on the keyboard, the desk or around the room. Each new thing counts once; tap one you have found to go back to it.'
     : 'Anything that names itself when you point at it can be found. Each counts once; click one you have found to go back to it.';
   $('discovery-list').innerHTML = `<div class="dl-head"><span class="dl-title mono">what's left, and where</span><button type="button" class="dl-close" aria-label="Close the list">×</button></div><p class="dl-tip">${tip}</p>` +
     groups.map((g) => {
