@@ -172,7 +172,15 @@ export const hud = {
     if (compact.matches) { if (el.style.left) { el.style.left = ''; el.style.top = ''; } el.classList.remove('offscreen'); return; }
     const off = !(x > -60 && x < innerWidth + 60 && y > -60 && y < innerHeight + 60); el.classList.toggle('offscreen', off); if (off) return;
     const w = (el.offsetWidth || 200) * uiScale, h = (el.offsetHeight || 46) * uiScale;
-    el.style.left = `${Math.max(24, Math.min(x, innerWidth - w - 52 * uiScale))}px`; el.style.top = `${Math.max(24 * uiScale, Math.min(y, innerHeight - h - 84 * uiScale))}px`;
+    let left = Math.max(24, Math.min(x, innerWidth - w - 52 * uiScale)), top = Math.max(24 * uiScale, Math.min(y, innerHeight - h - 84 * uiScale));
+    // the card also stays clear of Back to portfolio, which sits where a low anchor would put it: 12 px above it, or right of it when the window is too short for that
+    const pill = $('exit-3d');
+    const pr = pill && pill.offsetParent !== null && getComputedStyle(pill).opacity !== '0' ? pill.getBoundingClientRect() : null;
+    if (pr && left < pr.right + 12 && left + w > pr.left - 12 && top < pr.bottom + 12 && top + h > pr.top - 12) {
+      const lift = pr.top - h - 12; top = Math.max(24 * uiScale, lift);
+      if (top > lift) left = Math.min(pr.right + 16, innerWidth - w - 52 * uiScale);
+    }
+    el.style.left = `${left}px`; el.style.top = `${top}px`;
   },
   keyTip(x, y, key, text) {
     if (!key) { tip.classList.remove('visible'); return; }
