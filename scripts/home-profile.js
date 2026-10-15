@@ -170,8 +170,12 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <span class="pf-feat-pic"><span class="pf-feat-bar" aria-hidden="true"><i></i><i></i><i></i>${p.url ? `<span>${esc(hostOf(p.url))}</span>` : ''}</span>${m.cover ? cover(m.cover, '(min-width: 800px) 240px, (min-width: 481px) 46vw, 92vw', 640, 400) : I.folder}</span>
       <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
       <span class="pf-go">${I.out}</span></a></li>`; };
-  const featured = counted.slice(0, 3).map(feat).join('');
-  const projects = counted.slice(3).map(rowProject).join('');
+  // the three cards lead with sites that open: a domain that stopped resolving is left out of the cards (it stays in the list below,
+  // untouched; whether it still counts as live is Navy's call). Checked 2026-10-16: miniaturkapal.com and airon.site gave NXDOMAIN.
+  const UNREACHABLE = new Set(['miniatur-kapal', 'airon']);
+  const lead = counted.filter((p) => !UNREACHABLE.has(p.key) && projectMedia(D, p).cover).slice(0, 3), leadKeys = new Set(lead.map((p) => p.key));
+  const featured = lead.map(feat).join('');
+  const projects = counted.filter((p) => !leadKeys.has(p.key)).map(rowProject).join('');
 
   const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
     ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
