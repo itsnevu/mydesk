@@ -55,6 +55,14 @@ console.log(`ok    imports: ${Object.keys(src).length} modules, every imported n
   console.log(`ok    site: ${r.pages} pages, ${r.links} internal links, ${r.anchors} anchors and references, nothing broken`);
 }
 
+// ---- 1c. the stack can be explained: every tool has its words in every language, the GitHub snapshot is sane (scripts/smoke-stack.js)
+{
+  const { checkStack } = await import('./smoke-stack.js');
+  const r = await checkStack(root);
+  if (r.problems.length) { for (const p of r.problems) console.log('FAIL  ' + p); process.exit(1); }
+  for (const n of r.notes) console.log('ok    ' + n);
+}
+
 // ---- 2. build the world in Node
 const ctx2d = new Proxy({}, { get: (t, k) => {
   if (k in t) return t[k];
