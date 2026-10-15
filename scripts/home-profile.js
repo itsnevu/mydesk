@@ -42,7 +42,6 @@ export const WORDS = {
     notes: ['Dari mengangkat TV ke lantai atas sampai membangun ERP.', 'Dua puluh enam proyek. Dua puluh tiga di antaranya online hari ini.', 'Satu pesan cukup untuk mulai.'],
     ctaTitle: 'Ceritakan usaha Anda.', ctaLine: 'Website, toko online, atau sistem. Satu pesan cukup untuk mulai, dan saya sendiri yang membalas.',
     chat: 'Chat WhatsApp', see3d: 'Lihat versi 3D', cvBtn: 'Unduh CV', email: 'Email',
-    waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll, produk konsep buatan saya sendiri tanpa klien: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
@@ -67,7 +66,7 @@ WORDS.en = {
   notes: ['From carrying TVs upstairs to building an ERP.', 'Twenty-six projects. Twenty-three of them are live today.', 'One message is enough to start.'],
   ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
   chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
-  waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
+  altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through, my own concept products with no client behind them: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
   pause: 'Pause', play: 'Play', tabsLabel: 'Site', copyMail: 'Copy email', copyNum: 'Copy number', aboutRow: 'More about {o}',
@@ -90,7 +89,7 @@ WORDS.zh = {
   notes: ['从扛电视上楼，到构建 ERP。', '二十六个项目，其中二十三个如今在线。', '一条消息就能开始。'],
   ctaTitle: '说说你的生意。', ctaLine: '一个网站、一家网店或一套系统。一条消息就能开始，而且由我本人回复。',
   chat: '用 WhatsApp 聊', see3d: '看 3D 版本', cvBtn: '下载简历', email: '邮箱',
-  waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
+  altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界，都是我自己的概念产品，没有客户委托：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
   pause: '暂停', play: '播放', tabsLabel: '网站导航', copyMail: '复制邮箱', copyNum: '复制号码', aboutRow: '关于 {o} 的更多',
@@ -137,7 +136,7 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', kindEn = () => '', bgOf = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', kindEn = () => '', bgOf = () => '', roll = (x) => esc(x), faq = null, now = new Date(), waText = '' }) {
   const W = WORDS[lang] || WORDS.id;
   // a project link's curtain: its tint and its name (site/site.js raises the curtain in that colour with that title), always looked
   // up by key, since some lists hold only { key, title }
@@ -214,7 +213,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const marq = clients.filter((c) => !c.word && exists(`site/logos/${c.key}.webp`));
   const marquee = marq.length > 5 ? `<div class="pf-marq" aria-hidden="true"><div class="pf-marq-t">${[...marq, ...marq].map((c) => `<i class="pf-marq-i" style="--m:url(${logoUrl(`${c.key}.webp`)})"></i>`).join('')}</div></div>` : '';
   const cvHref = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href || '';
-  const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
+  const wa = `https://wa.me/${D.SITE.whatsapp}${waText ? `?text=${encodeURIComponent(waText)}` : ''}`;
   const social = SOCIAL.map(([label, slug]) => {
     const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
     return `<a class="pf-soc" href="${esc(l.href)}" target="_blank" rel="noopener" title="${esc(label)}" aria-label="${esc(label)}" data-track="contact_click" data-channel="${esc(label)}">${exists(`site/tools/${slug}.svg`) ? mark(slug) : esc(label[0])}</a>`;
