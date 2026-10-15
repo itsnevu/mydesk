@@ -690,7 +690,7 @@ export class Experience {
     if (!PROJECTS.includes(p) || !state.go(S.DETAIL, { project: p.key })) return;
     ui.panel.hide(); ui.viewProject.hide(); ui.hud.back(false); ui.hud.sceneLabel(null);
     ui.detail.show(p);
-    ui.hud.kbdHints([['ESC', 'back'], ['←', 'prev'], ['→', 'next']]);
+    ui.hud.kbdHints(null);
     setRoute(`project-${p.key}`);
   }
 

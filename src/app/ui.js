@@ -1,5 +1,5 @@
 // All HTML layers: gate, HUD, menu, switching, gallery cards, detail page, overlays.
-import { PROJECTS, SITE, FACTS, projectIndex, MENU, TARGETS, DISCOVERY_GROUPS, WORLDS, SHOTS, GALLERY, GALLERY_PHONE, SHOT_HOST } from 'app/data';
+import { PROJECTS, SITE, FACTS, projectIndex, projectStatus, projectUpgrade, MENU, TARGETS, DISCOVERY_GROUPS, WORLDS, SHOTS, GALLERY, GALLERY_PHONE, SHOT_HOST } from 'app/data';
 import { studyTexture } from 'app/gallery';
 import { MOTION } from 'app/motion';
 
@@ -211,7 +211,12 @@ export const detail = {
     dHandlers = handlers;
     $('detail-back').addEventListener('click', () => handlers.onBack?.());
     $('detail-3d').addEventListener('click', () => handlers.onView3D?.(detail.current));
-    $('detail-3d').textContent = 'back to the world';
+    // ‹ previous / next ›: the same steps as the ← → keys (experience.js onKeyDown), wrapping at both ends; on a keyboard screen the arrows show as keys
+    const step = (d) => { if (!detail.current) return; const n = PROJECTS.length, i = PROJECTS.indexOf(detail.current); detail.show(PROJECTS[(i + d + n) % n]); };
+    $('detail-prev')?.addEventListener('click', () => step(-1));
+    $('detail-next')?.addEventListener('click', () => step(1));
+    if (!isTouch) for (const [id, k] of [['detail-prev', '←'], ['detail-next', '→']]) { const g = $(id)?.querySelector('i'); if (g) g.outerHTML = `<kbd aria-hidden="true">${k}</kbd>`; }
+    $('detail-live').addEventListener('click', (e) => { const p = detail.current, up = p && projectUpgrade(p); if (up) { e.preventDefault(); detail.show(up); return; } if (p) window.nvTrack?.('project_live', { project: p.key, from: '3d' }); });
     const strip = $('detail-strip');
     PROJECTS.forEach((p) => {
       const b = document.createElement('button'); b.type = 'button'; b.dataset.key = p.key;
@@ -223,17 +228,37 @@ export const detail = {
       b.addEventListener('click', () => detail.show(p));
       strip.appendChild(b);
     });
+    $('detail-wa')?.addEventListener('click', () => window.nvTrack?.('contact_click', { channel: 'WhatsApp', from: 'desk-project', project: detail.current?.key }));
+    const reach = $('detail-reach');
+    if (reach) {
+      reach.innerHTML = `<p><strong>${SITE.status}</strong> · ${SITE.where}</p>${linksRow()}`;
+      reach.addEventListener('click', (e) => {
+        const a = e.target.closest('a');
+        if (a) window.nvTrack?.('contact_click', { channel: a.textContent.trim(), from: 'desk-project-links', project: detail.current?.key });
+      });
+    }
     $('detail').inert = true;
   },
   current: null,
   show(p) {
     detail.current = p;
-    $('detail-index').textContent = projectIndex(p);
+    const count = PROJECTS.length, at = PROJECTS.indexOf(p);
+    $('detail-index').textContent = `${projectIndex(p)} / ${String(count).padStart(2, '0')}`;
+    $('detail-prev')?.setAttribute('aria-label', `Previous project: ${PROJECTS[(at - 1 + count) % count].title}`);
+    $('detail-next')?.setAttribute('aria-label', `Next project: ${PROJECTS[(at + 1) % count].title}`);
     $('detail-title').textContent = p.title; $('detail-desc').textContent = p.description;
-    $('detail-industry').textContent = p.industry; $('detail-stack').textContent = p.stack; $('detail-date').textContent = p.date;
+    $('detail-industry').textContent = p.industry; $('detail-stack').textContent = p.stack;
+    const st = projectStatus(p); $('detail-date-label').textContent = st.label; $('detail-date').textContent = st.value;
+    $('detail-role-field').classList.toggle('hidden', !p.role); $('detail-role').textContent = p.role || '';
     $('detail-3d').classList.toggle('hidden', !hasWorld(p));
-    const live = $('detail-live'); live.classList.toggle('hidden', !p.url);
-    if (p.url) { live.href = p.url; live.textContent = `visit ${new URL(p.url).hostname.replace(/^www\./, '')} →`; }
+    // inside this project's world the button goes back to it; anywhere else (the desk, another world) it opens it
+    $('detail-3d').textContent = dHandlers.inWorld?.(p) ? 'back to the world' : 'view in 3d';
+    const did = p.did || []; $('detail-did').classList.toggle('hidden', !did.length); $('detail-did-list').innerHTML = did.map((d) => `<li>${esc(d)}</li>`).join('');
+    const up = projectUpgrade(p), out = !!p.url && !p.now && !up, live = $('detail-live');
+    live.classList.toggle('hidden', !up && !out);
+    if (up) { live.href = `#project-${up.key}`; live.removeAttribute('target'); live.textContent = `see the upgrade, ${up.title} →`; }
+    else if (out) { live.href = p.url; live.target = '_blank'; live.textContent = `visit ${new URL(p.url).hostname.replace(/^www\./, '')} ↗`; }
+    $('detail-wa').href = `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(`Hi Navy! I saw ${p.title} in your portfolio and I'd like to build something similar. Can we talk?`)}`;
     const media = $('detail-media'); media.innerHTML = ''; media.classList.remove('has-shot');
     for (const im of $('detail-strip').querySelectorAll('img[data-src]')) { im.src = im.dataset.src; im.removeAttribute('data-src'); }
     const shots = GALLERY[p.key] ? Array.from({ length: GALLERY[p.key] }, (_, i) => `shots/gallery/${p.key}-${i + 1}.webp`) : SHOTS.includes(p.key) && p.url ? [`shots/${p.key}.webp`] : [];

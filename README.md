@@ -138,7 +138,7 @@ work worlds **View project** appears after two places have been inspected (Enter
 wrapping); Esc closes a place, then goes back out through the world's door on the desk.
 
 **Project page:** the live site in a browser frame with the phone version in front (projects listed in `SHOTS`; the others get a generated
-study card), industry · stack · date, a link to the live site, *back to the world* where there is one, and a strip of every project.
+study card), industry · stack · date, a link to the live site, *view in 3d* where it has a world (*back to the world* when the page was opened inside it), and a strip of every project.
 ← → step through them, Esc goes back.
 
 **HUD:** the name (About), the discovery counter, the menu (About, Projects, Skills, Index, Contact), back, sound, **? Guide** (also G, or the

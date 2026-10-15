@@ -120,7 +120,7 @@
         <li><a href="https://gajahterbangkreatif.id/" rel="noopener">Godjah Studio</a> (creative agency, a Next.js redesign of PT. Gajah Terbang Kreatif's WordPress site)</li>
         <li><a href="https://graciabox.id/" rel="noopener">Gracia Box</a> (custom premium packaging)</li>
         <li><a href="https://orthobone.store/" rel="noopener">Orthobone</a> (online store, orthopedic mattresses)</li>
-        <li><a href="https://rameinaja.com/" rel="noopener">RameinAja</a> (events platform, now Reparty Indonesia)</li>
+        <li>RameinAja (events platform, now Reparty Indonesia)</li>
         <li><a href="https://reconstruction.id/" rel="noopener">Recon</a> (property &amp; construction)</li>
         <li><a href="https://airon.site/" rel="noopener">Airon</a> (AC service &amp; installation)</li>
         <li><a href="https://izzi-bsd.com/" rel="noopener">Izzi</a> (IZZI BSD City, residential property)</li>
@@ -256,19 +256,23 @@
     <div class="detail-scroll">
       <button type="button" class="detail-back mono" id="detail-back">‹ back</button>
       <div class="detail-head">
-        <span class="detail-index mono" id="detail-index"></span>
+        <div class="detail-step mono"><button type="button" id="detail-prev"><i aria-hidden="true">‹</i> previous</button><span class="detail-index" id="detail-index"></span><button type="button" id="detail-next">next <i aria-hidden="true">›</i></button></div>
         <h1 class="detail-title" id="detail-title"></h1>
         <p class="detail-desc" id="detail-desc"></p>
         <div class="detail-fields">
           <div class="g-field"><span class="g-field-label mono">industry</span><span class="g-field-value" id="detail-industry"></span></div>
           <div class="g-field"><span class="g-field-label mono">stack</span><span class="g-field-value" id="detail-stack"></span></div>
-          <div class="g-field"><span class="g-field-label mono">date</span><span class="g-field-value" id="detail-date"></span></div>
+          <div class="g-field hidden" id="detail-role-field"><span class="g-field-label mono">role</span><span class="g-field-value" id="detail-role"></span></div>
+          <div class="g-field"><span class="g-field-label mono" id="detail-date-label">when</span><span class="g-field-value" id="detail-date"></span></div>
         </div>
         <button type="button" class="detail-3d mono" id="detail-3d">view in 3d</button>
         <a class="detail-3d mono hidden" id="detail-live" target="_blank" rel="noopener"></a>
+        <a class="detail-3d detail-ghost mono" id="detail-wa" href="https://wa.me/6285179536062" target="_blank" rel="noopener" aria-label="Build something like this: message Navy on WhatsApp">build something like this ↗</a>
+        <div class="detail-did hidden" id="detail-did"><span class="g-field-label mono">what I did</span><ol id="detail-did-list"></ol></div>
       </div>
       <div class="detail-media" id="detail-media"></div>
       <div class="detail-strip" id="detail-strip"></div>
+      <div class="detail-reach" id="detail-reach"></div>
     </div>
   </div>
 

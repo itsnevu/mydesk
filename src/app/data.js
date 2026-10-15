@@ -201,6 +201,9 @@ export const CHAPTERS = [
 
 export const projectByKey = (k) => PROJECTS.find((p) => p.key === k) || CHAPTERS.find((p) => p.key === k);
 export const projectIndex = (p) => String(PROJECTS.indexOf(p) + 1).padStart(2, '0');
+// where a project stands today, in the words of its /work/ page; and the second version that a first version's address now serves
+export const projectStatus = (p) => ({ label: p.date === 'live' ? 'status' : 'when', value: p.now ? `Now ${p.now.name}` : p.date === 'live' ? (p.year ? `Live, built ${p.year}` : 'Live') : p.date === 'previous design' ? 'First version, since upgraded' : p.date.charAt(0).toUpperCase() + p.date.slice(1) });
+export const projectUpgrade = (p) => (p.date === 'previous design' ? PROJECTS.find((x) => x.url === p.url && x.key !== p.key) || null : null);
 
 // Facts shown while switching scenes: keyboard trivia (the site's own voice) in turns with a line about Navy, so the wait
 // between scenes also says who this desk belongs to. Every Navy line restates a fact from SITE or PATH; nothing here is new.

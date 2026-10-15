@@ -197,22 +197,35 @@ body:not([data-state="loading"]):not([data-state="gate"]) #sound-toggle { opacit
 /* ---------- project detail */
 #detail { position: absolute; inset: 0; z-index: 35; background: var(--bg); opacity: 0; pointer-events: none; transition: opacity var(--d-base) var(--ease); }
 #detail.visible { opacity: 1; pointer-events: auto; }
+/* the page has its own back and its own buttons: the "? Guide" pill steps aside while it is open, as it does on a phone (on a
+   1024 x 640 screen it would sit on the 3D button) */
+body[data-state="detail"] #guide-btn { opacity: 0 !important; pointer-events: none !important; }
 .detail-scroll { position: absolute; inset: 0; overflow-y: auto; padding: 60px 8vw 80px; -webkit-overflow-scrolling: touch; }
 #detail.visible .detail-head > * , #detail.visible .detail-media { animation: rise 0.7s var(--ease) both; }
-#detail.visible .detail-head > *:nth-child(2) { animation-delay: 0.05s } #detail.visible .detail-head > *:nth-child(3) { animation-delay: 0.1s } #detail.visible .detail-head > *:nth-child(4) { animation-delay: 0.15s } #detail.visible .detail-head > *:nth-child(5) { animation-delay: 0.2s } #detail.visible .detail-media { animation-delay: 0.25s }
+#detail.visible .detail-head > *:nth-child(2) { animation-delay: 0.05s } #detail.visible .detail-head > *:nth-child(3) { animation-delay: 0.1s } #detail.visible .detail-head > *:nth-child(4) { animation-delay: 0.15s } #detail.visible .detail-head > *:nth-child(5) { animation-delay: 0.2s } #detail.visible .detail-head > *:nth-child(6) { animation-delay: 0.25s } #detail.visible .detail-head > *:nth-child(7) { animation-delay: 0.3s } #detail.visible .detail-head > *:nth-child(8) { animation-delay: 0.35s } #detail.visible .detail-media { animation-delay: 0.4s }
 @keyframes rise { from { opacity: 0; transform: translateY(18px) } to { opacity: 1; transform: none } }
 .detail-back { display: block; margin: 0 auto 40px; font-size: 12px; letter-spacing: 0.16em; color: var(--paper-dim); transition: color var(--d-fast), transform var(--d-fast) var(--ease); }
 .detail-back:hover { color: var(--paper); transform: translateX(-4px); }
 .detail-index { font-size: 12px; letter-spacing: 0.2em; color: var(--paper-faint); }
+.detail-step { display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
+.detail-step button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 2px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); transition: color var(--d-fast); }
+.detail-step button i { font-style: normal; }
+.detail-step button:hover, .detail-step button:focus-visible { color: var(--accent); }
+.detail-step kbd { font: inherit; font-size: 10px; letter-spacing: 0; padding: 2px 6px; border: 1px solid var(--paper-faint); border-radius: 4px; box-shadow: 0 2px 0 var(--paper-faint); }
+.detail-step .detail-index { color: var(--paper-dim); }
 .detail-title { margin: 8px 0 18px; font-size: clamp(34px, 6vw, 72px); font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
 .detail-desc { max-width: 620px; font-size: 18px; line-height: 1.5; color: var(--paper-dim); margin: 0 0 30px; }
-.detail-fields { display: flex; gap: 48px; padding: 22px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 26px; flex-wrap: wrap; }
+.detail-fields { display: flex; gap: 18px 48px; padding: 22px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 26px; flex-wrap: wrap; }
 .g-field { display: flex; flex-direction: column; gap: 6px; min-width: 110px; }
 .g-field-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-faint); }
 .g-field-value { font-size: 15px; line-height: 1.4; color: var(--paper); }
 .detail-3d { display: inline-block; width: 100%; max-width: 620px; text-align: center; }
 .detail-3d.hidden { display: none; }
 a.detail-3d { text-decoration: none; }
+.detail-did { max-width: 620px; margin: 24px 0 0; }
+.detail-did ol { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: did; display: grid; gap: 10px; }
+.detail-did li { display: grid; grid-template-columns: 34px 1fr; align-items: baseline; font-size: 15px; line-height: 1.5; color: var(--paper); text-wrap: pretty; counter-increment: did; }
+.detail-did li::before { content: counter(did, decimal-leading-zero); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--accent); }
 .detail-media { margin-top: 40px; border: 1px solid var(--line); aspect-ratio: 16/9; overflow: hidden; background: var(--surface); position: relative; }
 .detail-media canvas { width: 100%; height: 100%; display: block; object-fit: cover; }
 .detail-strip { display: flex; gap: 12px; margin-top: 18px; overflow-x: auto; padding-bottom: 12px; scrollbar-width: thin; }
@@ -395,11 +408,18 @@ button:active:not(:disabled) { translate: 0 1px; }   /* (translate, not transfor
 #identity, #discovery, #nav-hints, #sound-toggle, #kbd-hints, #discovered { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55); }
 #reward { background: radial-gradient(ellipse 60% 45% at center, rgba(18, 15, 10, 0.82), rgba(18, 15, 10, 0.55) 55%, transparent); }
 .reward-inner { padding: 0 20px; }
-/* the project page's two actions read as buttons: "back to the world" outlined, the live site filled */
+/* the project page's two actions read as buttons: "view in 3d" (or "back to the world") outlined, the live site filled */
 .detail-3d { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: auto; max-width: none; min-height: 44px; padding: 0 22px; margin: 0 10px 10px 0; border: 1px solid var(--paper-dim); font-family: var(--mono); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--paper); transition: background var(--d-fast) var(--ease), color var(--d-fast) var(--ease), border-color var(--d-fast) var(--ease); }
 .detail-3d:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
 a.detail-3d { background: var(--paper); color: var(--ink); border-color: var(--paper); }
 a.detail-3d:hover { background: var(--accent); border-color: var(--accent); }
+a.detail-3d.detail-ghost { background: transparent; color: var(--paper); border-color: var(--paper-dim); }
+a.detail-3d.detail-ghost:hover, a.detail-3d.detail-ghost:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+.detail-reach { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line); }
+.detail-reach p { margin: 0 0 12px; font-size: 15px; line-height: 1.5; color: var(--paper-dim); }
+.detail-reach strong { color: var(--paper); font-weight: 600; }
+.detail-reach .contact-links { margin-bottom: 0; }
+@media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) { .detail-reach .contact-links { gap: 4px 22px; } .detail-reach .contact-links a { display: inline-block; padding: 12px 0 4px; } }
 @media (min-width: 761px) {
   .detail-back { margin: 0 0 40px; text-transform: uppercase; letter-spacing: 0.2em; }   /* left, with the content it leads back from */
   #toast { max-width: min(560px, calc(100vw - 48px)); text-align: center; line-height: 1.5; text-wrap: balance; }

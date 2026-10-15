@@ -74,7 +74,17 @@ async function boot() {
   ui.hud.identity(() => xp.activate('note'));
   ui.detail.build({
     onBack: () => xp.back(),
-    onView3D: () => xp.back(),
+    // the page's 3D button: back into the world the page was opened in, or into this project's own world from anywhere else
+    // (the same way in as a #project- link: out of another world first, or with the page put away); mid-flight it waits, like back()
+    inWorld: (p) => xp.sceneName === 'project' && xp.world3?.project.key === p?.key,
+    onView3D: (p) => {
+      if (xp.flight || xp._entering) return;
+      const wi = WORLDS.findIndex((w) => w.project === p?.key);
+      if (wi < 0 || (xp.sceneName === 'project' && xp.world3?.project.key === p.key)) { xp.back(); return; }
+      // (the page hands focus back to whatever opened it, a HUD button the world hides: let go of it, as a panel's go inside
+      // button does, so Enter and Space reach the world)
+      openWorld(wi)(); document.activeElement?.blur?.();
+    },
     // every page shown (the strip, the arrows) keeps the address bar on it, so a shared link opens the same page
     onShow: (p) => { audio.hover(); if (p && state.is(S.DETAIL)) setRoute(`project-${p.key}`); },
   });
