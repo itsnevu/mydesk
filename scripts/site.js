@@ -383,7 +383,9 @@ function header(current, pathname, D = null) {
   // each link shows a picture of where it leads in the panel beside the list (desktop)
   // (`sub` is the line beside the word: what the section holds, in a few words; the counts are filled in by build())
   const item = (href, n, label, id, k, em = '', sub = '') => `<a href="${href}" data-pv="${k}"${current === id ? ' aria-current="page"' : ''}><span class="mn">${n}</span><span class="ml">${roll(label, em)}</span>${sub ? `<span class="ml-sub" aria-hidden="true">${sub}</span>` : ''}</a>`;
-  const pv = MENU_PV.filter(exists).map((f, k) => `<img src="/${f}" alt="" loading="lazy" decoding="async" data-k="${k}"${f.startsWith('shots/') ? ' class="pv-shot"' : ''}>`).join('');
+  // (the panel is at most 580 px wide: an ordinary screen takes the 800 px copy, a sharp one the original)
+  const pvSet = (f) => { const s = f.replace(/\.webp$/, '-800.webp'), d = imgSize(f); return s !== f && exists(s) && d ? ` srcset="/${s} 800w, /${f} ${d.w}w" sizes="(min-width: 1180px) 580px, 46vw"` : ''; };
+  const pv = MENU_PV.filter(exists).map((f, k) => `<img src="/${f}"${pvSet(f)} alt="" loading="lazy" decoding="async" data-k="${k}"${f.startsWith('shots/') ? ' class="pv-shot"' : ''}>`).join('');
   const nTerr = t('num')[TERRITORIES.length] || TERRITORIES.length;
   return `<a class="skip" href="#main">${esc(t('skip'))}</a>
 <div id="top" class="top-anchor"></div>
