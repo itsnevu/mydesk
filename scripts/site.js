@@ -1194,7 +1194,7 @@ export async function renderSite() {
     const ctx = { css: cssAll, js: jsSrc };
     // (this language's data for the page script: the desk's old targets, the projects, the index the search reads, the words)
     const SP = stackParts({ M: stackModel({ D, gh: GH }), lang, name: term, icon: () => '', u, worlds: WORLDS.length });
-    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]), s: STACK.flat().map((x) => [slugOf(x), term(x), SP.tip(x)]) }, prefix: PFX, lang, t: t('js') }).replace(/</g, '\\u003c');
+    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]), s: STACK.flat().map((x) => [slugOf(x), term(x), SP.tip(x)]), w: worldsFor(lang).map((w) => [w.key, w.name, w.category]) }, prefix: PFX, lang, t: t('js') }).replace(/</g, '\\u003c');
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
     // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
     const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
@@ -1213,9 +1213,10 @@ export async function renderSite() {
   const paths = ['/', '/full/', '/work/', '/labs/', '/cv/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
   const alt = (pth) => LANG_ORDER.map((l) => `<xhtml:link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pth}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${pth}"/>`;
   const urls = [];
-  for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><priority>${pth === '/' ? '1.0' : pth === '/full/' ? '0.9' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}</url>`);
+  const pics = (pth) => { const p = D.PROJECTS.find((q) => pth === `/work/${q.key}/`); if (!p) return ''; const m = projectMedia(D, p); return [...m.shots, ...(m.phone ? [m.phone] : [])].slice(0, 6).map((s) => `<image:image><image:loc>${ORIGIN}/${s}</image:loc></image:image>`).join(''); };
+  for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><priority>${pth === '/' ? '1.0' : pth === '/full/' ? '0.9' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}${pics(pth)}</url>`);
   urls.push(`  <url><loc>${ORIGIN}/3d/</loc><priority>0.8</priority></url>`);
-  out['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
+  out['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join('\n')}\n</urlset>\n`;
   out['robots.txt'] = `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`;
   out['llms.txt'] = llmsTxt(D);
   // no dashes in anything the site shows (Navy's rule)

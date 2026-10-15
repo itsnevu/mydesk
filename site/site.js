@@ -732,6 +732,7 @@
         .map(([t, href, d]) => ({ g: jt('goTo'), t, d, href })),
       ...INDEX.p.map(([key, t, d, s, bg, kind], i) => ({ g: jt('projects'), n: String(i + 1).padStart(2, '0'), t, d, s: `${s} ${kind}`, href: `${PFX}/work/${key}/`, bg, here: location.pathname === `${PFX}/work/${key}/` })),
       ...(INDEX.s || []).map(([slug, t, d]) => ({ g: jt('stackGroup'), t, d, s: 'stack', href: `${PFX}/#stack-${slug}`, tool: slug })),
+      ...(INDEX.w || []).map(([key, t, d]) => ({ g: jt('worldsGroup'), t, d, s: '3d labs', href: `${PFX}/labs/#w-${key}`, here: location.pathname === `${PFX}/labs/` })),
       ...INDEX.l.map(([t, href]) => ({ g: jt('elsewhere'), t, d: href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), href, ext: true })),
     ];
     const ico = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
