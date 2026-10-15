@@ -3,6 +3,8 @@
 #   python scripts/og.py id zh    the same cards in Indonesian and Chinese: public/og-id.jpg, site/og/<key>-id.jpg, work-id.jpg...
 #                                 (a page in that language shares its own card: scripts/site.js head() picks it when it exists;
 #                                 the Chinese words are set in Microsoft YaHei, the site's own faces having no Han)
+#   python scripts/og.py cv       only the CV's three cards: public/site/og/cv.jpg, cv-id.jpg, cv-zh.jpg (words from
+#                                 node scripts/site.js --og-cv; the full runs above draw them too, each in its languages)
 # writes public/og.jpg (the site's card), public/site/og/<key>.jpg (one card per project, in its colours, with its screenshot),
 # public/site/og/work.jpg (the archive's: its title and a wall of the screenshots),
 # public/apple-touch-icon.png, public/favicon.ico, public/favicon.svg and public/site/icon-192.png, icon-512.png,
@@ -340,6 +342,104 @@ def archive_card(data, ui=None):
     return card
 
 
+def paper(c):
+    """the CV as a sheet of paper, in its own layout but without words beyond the name (any smaller would be a blur): the head
+    with its chips, the column of experience, education and projects, the narrow one of contact and skills"""
+    pw, ph = 380, 537
+    # (drawn opaque so the translucent greys blend into the paper; made RGBA at the end, for the turn)
+    sheet = Image.new('RGB', (pw, ph), (247, 243, 234))
+    d = ImageDraw.Draw(sheet, 'RGBA')
+    ink, grey, amber = (23, 18, 12, 255), (23, 18, 12, 64), (143, 84, 24, 255)
+    d.text((32, 26), 'NAVY GIBRAN', font=font(COND, 46), fill=ink)
+    spaced(d, 33, 84, f"{c['role']} · {c['country']}".upper(), tfont(COND_SB, 10, c['role']), (23, 18, 12, 150), 1.4)
+    x = 32
+    for w in (96, 60, 80, 74):
+        d.rounded_rectangle((x, 104, x + w, 121), 9, outline=(23, 18, 12, 120), width=1)
+        x += w + 6
+    def label(x0, x1, y, w):
+        d.rectangle((x0, y, x0 + w, y + 5), fill=amber)
+        d.line([(x0, y + 13), (x1, y + 13)], fill=(23, 18, 12, 40), width=1)
+        return y + 24
+    def entry(x0, y, title, lines, date=True):
+        if date:
+            d.rectangle((x0, y + 1, x0 + 30, y + 5), fill=(23, 18, 12, 90))
+        tx = x0 + (42 if date else 0)
+        d.rectangle((tx, y, tx + title, y + 7), fill=ink)
+        for i, w in enumerate(lines):
+            d.rectangle((tx, y + 14 + i * 10, tx + w, y + 18 + i * 10), fill=grey)
+        return y + 26 + len(lines) * 10
+    # the wide column: experience, education, selected projects
+    y = label(32, 226, 146, 58)
+    for t, ls in ((92, (140, 118)), (118, (136, 96)), (74, (128,)), (96, (110,))):
+        y = entry(32, y, t, ls)
+    y = label(32, 226, y + 6, 52)
+    for t, ls in ((104, (140, 120)), (128, (86,))):
+        y = entry(32, y, t, ls)
+    y = label(32, 226, y + 6, 66)
+    for t, ls in ((62, (190, 150)), (70, (182, 120)), (84, (170,))):
+        y = entry(32, y, t, ls, date=False)
+    # the narrow column: contact, skills (the most used in bold), spoken languages
+    y = label(246, 348, 146, 40)
+    for w in (92, 70, 102, 84, 64):
+        d.rectangle((246, y, 246 + w, y + 4), fill=(23, 18, 12, 110))
+        y += 11
+    y = label(246, 348, y + 8, 30)
+    for bold, light in ((52, 40), (44, 46), (38, 52), (58, 30), (0, 86), (0, 70), (0, 92)):
+        d.rectangle((246, y, 246 + 34, y + 3), fill=(23, 18, 12, 120))
+        if bold:
+            d.rectangle((246, y + 8, 246 + bold, y + 13), fill=ink)
+        d.rectangle((246 + bold + (5 if bold else 0), y + 9, 246 + bold + (5 if bold else 0) + light, y + 12), fill=grey)
+        y += 22
+    y = label(246, 348, y + 6, 58)
+    for w in (98, 76):
+        d.rectangle((246, y, 246 + w, y + 4), fill=grey)
+        y += 10
+    return sheet.convert('RGBA')
+
+
+def cv_card(c):
+    """the CV's card (/cv/): the name, the role and the CV's own facts on the left, the sheet itself on the right, tilted, on the
+    page black with the amber glow"""
+    card = Image.new('RGBA', (W, H), BG + (255,))
+    glow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse((-260, -220, 560, 520), fill=ACC + (34,))
+    ImageDraw.Draw(glow).ellipse((700, 160, 1360, 820), fill=ACC + (26,))
+    card.alpha_composite(glow.filter(ImageFilter.GaussianBlur(120)))
+    sheet = paper(c).rotate(-5, resample=Image.BICUBIC, expand=True)
+    sx, sy = 742, 38
+    drop_shadow(card, sheet, (sx, sy), blur=30, dy=26, alpha=190)
+    card.alpha_composite(sheet, (sx, sy))
+    d = ImageDraw.Draw(card, 'RGBA')
+    kicker(d, 72, 96, c['kick'], (241, 234, 219, 185), ACC)
+    big = font(COND, 150)
+    d.text((64, 136), 'NAVY', font=big, fill=INK)
+    d.text((64, 262), 'GIBRAN', font=big, fill=INK)
+    line = f"{c['role']}, {c['country']}" if not CJK.search(c['role']) else f"{c['role']} · {c['country']}"
+    d.text((70, 404), line, font=tfont(ITALIC, 46, line), fill=ACC2)
+    # the facts as the CV's chips: outlined pills in spaced capitals, two rows at most within the left column
+    x, y, max_x, ph_ = 72, 468, 680, 36
+    for f in c['facts']:
+        txt = f.upper()
+        tf = tfont(COND_SB, 16, txt)
+        tw = sum(d.textlength(ch, font=tf) for ch in txt) + 1.8 * (len(txt) - 1)
+        w = round(tw + 32)
+        if x + w > max_x and x > 72:
+            x, y = 72, y + ph_ + 8
+        d.rounded_rectangle((x, y, x + w, y + ph_), ph_ // 2, outline=(241, 234, 219, 95), width=2)
+        spaced(d, x + 16, y + (8 if not CJK.search(txt) else 7), txt, tf, (241, 234, 219, 215), 1.8)
+        x += w + 10
+    mark(card, 72, 572, 0.15, ACC)
+    spaced(d, 112, 578, c['url'], font(COND_SB, 20), (241, 234, 219, 165), 3)
+    return card
+
+
+def cv_cards(langs):
+    out = json.loads(subprocess.run(['node', os.path.join(ROOT, 'scripts', 'site.js'), '--og-cv'], capture_output=True, text=True, encoding='utf8', check=True).stdout)
+    for lang in langs:
+        name = 'cv.jpg' if lang == 'en' else f'cv-{lang}.jpg'
+        print(f'site/og/{name}', save_jpg(cv_card(out[lang]), os.path.join(PUB, 'site', 'og', name)))
+
+
 def icon(size, scale, path):
     """the mark in amber on the page black; drawn large, then scaled down for clean edges"""
     S = size * 4
@@ -366,7 +466,12 @@ def favicon(path):
 
 
 if __name__ == '__main__':
+    if 'cv' in sys.argv[1:]:   # python scripts/og.py cv → only the CV's three cards
+        cv_cards(['en', 'id', 'zh'])
+        sys.exit(0)
     langs = [a for a in sys.argv[1:] if a in ('id', 'zh')]
+    if langs:
+        cv_cards(langs)
     for lang in langs:
         out = json.loads(subprocess.run(['node', os.path.join(ROOT, 'scripts', 'site.js'), '--og-data', lang], capture_output=True, text=True, encoding='utf8', check=True).stdout)
         ui, data = out['ui'], out['projects']
@@ -381,6 +486,7 @@ if __name__ == '__main__':
     for p in data:
         print(f"site/og/{p['key']}.jpg", save_jpg(project_card(p), os.path.join(PUB, 'site', 'og', p['key'] + '.jpg')))
     print('site/og/work.jpg', save_jpg(archive_card(data), os.path.join(PUB, 'site', 'og', 'work.jpg')))
+    cv_cards(['en'])
     icon(180, 0.7, os.path.join(PUB, 'apple-touch-icon.png'))
     icon(192, 0.7, os.path.join(PUB, 'site', 'icon-192.png'))
     icon(512, 0.7, os.path.join(PUB, 'site', 'icon-512.png'))

@@ -1088,7 +1088,7 @@ function cvPage(D, ctx) {
     const href = live && live.startsWith('/') ? `${ORIGIN}${live}` : live || gh;
     return `<li><a href="${esc(href)}" target="_blank" rel="noopener" data-print="${esc((gh || href).replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}" data-track="lab_open" data-lab="${l.key}" data-channel="cv"><b>${esc(l.name)}</b></a><span class="cv-stack">${esc(l.stack.join(' · '))}</span><p>${esc(l.line)}</p></li>`; }).join('');
   const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${t('cv_title')} | Navy Gibran`, url: `${ORIGIN}${u('/cv/')}`, inLanguage: L.html, mainEntity: { '@id': PERSON_ID, ...personLd(D) } };
-  return head({ title: `${t('cv_title')} | Navy Gibran`, description: t('cv_desc'), pathname: '/cv/', css: ctx.css, imageAlt: t('ogDefaultAlt'), extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` }) + `
+  return head({ title: `${t('cv_title')} | Navy Gibran`, description: t('cv_desc'), pathname: '/cv/', css: ctx.css, ...(exists('site/og/cv.jpg') ? { image: `${ORIGIN}/site/og/cv.jpg`, imageAlt: t('ogCvAlt') } : { imageAlt: t('ogDefaultAlt') }), extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` }) + `
 <body class="cv-page">
 ${header('cv', '/cv/')}
 <main id="main" class="wrap cv" tabindex="-1">
@@ -1329,7 +1329,13 @@ export async function renderSite() {
 }
 
 // node scripts/site.js → writes the pages into KW_OUT or dist/ (the build calls renderSite itself)
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes('--og-data')) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes('--og-cv')) {
+  const D = await loadData();
+  const n = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
+  const out = {};
+  for (const lang of LANG_ORDER) { setLang(lang); out[lang] = { kick: t('cv_title'), role: t('role'), country: { id: 'Indonesia', zh: '印度尼西亚' }[lang] || 'Indonesia', facts: t('facts').map((f) => fill(f, { n })), url: `NAVYGIBRAN.DEV${LANGS[lang].prefix.toUpperCase()}/CV` }; }
+  process.stdout.write(JSON.stringify(out));
+} else if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes('--og-data')) {
   const D = await loadData();
   const order = counted(D);   // (numbered as the site numbers them; the hub after the projects)
   const want = process.argv[process.argv.indexOf('--og-data') + 1];
