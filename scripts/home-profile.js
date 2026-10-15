@@ -130,7 +130,7 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', roll = (x) => esc(x), faq = null, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   const chip = (t) => { const s = TOOL_MARK[t], inner = `${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}`; return CHIP_LINK[t] ? `<a class="pf-chip pf-chip--a" href="${u(`/work/${CHIP_LINK[t]}/`)}" data-track="project_open" data-project="${CHIP_LINK[t]}" data-from="profile-chip">${inner}</a>` : `<span class="pf-chip">${inner}</span>`; };
   const dur = (m) => {
@@ -171,17 +171,20 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     if (!p.now && p.date === 'live') return `<span class="pf-live"><i aria-hidden="true"></i>${esc(W.status.live)}</span>${yr ? `<i>·</i><span>${esc(yr)}</span>` : ''}`;
     return `<span>${esc(status(p))}</span>`;
   };
-  const stk = (p) => (p.stack ? stackOf(p) : '').split(' · ').slice(0, 2).join(' · ');   // (stackOf: site.js, the words translated)
+  // what kind of build a project is (site.js: the /work/ filter's word, in the singular), before its trade; the stack chip never
+  // repeats it (stackOf: site.js, the words translated)
+  const kindTag = (p) => { const k = kind(p); return k ? `<span class="pf-kind">${esc(k)}</span><i>·</i>` : ''; };
+  const stk = (p) => { const k = String(kind(p) || '').toLowerCase(); return (p.stack ? stackOf(p) : '').split(' · ').filter((x) => x && x.toLowerCase() !== k).slice(0, 2).join(' · '); };
   const sm = (rel, w) => { const x = rel.replace(/\.webp$/, `-${w}.webp`); return x !== rel && exists(x) ? x : null; };
   const cover = (rel, sizes, w, h) => { const set = [[sm(rel, 384), 384], [sm(rel, 800), 800]].filter(([x]) => x).map(([x, n]) => `/${x} ${n}w`).join(', '); return `<img src="/${rel}"${set ? ` srcset="${set}" sizes="${sizes}"` : ''} alt="" loading="lazy" decoding="async" width="${w}" height="${h}">`; };
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
       <span class="pf-th">${m.cover ? cover(m.cover, '96px', 96, 60) : I.folder}</span>
-      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span></span>
+      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta">${kindTag(p)}<span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span></span>
       <span class="pf-pj-st">${esc(stk(p))}</span><span class="pf-go">${I.out}</span></a></li>`; };
   const hostOf = (url) => { try { return new URL(url).host.replace(/^www\./, ''); } catch (x) { return ''; } };
   const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}">
       <span class="pf-feat-pic"><span class="pf-feat-bar" aria-hidden="true"><i></i><i></i><i></i>${p.url ? `<span>${esc(hostOf(p.url))}</span>` : ''}</span>${m.cover ? cover(m.cover, '(min-width: 800px) 240px, (min-width: 481px) 46vw, 92vw', 640, 400) : I.folder}</span>
-      <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
+      <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta">${kindTag(p)}<span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
       <span class="pf-go">${I.out}</span></a></li>`; };
   // the three cards lead with sites that open: a domain that stopped resolving is left out of the cards (it stays in the list below,
   // untouched; whether it still counts as live is Navy's call). Checked 2026-10-16: miniaturkapal.com and airon.site gave NXDOMAIN.
@@ -570,6 +573,7 @@ html:has(.pf-tabs--pin) { scroll-padding-top: calc(var(--head-h) + 70px); }
 .pf-th img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.15) brightness(0.95); } .pf-th svg { width: 20px; height: 20px; }
 .pf-pj b { font: 700 clamp(17px, 1.6vw, 20px)/1.2 var(--cond); text-transform: uppercase; }
 .pf-pj .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 14.5px var(--text); color: var(--dim); }
+.pf-kind { color: var(--ink); }
 .pf-go { color: var(--faint); transition: color 0.3s, transform 0.4s var(--ease); } .pf-go .ar { width: 14px; height: 14px; } .pf-pj a:hover .pf-go { color: var(--accent-2); transform: translate(2px, -2px); }
 .pf-more { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--dim); font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
 .pf-more svg { width: 14px; height: 14px; transition: transform 0.4s var(--ease); } .pf-more:hover { border-color: var(--ink); color: var(--ink); } .pf-more.open svg { transform: rotate(180deg); }

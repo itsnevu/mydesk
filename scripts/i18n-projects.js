@@ -88,18 +88,19 @@ export const PROJECTS_T = {
   },
 };
 
-// the worlds' notes (the 3D hotspots), on the project page as "Inside the project"
+// the worlds' notes (the 3D hotspots), on the project page as "Inside the project". Only the project page reads them, so they name
+// the world from outside ('lantai 3D-nya', '3D 街道'), never 'this floor' or 'this street'; the English gets the same rewrite in projectPage
 export const WORLDS_T = {
   id: {
     'signal-garden': { tagline: 'satu sistem, setiap departemen', hotspots: {
-      screen: { title: 'Dashboard', body: 'Jumlah karyawan, absensi hari ini, tugas tertunda dan penggajian bulanan dalam satu layar, dengan jalan pintas ke setiap modul. Setiap sudut lantai ini adalah salah satunya, dan layar ini merespons saat sesuatu terjadi di sana.' },
+      screen: { title: 'Dashboard', body: 'Jumlah karyawan, absensi hari ini, tugas tertunda dan penggajian bulanan dalam satu layar, dengan jalan pintas ke setiap modul. Setiap sudut lantai 3D-nya adalah salah satunya, dan layarnya merespons saat sesuatu terjadi di sana.' },
       desk: { title: 'Karyawan', body: 'Daftar staf (siapa yang bekerja di sini), dengan jumlah karyawan yang ditarik ke dashboard. Salah satu fitur inti yang saya bangun, bersama autentikasi.' },
       papers: { title: 'Penggajian', body: 'Pengeluaran bulanan, ditampilkan di dashboard tepat di samping jumlah karyawan.' },
       lamp: { title: 'CRM', body: 'Dengan siapa perusahaan sedang berbicara: kontaknya, satu jalan pintas dari dashboard.' },
       tower: { title: 'Inti sistem', body: 'Go dan PostgreSQL di balik setiap layar. Kesehatan sistem (status database, penyimpanan, backup) ditampilkan di antarmuka, bukan terkubur di server.' },
       greenhouse: { title: 'Absensi & cuti', body: 'Pencatatan hadir/tidak hadir harian, dirangkum sebagai persentase hari itu, dengan cuti ditangani di sistem yang sama.' } } },
     'market-district': { tagline: 'dua puluh tiga situs live, tanpa mockup', hotspots: {
-      sign: { title: 'Jalan pasar', body: 'Dua puluh tiga website live untuk bisnis Indonesia: perawatan mobil, manufaktur, florist, optik, kemasan, kasur, properti, event, rak server, dekorasi rumah, sewa gaun anak, petualangan sungai di Bali. Setiap toko di jalan ini adalah klien sungguhan.' },
+      sign: { title: 'Jalan pasar', body: 'Dua puluh tiga website live untuk bisnis Indonesia: perawatan mobil, manufaktur, florist, optik, kemasan, kasur, properti, event, rak server, dekorasi rumah, sewa gaun anak, petualangan sungai di Bali. Setiap toko di jalan 3D-nya adalah klien sungguhan.' },
       shelves: { title: 'Company profile', body: 'Tujuh belas company profile WordPress yang bisa diserahkan klien ke tim mereka sendiri: Dams Garage, NF Optical, The Bedji Group, Gracia Box, Yukti Rasa Mitrabumi dan lainnya.' },
       counter: { title: 'Kasir', body: 'Empat toko WooCommerce: PT. Rumindo Pertiwi Wardhana, florist Flora Indonesia; Miniatur Kapal, miniatur kapal buatan tangan; FLS Group Indonesia, dekorasi feng shui dan lampu LED; dan Orthobone, kasur ortopedi. Pembayaran dan logistik pengiriman bagian dari bangunan.' },
       crate: { title: 'Di balik toko-toko', body: 'Tema custom bila desainnya menuntut, Elementor bila klien akan mengedit halaman sendiri, dan aplikasi SvelteKit custom ketika CMS bukan alat yang tepat, seperti untuk Winfaith.' } } },
@@ -111,14 +112,14 @@ export const WORLDS_T = {
   },
   zh: {
     'signal-garden': { tagline: '一套系统，覆盖每个部门', hotspots: {
-      screen: { title: '仪表盘', body: '员工总数、今日考勤、待办任务和当月薪资，一屏看完，并有通往每个模块的快捷入口。这层楼的每个角落都是其中一个模块，那里一有动静，屏幕就会响应。' },
+      screen: { title: '仪表盘', body: '员工总数、今日考勤、待办任务和当月薪资，一屏看完，并有通往每个模块的快捷入口。3D 楼层的每个角落都是其中一个模块，那里一有动静，屏幕就会响应。' },
       desk: { title: '员工', body: '员工名册（谁在这里工作），员工总数汇总到仪表盘。我做的核心功能之一，和认证一起。' },
       papers: { title: '薪资', body: '每月支出，显示在仪表盘上，就在员工总数旁边。' },
       lamp: { title: 'CRM', body: '公司正在联系的人：联系人列表，离仪表盘只有一步。' },
       tower: { title: '核心', body: '每个界面背后都是 Go 和 PostgreSQL。系统健康（数据库状态、存储、备份）直接显示在界面里，而不是埋在服务器上。' },
       greenhouse: { title: '考勤与请假', body: '每日出勤/缺勤记录，汇总为当天的出勤率，请假在同一个系统里处理。' } } },
     'market-district': { tagline: '二十三个上线网站，没有样稿', hotspots: {
-      sign: { title: '市场街', body: '为印尼企业做的二十三个上线网站：汽车美容、制造业、花店、眼镜、包装、床垫、房产、活动、服务器机柜、家居装饰、儿童礼服租赁、巴厘岛的河上探险。这条街上的每家店都是真实的客户。' },
+      sign: { title: '市场街', body: '为印尼企业做的二十三个上线网站：汽车美容、制造业、花店、眼镜、包装、床垫、房产、活动、服务器机柜、家居装饰、儿童礼服租赁、巴厘岛的河上探险。3D 街道上的每家店都是真实的客户。' },
       shelves: { title: '企业官网', body: '十七个 WordPress 企业站，客户事后可以交给自己的团队维护：Dams Garage、NF Optical、The Bedji Group、Gracia Box、Yukti Rasa Mitrabumi 等。' },
       counter: { title: '收银台', body: '四家 WooCommerce 商店：PT. Rumindo Pertiwi Wardhana 旗下的花店 Flora Indonesia；手工船模 Miniatur Kapal；风水摆件和 LED 灯的 FLS Group Indonesia；以及骨科床垫 Orthobone。支付和配送物流都是开发的一部分。' },
       crate: { title: '店铺背后', body: '设计有要求时用定制主题，客户要自己改页面时用 Elementor，CMS 不合适时用定制的 SvelteKit 应用，比如 Winfaith。' } } },
