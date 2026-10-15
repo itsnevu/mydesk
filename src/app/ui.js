@@ -285,10 +285,10 @@ export const detail = {
     $('detail-wa')?.addEventListener('click', () => window.nvTrack?.('contact_click', { channel: 'WhatsApp', from: 'desk-project', project: detail.current?.key }));
     const reach = $('detail-reach');
     if (reach) {
-      reach.innerHTML = `<p><strong>${SITE.status}</strong> · ${SITE.where}</p>${linksRow()}`;
+      reach.innerHTML = `<p><strong>${SITE.status}</strong> · ${SITE.where}</p>${linksRow('desk-project-links')}`;
       reach.addEventListener('click', (e) => {
         const a = e.target.closest('a');
-        if (a) window.nvTrack?.('contact_click', { channel: a.textContent.trim(), from: 'desk-project-links', project: detail.current?.key });
+        if (a) window.nvTrack?.('contact_click', { channel: a.dataset.channel || a.textContent.trim(), from: 'desk-project-links', project: detail.current?.key });
       });
     }
     $('detail').inert = true;
