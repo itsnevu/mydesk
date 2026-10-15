@@ -745,6 +745,14 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-all { min-height: 44px; margin: -8px 0; }
 }
 @media (pointer: coarse) { .pf-banner-go, .pf-reel-pause { height: 44px; min-width: 44px; justify-content: center; } }
+/* on a touch screen the home's remaining small links are 44 px tall too (View all and the expand button at every width, the services' proof links, the footer's links): the extra room comes from the space around them, so a row on its own moves nothing, and rows that wrap open up just enough that no two touch areas overlap */
+@media (hover: none), (pointer: coarse) {
+  .pf-all { min-height: 44px; margin: -8px 0; }
+  .pf-svc-p { row-gap: 29px; }
+  .pf-svc-p a { min-height: 44px; margin: -14.5px 0; }
+  .sf-links { row-gap: 0; margin: -14px 0; }
+  .sf-links a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+}
 .motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text, .motion-off .pf-reel.is-swap .pf-stage-top { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
