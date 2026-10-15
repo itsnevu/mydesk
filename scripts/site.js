@@ -241,12 +241,13 @@ const MARK_D = [...read('site/mark.svg').matchAll(/ d="([^"]+)"/g)].map((m) => m
 const MARK = (cls = '') => `<svg class="nv-mark${cls ? ` ${cls}` : ''}" viewBox="150 140 220 214" aria-hidden="true">${MARK_D.map((d) => `<path d="${d}" pathLength="1"/>`).join('')}</svg>`;
 const circleGo = `<span class="go" aria-hidden="true">${arrowR}</span>`;
 
+let eagerSeen = 0;   // (eager pictures on the page being rendered; head() starts each page at 0)
 function img(rel, alt, { cls = '', sizes = '100vw', eager = false } = {}) {
   const d = imgSize(rel), c = [cls, eager ? '' : 'lz'].filter(Boolean).join(' ');
   // (a smaller copy, when scripts/thumbs.py has made one, is offered beside the original: a phone takes the 800 px one)
   const small = rel.replace(/\.webp$/, '-800.webp');
   const set = d && small !== rel && exists(small) ? ` srcset="/${small} 800w, /${rel} ${d.w}w"` : '';
-  return `<img src="/${rel}"${set} alt="${esc(alt)}"${d ? ` width="${d.w}" height="${d.h}"` : ''}${c ? ` class="${c}"` : ''} sizes="${sizes}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`;
+  return `<img src="/${rel}"${set} alt="${esc(alt)}"${d ? ` width="${d.w}" height="${d.h}"` : ''}${c ? ` class="${c}"` : ''} sizes="${sizes}" ${eager ? (eagerSeen++ === 0 ? 'fetchpriority="high"' : '') : 'loading="lazy"'} decoding="async">`.replace(/" +decoding/, '" decoding');
 }
 
 export function projectMedia(D, p) {
@@ -297,6 +298,7 @@ function roll(text, em = '') {
 // are built from it. The default language's pages forward to a remembered choice (the switch sets it) before anything paints.
 function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false }) {
   const url = `${ORIGIN}${PFX}${pathname}`;
+  eagerSeen = 0;
   // the home (the simple page) remembers which reading the visitor chose at the gate: "full" sends them to the story before anything
   // paints, in the language they remembered too (this runs before the language forward, so the two never race), never when the
   // address carries a hash, nor inside the desk's sheet
