@@ -22,7 +22,7 @@ body.hints-on #toast { opacity: 0 !important; }   /* a message would sit on the 
 @media (min-width: 1025px) { #hints .hn { transform: translate(-50%, calc(-100% - 9px)) scale(var(--ui, 1)); transform-origin: 50% 100%; } #hints-bar { zoom: var(--ui, 1); } }
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
   #hints .hn { font-size: 12px; padding: 4px 9px 4px 4px; }
-  #hints-bar { left: 16px; right: 16px; bottom: calc(136px + var(--safe-b, 0px)); transform: translateY(10px); justify-content: space-between; white-space: normal; font-size: 13px; }
+  #hints-bar { left: calc(16px + var(--safe-l, 0px)); right: calc(16px + var(--safe-r, 0px)); bottom: calc(136px + var(--safe-b, 0px)); transform: translateY(10px); justify-content: space-between; white-space: normal; font-size: 13px; }
   #hints-bar.on { transform: none; }
   #hints-bar .say { flex: 1; }
 }

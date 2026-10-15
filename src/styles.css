@@ -316,7 +316,7 @@ a.detail-3d { text-decoration: none; }
   .dc-text b { font-weight: 600; color: var(--paper); font-variant-numeric: tabular-nums; }
   .dc-bar { display: block; width: 112px; height: 2px; border-radius: 1px; background: rgba(231, 221, 200, 0.16); overflow: hidden; }
   .dc-bar i { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); transition: transform 0.7s var(--ease); }
-  .discovery-list { left: 0; top: calc(100% + 8px); width: calc(100vw - 40px); max-height: 58vh; }
+  .discovery-list { left: 0; top: calc(100% + 8px); width: calc(100vw - 40px - var(--safe-l) - var(--safe-r)); max-height: 58vh; }
   #nav-hints { display: none; }
   #menu-toggle, #back-btn { right: 16px; top: calc(20px + var(--safe-t)); }
   #site-menu { right: 20px; top: calc(70px + var(--safe-t)); }
@@ -333,7 +333,7 @@ a.detail-3d { text-decoration: none; }
   #toast { top: auto; bottom: calc(142px + var(--safe-b)); max-width: calc(100vw - 32px); text-align: center; line-height: 1.6; }
   /* the project pages: "back" is a big pill that stays at the top while you scroll */
   .detail-back { position: sticky; top: 10px; z-index: 3; display: inline-flex; align-items: center; margin: 0 0 22px; padding: 11px 18px; border: 1px solid var(--line); border-radius: 999px; background: rgba(18,15,10,0.9); backdrop-filter: blur(8px); font-size: 14px; letter-spacing: 0.12em; color: var(--paper); }
-  .detail-scroll { padding: 40px 20px 60px; }
+  .detail-scroll { padding: 40px calc(20px + var(--safe-r)) 60px calc(20px + var(--safe-l)); }
   .detail-fields { gap: 24px; }
   #spatial, #spatial[data-side="left"] { left: 0 !important; top: auto !important; bottom: 0; width: 100vw; transform: none; }
   #spatial.visible, #spatial.visible[data-side="left"] { transform: none; }
@@ -544,7 +544,7 @@ body[data-story] #kbd-hints, body[data-story] #nav-hints { opacity: 0 !important
 @media (max-width: 1180px) and (min-width: 761px) { #story { bottom: calc(92px + var(--safe-b)); } }
 /* phones and tablets: the card is a sheet along the bottom; the labels lose their dates */
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
-  #story { left: 12px; right: 12px; width: auto; bottom: calc(12px + var(--safe-b)); transform: translateY(14px); padding: 14px 16px; }
+  #story { left: calc(12px + var(--safe-l)); right: calc(12px + var(--safe-r)); width: auto; bottom: calc(12px + var(--safe-b)); transform: translateY(14px); padding: 14px 16px; }
   #story.visible { transform: none; }
   .st-title { font-size: 19px; }
   .st-body { font-size: 14px; }
@@ -654,10 +654,10 @@ body[data-state="gate"] #gate-intro { opacity: 1; transform: none; }
 .gi-sub { font-size: 13px; line-height: 1.45; color: var(--paper-dim); }
 @media (min-width: 1025px) { #exit-3d, #gate-intro { zoom: var(--ui, 1); } }
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
-  #exit-3d { left: 16px; top: calc(14px + var(--safe-t)); height: 44px; padding: 0 15px 0 7px; font-size: 13px; }
+  #exit-3d { left: calc(16px + var(--safe-l)); top: calc(14px + var(--safe-t)); height: 44px; padding: 0 15px 0 7px; font-size: 13px; }
   #exit-3d i { width: 28px; height: 28px; font-size: 14px; }
   body:not([data-state="loading"]):not([data-state="gate"]) #exit-3d { display: none; }
-  #gate-intro { left: 16px; right: 16px; top: calc(62px + var(--safe-t)); max-width: none; text-align: left; gap: 4px; }
+  #gate-intro { left: calc(16px + var(--safe-l)); right: calc(16px + var(--safe-r)); top: calc(62px + var(--safe-t)); max-width: none; text-align: left; gap: 4px; }
   .gi-line { font-size: 15px; } .gi-sub { font-size: 12px; }
 }
 

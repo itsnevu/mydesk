@@ -19,7 +19,8 @@ const CSS = `
 #guide-btn { position: absolute; left: 40px; bottom: calc(30px + var(--safe-b, 0px)); z-index: 40; display: flex; align-items: center; gap: 10px; padding: 11px 18px 11px 12px; border: 1px solid rgba(217,160,91,0.6); border-radius: 999px; background: rgba(18,15,10,0.78); backdrop-filter: blur(8px); color: var(--paper, #e7ddc8); font: 600 14px/1 var(--sans, system-ui); letter-spacing: 0.04em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .5s, border-color .2s, transform .2s; }
 #guide-btn b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--accent, #d9a05b); color: #1a140d; font-size: 15px; }
 #guide-btn:hover { border-color: var(--accent, #d9a05b); transform: translateY(-1px); }
-#guide-btn.pulse b { animation: guide-pulse 1.6s ease-in-out 5; }
+/* the pulse that points a first-timer at the guide waits for the desk: on the gate the button is hidden and a pulse there is spent unseen; the .8s lets the button fade in first and skips the moment the desk shows before "See the work" or the tour takes over */
+body[data-state="desk"] #guide-btn.pulse b { animation: guide-pulse 1.6s ease-in-out .8s 5; }
 @keyframes guide-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,160,91,0.7); } 50% { box-shadow: 0 0 0 9px rgba(217,160,91,0); } }
 body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="entering"]) #guide-btn { opacity: 1; pointer-events: auto; }
 #guide { position: absolute; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(8,6,4,0.62); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity .3s; }
@@ -65,12 +66,16 @@ body[data-state="gate"] #gate-tip { opacity: 1; }
   #gate-tip { bottom: calc(88px + var(--safe-b, 0px)); font-size: 15px; }
 }
 /* a phone held sideways: a full-width bar would eat the short screen, so "? Guide" and "See the work" take the two bottom
-   corners (on the gate the button is centred), clear of the notch */
+   corners, clear of the notch. On the gate "See the work" and the tour stand side by side under the two keys, the same pill,
+   as on a desktop (the full-width tour bar lay across the keys and took taps meant for QUIET), and the tip sits just above
+   them (a gate rule, so it outranks the phone block's) */
 @media (pointer: coarse) and (orientation: landscape) and (max-height: 500px) {
   #quick-btn { left: auto; right: calc(16px + var(--safe-r, 0px)); bottom: calc(14px + var(--safe-b, 0px)); padding: 15px 24px; border-radius: 999px; font-size: 15px; }
-  body[data-state="gate"] #quick-btn { left: 50%; right: auto; bottom: calc(14px + var(--safe-b, 0px)); transform: translateX(-50%); }
+  body[data-state="gate"] #quick-btn { left: 50%; right: auto; bottom: calc(14px + var(--safe-b, 0px)); transform: translateX(calc(-100% - 6px)); padding: 15px 24px; border-radius: 999px; font-size: 15px; }
+  #tour-btn { left: 50%; right: auto; bottom: calc(14px + var(--safe-b, 0px)); transform: translateX(6px); padding: 14px 24px; border-radius: 999px; font-size: 15px; }
+  #tour-btn:hover { transform: translateX(6px); }
   #guide-btn { left: calc(16px + var(--safe-l, 0px)); bottom: calc(14px + var(--safe-b, 0px)); }
-  #gate-tip { bottom: calc(76px + var(--safe-b, 0px)); }
+  body[data-state="gate"] #gate-tip { bottom: calc(76px + var(--safe-b, 0px)); }
   #guide .card { padding: 20px 22px 16px; }
 }
 #guide h2 { margin: 0 0 6px; font-size: 28px; font-weight: 700; }
@@ -101,6 +106,8 @@ export function initGuide(xp) {
   const style = document.createElement('style'); style.textContent = CSS; document.head.appendChild(style);
   const btn = document.createElement('button'); btn.id = 'guide-btn'; btn.type = 'button'; btn.className = 'pulse';
   btn.setAttribute('aria-label', 'Open the guide'); btn.innerHTML = '<b>?</b> Guide';
+  // five pulses, once: a run cut short by leaving the desk starts over on the way back; one played to the end takes the class away
+  btn.addEventListener('animationend', (e) => { if (e.animationName === 'guide-pulse') btn.classList.remove('pulse'); });
   const panel = document.createElement('div'); panel.id = 'guide'; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true'); panel.setAttribute('aria-labelledby', 'guide-title');
   // on a touch screen the copy says tap, not click
   const touch = matchMedia('(pointer: coarse)').matches; const verb = (t) => (touch ? t.replace(/^Click/, 'Tap').replace('click', 'tap') : t);
