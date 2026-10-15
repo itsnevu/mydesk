@@ -17,6 +17,55 @@ const touchWords = (s) => (!isTouch || !s ? s : String(s)
 // something hidden can't be tabbed into or read out while it's hidden
 const setShown = (el, on) => { el.inert = !on; el.setAttribute('aria-hidden', on ? 'false' : 'true'); };
 for (const id of ['spatial', 'view-project', 'detail']) { const e = $(id); if (e) e.inert = true; }   // (all three start hidden)
+// the plain-text copy of the page (index.html main.seo-text) is for search engines and screen readers: a screen reader still reads and follows its links, but Tab skips them (they are never drawn); a client added to that list later is covered too
+for (const a of document.querySelectorAll('.seo-text a')) a.tabIndex = -1;
+// the HUD's controls come and go with the state (styles.css, app/guide, app/hints): one that can't be clicked can't be tabbed into or read out either. pointer-events is the stylesheet's own answer (opacity only fades) and is never transitioned, so its computed value is final as soon as the state changes; focus never stays on a control that fades out
+const FADED = ['exit-3d', 'identity', 'discovery', 'menu-toggle', 'like-btn', 'hud-wa', 'sound-toggle', 'world-nav', 'guide-btn', 'quick-btn', 'tour-btn', 'hints-bar'];
+export function syncFaded() {
+  for (const id of FADED) {
+    const el = $(id); if (!el) continue;
+    const off = getComputedStyle(el).pointerEvents === 'none';
+    if (el.inert === off) continue;
+    if (off && el.contains(document.activeElement)) document.activeElement.blur();
+    el.inert = off;
+  }
+}
+// (the state, the back button, the hints class; not data-cursor, which changes on every hover; body only, no subtree)
+new MutationObserver(() => syncFaded()).observe(document.body, { attributes: true, attributeFilter: ['data-state', 'data-backvisible', 'class'] });
+compact.addEventListener?.('change', () => syncFaded());
+syncFaded();
+// The full-screen layers are modal, topmost first: the portfolio sheet (app/simplesite), the guide (app/guide) and the project
+// page. One is up while it is not inert: each flips inert as it opens and closes (#site takes focus a frame before its class)
+const layerUp = () => ['site', 'guide', 'detail'].map((id) => $(id)).find((l) => l && !l.inert) || null;
+const tabbables = (l) => [...l.querySelectorAll('a[href], button, iframe, input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+  .filter((x) => !x.disabled && !x.closest('[inert], [hidden]') && x.getClientRects().length);
+const lastIn = new WeakMap();   // where focus last was in each layer
+// Tab goes round inside the project page and the sheet, as it does in the guide (which wraps its own); the browser scrolls the
+// control it lands on into view, as for any Tab
+addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab' || e.ctrlKey || e.metaKey || e.altKey) return;
+  const l = layerUp(); if (!l || l.id === 'guide') return;
+  const f = tabbables(l); if (!f.length) return;
+  const first = f[0], last = f[f.length - 1], a = document.activeElement;
+  if (e.shiftKey ? a === first : a === last) { e.preventDefault(); (e.shiftKey ? last : first).focus(); }
+}, true);
+// focus that lands behind an open layer all the same (a Tab from nowhere after the guide closes over the page, Shift+Tab out of
+// the framed site, coming back from the address bar) goes back to where it was in the layer, without scrolling; if that is gone, or
+// was the framed site (focus only leaves it backwards), to the layer's last control when it came from before the layer, else its first
+document.addEventListener('focusin', (e) => {
+  const l = layerUp(); if (!l) return;
+  if (l.contains(e.target)) { lastIn.set(l, e.target); return; }
+  const f = tabbables(l); if (!f.length) return;
+  const back = lastIn.get(l), before = e.target.compareDocumentPosition(l) & l.DOCUMENT_POSITION_FOLLOWING;
+  (back && back.tagName !== 'IFRAME' && f.includes(back) ? back : before ? f[f.length - 1] : f[0]).focus({ preventScroll: true });
+});
+// was the last input a key or a pointer? Focus follows what opens (a panel, the story card) only for the keyboard. Both listeners
+// are registered here, before any capture listener that stops the event (the guide, the sheet, the hints, the discoveries list)
+let keyed = false;
+addEventListener('keydown', (e) => { if (!/^(Shift|Control|Alt|Meta)$/.test(e.key)) keyed = true; }, true);
+addEventListener('pointerdown', () => { keyed = false; }, true);
+// somewhere focus can go back to: still in the page, not inert, drawn, visible and clickable
+const canFocus = (el) => !!el && el !== document.body && el.isConnected && !el.closest('[inert]') && el.getClientRects().length > 0 && getComputedStyle(el).visibility === 'visible' && getComputedStyle(el).pointerEvents !== 'none';
 // the interface grows with big (or zoomed-out) windows: 1 on a laptop, up to 3.2; styles.css reads it as --ui (from 1025px up)
 let uiScale = 1;
 const setUIScale = () => { uiScale = innerWidth > 1024 ? Math.min(3.2, Math.max(1, Math.min(innerWidth / 1440, innerHeight / 810))) : 1; document.documentElement.style.setProperty('--ui', uiScale.toFixed(3)); };
@@ -66,6 +115,9 @@ function renderDiscoveryList() {
     }).join('');
 }
 function setDiscoveryOpen(v) {
+  // closing with focus in the list (before it is hidden from screen readers): a key hands it to the counter, a pointer lets go
+  const list = $('discovery-list'), a = document.activeElement;
+  if (!v && list.contains(a)) { if (keyed) $('discovery-toggle').focus({ preventScroll: true }); else a.blur(); }
   disc.open = v; if (v) renderDiscoveryList();
   $('discovery').classList.toggle('open', v); $('discovery-toggle').setAttribute('aria-expanded', String(v)); $('discovery-list').setAttribute('aria-hidden', String(!v));
 }
@@ -160,6 +212,8 @@ export const menu = {
     nav.innerHTML = '';
     for (const m of MENU) {
       const a = document.createElement('a'); a.href = m.href || `#${m.target}`; a.textContent = m.label; a.dataset.key = (m.key || m.target).toUpperCase();
+      // (the object tag shown on hover is CSS generated text from data-key, read in front of the word otherwise: "NOTE About"; the link is named by its own word)
+      a.setAttribute('aria-label', m.label.replace(/\s*↗\s*$/, ''));
       // a page of its own in a new tab (the CV): the desk stays as it is, so this is no way out (no curtain, no exit event)
       if (m.blank) {
         a.target = '_blank'; a.rel = 'noopener';
@@ -178,7 +232,7 @@ export const menu = {
   },
   get isOpen() { return $('site-menu').classList.contains('open'); },
   open() { $('site-menu').classList.add('open'); $('menu-toggle').classList.add('open'); $('menu-toggle').setAttribute('aria-expanded', 'true'); setShown($('site-menu'), true); },
-  close() { const nav = $('site-menu'); if (nav.contains(document.activeElement)) $('menu-toggle').focus(); nav.classList.remove('open'); $('menu-toggle').classList.remove('open'); $('menu-toggle').setAttribute('aria-expanded', 'false'); setShown(nav, false); },
+  close() { const nav = $('site-menu'); if (nav.contains(document.activeElement)) { const t = $('menu-toggle'); if (t.inert) document.activeElement.blur(); else t.focus(); } nav.classList.remove('open'); $('menu-toggle').classList.remove('open'); $('menu-toggle').setAttribute('aria-expanded', 'false'); setShown(nav, false); },
   toggle() { menu.isOpen ? menu.close() : menu.open(); },
 };
 
@@ -279,7 +333,7 @@ export const detail = {
       // the picture that is not there (JAKASN): the same light note as on the portfolio's page, in place of a generated card
       media.innerHTML = `<div class="shot-plate"><span class="sp-k mono">${esc(p.industry)}</span><span class="sp-tag mono">( ${esc(p.noShot.tag)} )</span><b>${esc(p.title)}</b><p>${esc(p.noShot.line)}</p><small class="mono">${esc(p.stack)}</small></div>`;
     } else media.appendChild(cardCanvas(p, 1280, 720));
-    const strip = $('detail-strip'); for (const b of strip.children) b.classList.toggle('active', b.dataset.key === p.key);
+    const strip = $('detail-strip'); for (const b of strip.children) { const on = b.dataset.key === p.key; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); }
     // the active thumbnail slides to the middle of the strip (scrollIntoView could also scroll the page under it)
     const active = strip.querySelector('.active'); if (active) strip.scrollTo({ left: active.offsetLeft - strip.offsetLeft - (strip.clientWidth - active.offsetWidth) / 2, behavior: 'smooth' });
     const opening = !detail.visible;
@@ -291,8 +345,12 @@ export const detail = {
   },
   hide() {
     const el = $('detail'); if (!el.classList.contains('visible')) return;
-    const r = detailReturn; detailReturn = null; if (el.contains(document.activeElement)) { if (r && r.isConnected && r !== document.body) r.focus({ preventScroll: true }); else document.activeElement.blur(); }
+    // the page goes down before focus goes back where it came from: while it is up, focus outside it is put back in it
+    const r = detailReturn, had = el.contains(document.activeElement); detailReturn = null;
+    if (had) document.activeElement.blur();
     el.classList.remove('visible'); setShown(el, false);
+    // focus goes back where it came from once the state after the page is set (every caller sets it right after this call) and the opener is back in reach ("See the work" is faded, so inert, while the page is up)
+    if (had && r && r.isConnected && r !== document.body) queueMicrotask(() => { syncFaded(); if (r.isConnected && document.activeElement === document.body && !r.closest('[inert]')) r.focus({ preventScroll: true }); });
   },
   get visible() { return $('detail').classList.contains('visible'); },
 };
@@ -335,11 +393,14 @@ $('sp-body').addEventListener('click', (e) => {
   // a panel's own next step (go inside, look closer): the scene does what a second click on the object would
   const go = e.target.closest('[data-go]'); if (go) { go.blur(); dispatchEvent(new CustomEvent('kw:go', { detail: go.dataset.go })); }
 });
+let panelReturn = null;   // what held focus when a panel opened from the keyboard: it gets it back when the panel closes
 function showPanel(sig, heading, html, side = 'right') {
-  const el = $('spatial');
+  const el = $('spatial'), opening = !el.classList.contains('visible');
   $('sp-sig').textContent = sig; typeHeading(heading); $('sp-body').innerHTML = `<button type="button" class="sp-close" aria-label="Close">×</button>${touchWords(html)}`;
   el.dataset.side = side; el.dataset.pref = side; el.classList.add('visible'); setShown(el, true);
   el.querySelector('.sp-card')?.scrollTo?.({ top: 0 }); // (a new panel starts at its top, not where the last one was scrolled to)
+  // opened from the keyboard, focus moves to the panel's title, so Tab goes on into the panel; a pointer leaves focus as it is
+  if (opening) { const a = document.activeElement; panelReturn = keyed && a && a !== document.body && !el.contains(a) ? a : null; if (keyed) $('sp-heading').focus({ preventScroll: true }); }
 }
 // the same outbound links: About shows them under its status line, with the CV as its one amber button; Contact opens with them;
 // every click is counted (the #sp-body listener above)
@@ -426,7 +487,7 @@ export const panel = {
     const ty = h > bottom0 - top0 ? (top0 + bottom0) / 2 : Math.min(Math.max(top0 + h / 2, y), bottom0 - h / 2);
     el.style.left = `${lx}px`; el.style.top = `${ty}px`;
   },
-  hide() { clearInterval(typeTimer); const el = $('spatial'); if (el.contains(document.activeElement)) document.activeElement.blur(); el.classList.remove('visible'); setShown(el, false); },
+  hide() { clearInterval(typeTimer); const el = $('spatial'), r = panelReturn; panelReturn = null; if (el.contains(document.activeElement)) { if (keyed && canFocus(r)) r.focus({ preventScroll: true }); else document.activeElement.blur(); } el.classList.remove('visible'); setShown(el, false); },
   get visible() { return $('spatial').classList.contains('visible'); },
 };
 
@@ -458,7 +519,8 @@ function storyCard() {
     <div class="st-row"><button type="button" class="st-prev mono">‹ back</button><button type="button" class="st-go mono"></button><button type="button" class="st-next mono"></button></div>`;
   document.body.appendChild(storyEl);
   storyEl.addEventListener('click', (e) => {
-    const b = e.target.closest('button'); if (!b || b.disabled) return; b.blur();
+    // a pointer lets go so Space and the arrows reach the story; a key press (its click has detail 0) keeps the button so Enter goes on pressing it
+    const b = e.target.closest('button'); if (!b || b.disabled) return; if (e.detail) b.blur();
     if (b.classList.contains('st-close')) storyH.onClose?.(); else if (b.classList.contains('st-prev')) storyH.onPrev?.(); else if (b.classList.contains('st-next')) storyH.onNext?.(); else if (b.classList.contains('st-go')) storyH.onGo?.();
   });
   setShown(storyEl, false);
@@ -467,17 +529,22 @@ function storyCard() {
 export const story = {
   // go: the label of the button that steps into the stop ('go inside', 'open it'), or null for a stop with no way in
   show(stop, i, n, handlers, { go = null, next = null } = {}) {
-    const el = storyCard(); storyH = handlers;
+    const el = storyCard(); storyH = handlers; const opening = !el.classList.contains('visible');
     el.querySelector('.st-step').textContent = `${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}`;
     el.querySelector('.st-when').textContent = stop.when;
     el.querySelector('.st-title').textContent = stop.title; el.querySelector('.st-body').textContent = stop.body;
     el.querySelector('.st-dots').innerHTML = Array.from({ length: n }, (_, k) => `<i class="${k < i ? 'done' : k === i ? 'on' : ''}"></i>`).join('');
-    el.querySelector('.st-prev').disabled = i === 0;
-    el.querySelector('.st-next').textContent = next || (i === 0 ? 'start →' : 'next stop →');
-    const g = el.querySelector('.st-go'); g.hidden = !go; if (go) g.textContent = go;
+    // a focused button about to be disabled (back, on the first stop) or hidden (go inside, on a stop with no way in) hands focus on
+    const prev = el.querySelector('.st-prev'), nx = el.querySelector('.st-next'), g = el.querySelector('.st-go'), a = document.activeElement;
+    if ((a === prev && i === 0) || (a === g && !go)) nx.focus({ preventScroll: true });
+    prev.disabled = i === 0;
+    nx.textContent = next || (i === 0 ? 'start →' : 'next stop →');
+    g.hidden = !go; if (go) g.textContent = go;
     // a new stop: the words fade across
     el.classList.remove('turn'); void el.offsetWidth; el.classList.add('turn');
     el.classList.add('visible'); setShown(el, true); document.body.dataset.story = '1';
+    // opened from the keyboard (T, a guide row, the tour button), focus goes to its first step; a pointer lets go of a control that is gone
+    if (opening) { if (keyed) nx.focus({ preventScroll: true }); else if (a && a !== document.body && !canFocus(a)) a.blur(); }
   },
   hide() { if (!storyEl) return; if (storyEl.contains(document.activeElement)) document.activeElement.blur(); storyEl.classList.remove('visible'); setShown(storyEl, false); delete document.body.dataset.story; },
   get visible() { return !!storyEl?.classList.contains('visible'); },
@@ -512,15 +579,16 @@ export const kbMap = {
     }
     mapPick = onPick;
     mapEl.innerHTML = items.map((it) => `<button type="button" class="km-pin${it.story ? ' km-story' : ''}" data-id="${it.id}"><span class="km-num mono">${esc(it.num)}</span><span class="km-text"><span class="km-title">${esc(it.title)}</span>${it.sub ? `<span class="km-sub mono">${esc(it.sub)}</span>` : ''}</span></button>`).join('');
-    mapEl.classList.add('visible');
+    mapEl.classList.add('visible'); mapEl.inert = false;
   },
   // the label stands centred over its point, held inside the window (it is drawn at the UI scale on big screens)
   place(id, x, y, on) {
     const b = mapEl?.querySelector(`[data-id="${id}"]`); if (!b) return;
     const hw = ((b.offsetWidth || 80) * uiScale) / 2 + 8; x = Math.min(Math.max(x, hw), innerWidth - hw);
     b.style.left = `${Math.round(x)}px`; b.style.top = `${Math.round(y)}px`; b.classList.toggle('off', !on);
+    if (b.inert === on) b.inert = !on;   // (an unseen label can't be tabbed to; written only on a change, as this runs every frame)
   },
-  hide() { if (!mapEl) return; if (mapEl.contains(document.activeElement)) document.activeElement.blur(); mapEl.classList.remove('visible'); },
+  hide() { if (!mapEl) return; if (mapEl.contains(document.activeElement)) document.activeElement.blur(); mapEl.inert = true; mapEl.classList.remove('visible'); },
   // after every pin is placed: zoomed out the districts crowd together, so pins that would overlap step aside (the story first)
   declutter() { if (!mapEl) return; const pins = [...mapEl.querySelectorAll('.km-pin')]; declutter([...pins.filter((p) => p.classList.contains('km-story')), ...pins.filter((p) => !p.classList.contains('km-story'))]); },
   get visible() { return !!mapEl?.classList.contains('visible'); },

@@ -96,7 +96,7 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","name":"Navy Gibran","url":"https://navygibran.dev/","image":"https://navygibran.dev/og.jpg","jobTitle":"Full-stack developer","description":"Full-stack developer and WordPress specialist: ERP systems in Go and Next.js, and websites for Indonesian businesses.","address":{"@type":"PostalAddress","addressCountry":"ID"},"knowsAbout":["Go","Next.js","React","TypeScript","Node.js","PostgreSQL","MySQL","Docker","Tailwind CSS","WordPress","WooCommerce","PHP"],"sameAs":["https://www.linkedin.com/in/navy-gibran-29950528a/","https://github.com/itsnevu"]}</script>
 </head>
 <body data-state="loading">
-  <canvas id="canvas" aria-label="Navy Gibran, interactive portfolio desk"></canvas>
+  <canvas id="canvas" role="img" aria-label="Navy Gibran, interactive portfolio desk"></canvas>
   <noscript><style>#loading, #hud { display: none !important; }</style><div style="position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center;font:16px/1.6 system-ui,sans-serif;color:#e7ddc8;background:#120f0a"><div><strong style="font-size:22px">Navy Gibran</strong><br>Full-stack developer: ERP systems in Go and Next.js, and websites for Indonesian businesses.<br><br>This portfolio is an interactive 3D desk and needs JavaScript.<br><a style="color:#d9a05b" href="https://www.linkedin.com/in/navy-gibran-29950528a/">LinkedIn</a> · <a style="color:#d9a05b" href="https://github.com/itsnevu">GitHub</a> · <a style="color:#d9a05b" href="https://wa.me/6285179536062">WhatsApp</a> · <a style="color:#d9a05b" href="mailto:navygibran16@gmail.com">Email</a></div></div></noscript>
 
   <!-- the same story in plain text, for search engines and screen readers (the desk itself is a canvas) -->
@@ -211,7 +211,7 @@
     <div id="discovery">
       <button type="button" id="discovery-toggle" aria-expanded="false" aria-controls="discovery-list">
         <span class="discovery-label">discoveries <i aria-hidden="true"></i></span>
-        <span class="discovery-value mono" aria-live="polite"><b id="discovery-value">0</b><span id="discovery-total">/37</span></span>
+        <span class="discovery-value mono"><b id="discovery-value">0</b><span id="discovery-total">/37</span></span>
         <span class="discovery-groups" id="discovery-groups" aria-hidden="true"></span>
         <span class="discovery-compact mono" aria-hidden="true"><span class="dc-text"><b id="discovery-compact">0/37</b> found <i></i></span><span class="dc-bar"><i id="discovery-bar"></i></span></span>
       </button>
@@ -278,11 +278,11 @@
   </div>
 
   <!-- spatial panel: information lives beside the object -->
-  <aside id="spatial" aria-hidden="true" data-side="right">
+  <aside id="spatial" aria-hidden="true" data-side="right" aria-labelledby="sp-heading">
     <span class="sp-line"></span>
     <div class="sp-card">
       <span class="sp-sig mono" id="sp-sig"></span>
-      <h2 class="sp-heading" id="sp-heading"></h2>
+      <h2 class="sp-heading" id="sp-heading" tabindex="-1"></h2>
       <div class="sp-body" id="sp-body"></div>
     </div>
   </aside>

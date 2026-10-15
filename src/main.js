@@ -71,6 +71,7 @@ async function boot() {
   initGuide(xp);
   initLikes();
   initSite(xp);
+  ui.syncFaded();   // (app/guide and app/hints have made their buttons)
   ui.hud.identity(() => xp.activate('note'));
   ui.detail.build({
     onBack: () => xp.back(),

@@ -149,8 +149,8 @@ body[data-state="desk"] #discovery, body[data-state="focus"] #discovery, body[da
 #key-tip.visible { opacity: 1; }
 #key-tip b { font-weight: 600; padding: 2px 6px; border: 1px solid var(--paper-dim); border-radius: 4px; box-shadow: 0 2px 0 var(--paper-dim); color: var(--paper); font-size: 10px; }
 #key-tip span { color: var(--paper-dim); }
-#menu-toggle { position: absolute; right: 36px; top: calc(38px + var(--safe-t)); width: 40px; height: 32px; display: flex; flex-direction: column; justify-content: center; gap: 7px; opacity: 0; transition: opacity var(--d-base); }
-body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="entering"]) #menu-toggle { opacity: 1; }
+#menu-toggle { position: absolute; right: 36px; top: calc(38px + var(--safe-t)); width: 40px; height: 32px; display: flex; flex-direction: column; justify-content: center; gap: 7px; opacity: 0; pointer-events: none; transition: opacity var(--d-base); }
+body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="entering"]) #menu-toggle { opacity: 1; pointer-events: auto; }
 #menu-toggle span { display: block; height: 1.5px; width: 100%; background: var(--paper); transition: transform var(--d-base) var(--ease), opacity var(--d-fast), width var(--d-base) var(--ease); transform-origin: center; }
 #menu-toggle.open span:nth-child(1) { transform: translateY(8.5px) rotate(45deg); }
 #menu-toggle.open span:nth-child(2) { opacity: 0; width: 0; }
@@ -166,9 +166,9 @@ body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="enter
 #back-btn span { position: absolute; left: 4px; right: 4px; top: 50%; height: 1.5px; background: var(--paper); }
 #back-btn span:first-child { transform: rotate(45deg); } #back-btn span:last-child { transform: rotate(-45deg); }
 #back-btn.visible { opacity: 1; pointer-events: auto; }
-#back-btn.visible ~ #menu-toggle, body[data-backvisible="1"] #menu-toggle { opacity: 0 !important; pointer-events: none; }
-#sound-toggle { position: absolute; right: 40px; bottom: calc(34px + var(--safe-b)); display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); opacity: 0; transition: opacity var(--d-base), color var(--d-fast); }
-body:not([data-state="loading"]):not([data-state="gate"]) #sound-toggle { opacity: 1; }
+#back-btn.visible ~ #menu-toggle, body[data-backvisible="1"] #menu-toggle { opacity: 0 !important; pointer-events: none !important; }
+#sound-toggle { position: absolute; right: 40px; bottom: calc(34px + var(--safe-b)); display: flex; align-items: center; gap: 10px; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper-dim); opacity: 0; pointer-events: none; transition: opacity var(--d-base), color var(--d-fast); }
+body:not([data-state="loading"]):not([data-state="gate"]) #sound-toggle { opacity: 1; pointer-events: auto; }
 #sound-toggle:hover { color: var(--paper); }
 .sound-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
 .sound-bars i { width: 2px; height: 4px; background: currentColor; transition: height 0.3s; }
@@ -247,6 +247,7 @@ a.detail-3d { text-decoration: none; }
 .sp-heading { margin: 0 0 12px; font-size: 26px; font-weight: 700; letter-spacing: 0.04em; min-height: 1.1em; }
 .sp-heading::after { content: "▍"; color: var(--accent); animation: caret 1s steps(2) infinite; margin-left: 2px; }
 .sp-heading.done::after { content: ""; }
+#sp-heading:focus { outline: none; }
 @keyframes caret { 50% { opacity: 0 } }
 .sp-body { font-size: 14px; line-height: 1.55; color: var(--paper-dim); }
 .sp-body p { margin: 0 0 12px; } .sp-body p:last-child, .sp-body > :last-child { margin-bottom: 0; } .sp-body strong { color: var(--paper); }
