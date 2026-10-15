@@ -6,6 +6,7 @@
 // null without WebGL2; scripts/home-profile.js mounts it behind the column. Options mirror the component's props (waveSpeed,
 // waveFrequency, waveAmplitude, waveColor, backgroundColor, colorNum, pixelSize, mouseRadius, mode, scale, contrast, brightness,
 // effect, mouseStrength, trail, clickRipple, intro, dpr) plus animate (false: one still frame), mouse (false: no pointer) and fps.
+// setFps(n) changes the frame rate while it runs (the profile home slows it down when nobody moves, so it never looks stopped).
 export const DITHER_JS = String.raw`function nvDither(opts) {
   var o = Object.assign({ waveSpeed: 0.05, waveFrequency: 3, waveAmplitude: 0.3, waveColor: '#bcbcbc', backgroundColor: '#120f17', colorNum: 4, pixelSize: 2, animate: true, mouse: true, mouseRadius: 0.3, mode: 'bayer', scale: 1, contrast: 1, brightness: 0, effect: 'erase', mouseStrength: 1, trail: 0.5, clickRipple: true, intro: true, dpr: 0, fps: 60, className: 'pf-field' }, opts || {});
   var MODES = { bayer: 0, bayer4: 1, bayer2: 2, halftone: 3, lines: 4, crosshatch: 5, noise: 6, none: 7 }, EFFECTS = { erase: 0, reveal: 1, ripple: 2 };
@@ -192,5 +193,6 @@ export const DITHER_JS = String.raw`function nvDither(opts) {
     stop(); gl.deleteProgram(wave.program); gl.deleteProgram(dither.program); gl.deleteBuffer(buffer); gl.deleteVertexArray(vao); gl.deleteTexture(field); gl.deleteFramebuffer(framebuffer);
     var lose = gl.getExtension('WEBGL_lose_context'); if (lose) lose.loseContext(); if (canvas.parentNode) canvas.parentNode.removeChild(canvas);
   }
-  return { canvas: canvas, start: start, stop: stop, destroy: destroy };
+  function setFps(f) { step = f > 0 && f < 60 ? 1000 / f - 2 : 0; }
+  return { canvas: canvas, start: start, stop: stop, destroy: destroy, setFps: setFps };
 }`;

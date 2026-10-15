@@ -43,7 +43,7 @@ export const WORDS = {
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
-    pause: 'Jeda', play: 'Putar',
+    pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs',
     services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
     ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
     rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
@@ -65,7 +65,7 @@ WORDS.en = {
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
-  pause: 'Pause', play: 'Play',
+  pause: 'Pause', play: 'Play', tabsLabel: 'Site',
   services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
   ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
   rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
@@ -86,7 +86,7 @@ WORDS.zh = {
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
-  pause: '暂停', play: '播放',
+  pause: '暂停', play: '播放', tabsLabel: '网站导航',
   services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
   ring: '接受自由职业与全职工作', enter3d: '进入 3D 书桌', expandAll: '全部展开', collapseAll: '全部收起',
   rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
@@ -267,7 +267,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <div class="pf-socials">${social}</div>
     </div>
   </section>
-  <nav class="pf-tabs pf-tabs--pin" aria-label="Site">
+  <nav class="pf-tabs pf-tabs--pin" aria-label="${esc(W.tabsLabel)}">
     <a href="${u('/')}" aria-current="page">${I.home}<span>${esc(W.tabs.home)}</span></a>
     <a href="${u('/work/')}">${I.folder}<span>${esc(W.tabs.work)}</span></a>
     <a href="${u('/labs/')}">${I.flask}<span>${esc(W.tabs.labs)}</span></a>
@@ -816,10 +816,11 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   var field = nvDither({ waveColor: '#8c8c8c', backgroundColor: '#0e0c09', pixelSize: fine ? 2 : 3, dpr: fine ? 1.5 : 1, fps: fine ? 30 : 24, mouse: fine && !reduce, mouseRadius: 0.3, trail: 0.5, clickRipple: fine && !reduce, intro: !reduce, animate: !reduce });
   if (!field) return;
   document.body.prepend(field.canvas); document.body.classList.add('has-field'); requestAnimationFrame(function () { field.canvas.classList.add('on'); }); field.start();
-  // (it rests when nobody moves: after twelve quiet seconds no more frames are drawn, the picture holds; the next move wakes it)
+  // (it slows down when nobody moves: after twelve quiet seconds it drifts at 12 frames a second instead of 30, never still,
+  // and the next move brings it back; a hidden tab draws nothing at all)
   if (!reduce) {
-    var quiet = 0, asleep = false, nap = function () { clearTimeout(quiet); quiet = setTimeout(function () { asleep = true; field.stop(); }, 12000); };
-    var stir = function () { if (asleep) { asleep = false; field.start(); } nap(); };
+    var quiet = 0, slow = false, full = fine ? 30 : 24, nap = function () { clearTimeout(quiet); quiet = setTimeout(function () { slow = true; if (field.setFps) field.setFps(12); }, 12000); };
+    var stir = function () { if (slow) { slow = false; if (field.setFps) field.setFps(full); } nap(); };
     ['pointermove', 'pointerdown', 'wheel', 'scroll', 'keydown', 'touchstart'].forEach(function (ev) { addEventListener(ev, stir, { passive: true }); });
     nap();
   }
