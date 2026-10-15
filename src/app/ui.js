@@ -73,7 +73,13 @@ setUIScale(); addEventListener('resize', setUIScale);
 
 // ---------- loading
 export const loading = {
-  set(p) { $('loading-fill').style.width = `${Math.round(p * 100)}%`; $('loading-percent').textContent = `${Math.round(p * 100)}%`; },
+  set(p) {
+    const v = Math.min(1, Math.max(0, p)), pc = Math.round(v * 100), fill = $('loading-fill');
+    $('loading').classList.add('live');
+    fill.style.transform = `scaleX(${v})`;
+    fill.parentElement.setAttribute('aria-valuenow', String(pc));
+    $('loading-percent').textContent = `${pc}%`;
+  },
   done() { $('loading').classList.add('out'); setTimeout(() => $('loading').remove(), 800); },
 };
 

@@ -64,11 +64,14 @@ export class Experience {
     // (key_01–03 are not loaded: the three work districts are the cluster_* assets now)
     const names = ['keyboard_body', 'key_04', 'key_05', 'key_06', 'key_07', 'desk_props', 'key_micro_switch', 'key_micro_tree', 'key_micro_stairs', 'key_secret', 'key_enter', 'key_plaza', 'key_garden', 'cluster_signal', 'cluster_market', 'cluster_mech', 'cluster_green'];
     const loaded = await Promise.all(names.map((n) => loadAsset(n).catch((e) => { console.warn('asset', n, e); return null; })));
+    onProgress(0.35);
+    await new Promise((r) => setTimeout(r, 30));   // (a breath, like the one above: the bar shows the step before the world is built in one go)
     const byName = Object.fromEntries(names.map((n, i) => [n, loaded[i]]));
     const keyAssets = {}; for (const n of names) if (n !== 'keyboard_body' && n !== 'desk_props' && byName[n]) keyAssets[n] = byName[n];
     this.world = buildWorld({ keyboardBody: byName.keyboard_body, keyAssets, deskProps: byName.desk_props });
     this.scene.add(this.world.root);
     onProgress(0.7);
+    await new Promise((r) => setTimeout(r, 30));   // (and once more before the first frame uploads every mesh)
     this.applyDeskLighting();
     this.resize();
     window.addEventListener('resize', () => this.resize());

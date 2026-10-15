@@ -47,11 +47,16 @@ body[data-cursor="grabbing"] #canvas { cursor: grabbing; }
 /* ---------- loading */
 #loading { position: absolute; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 60; transition: opacity var(--d-base) var(--ease); }
 #loading.out { opacity: 0; pointer-events: none; }
-.loading-inner { text-align: center; }
+.loading-inner { text-align: center; padding: 0 16px; }
+.loading-who { display: grid; justify-items: center; gap: 8px; margin-bottom: 32px; }
+.loading-who b { font-family: var(--sans); font-weight: 700; font-size: 24px; line-height: 1.15; color: var(--paper); }
+.loading-who span { font-family: var(--mono); font-size: 11px; line-height: 1.6; letter-spacing: 0.18em; text-transform: uppercase; color: var(--paper-dim); text-wrap: balance; }
 .loading-label { font-family: var(--mono); font-size: clamp(16px, 1.7vw, 36px); letter-spacing: 0.22em; text-transform: uppercase; color: var(--paper-dim); }
 .loading-track { width: clamp(260px, 32vw, 680px); height: 2px; background: var(--line); margin: clamp(20px, 2vw, 40px) auto clamp(14px, 1.4vw, 28px); position: relative; overflow: hidden; }
-.loading-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--accent); transition: width 0.25s var(--ease); }
-.loading-percent { font-family: var(--mono); font-size: clamp(13px, 1.25vw, 26px); color: var(--paper-faint); }
+.loading-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transform: scaleX(0); transform-origin: 0 50%; background: var(--accent); transition: transform 0.25s var(--ease); }
+.loading-percent { font-family: var(--mono); font-size: clamp(13px, 1.25vw, 26px); color: var(--paper-faint); min-height: 1.4em; }
+@keyframes ld-sweep { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+@media (prefers-reduced-motion: no-preference) { #loading:not(.live) .loading-track::after { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 30%; background: var(--accent); opacity: 0.6; animation: ld-sweep 1.3s var(--ease-io) infinite; } }
 .loading-out { display: inline-block; margin-top: 30px; padding: 13px 22px; border: 1px solid rgba(217, 160, 91, 0.6); border-radius: 999px; font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; color: var(--paper); transition: background var(--d-fast), border-color var(--d-fast); }
 .loading-out:hover, .loading-out:focus-visible { background: rgba(217, 160, 91, 0.14); border-color: var(--accent); }
 
