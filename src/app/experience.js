@@ -129,6 +129,8 @@ export class Experience {
   // ---------- entry (happens once)
   enter({ music = true, direct = null } = {}) {
     if (!state.is(S.GATE)) return;
+    // "See the work" from the gate (or a #work address) is the quick way in: a short straight flight, then the project page
+    const quick = direct === 'work';
     window.nvTrack?.('3d_experience_start', { sound: music });
     audio.setEnabled(music); audio.unlock();
     ui.hud.sound(audio.state);
@@ -140,17 +142,17 @@ export class Experience {
     tween.delayed(1.1, () => audio.powerOn());
     tween.delayed(0.9, () => audio.whoosh());
     // the entry objects sink into the desk as the room wakes; the gate is gone by the time the camera settles
-    tween.delayed(0.35, () => { const g = this.world.gate; const y = { v: 0 }; tween.to(y, { v: -1.6 }, { duration: 1.6, ease: Ease.power2In, onUpdate: () => { g.position[1] = y.v; }, onComplete: () => { g.visible = false; } }); });
+    tween.delayed(0.35, () => { const g = this.world.gate; const y = { v: 0 }; tween.to(y, { v: -1.6 }, { duration: quick ? 1.0 : 1.6, ease: Ease.power2In, onUpdate: () => { g.position[1] = y.v; }, onComplete: () => { g.visible = false; } }); });
     const L = { v: this.world.lightLevel };
     tween.to(L, { v: 1 }, { duration: 3.0, delay: 0.7, ease: Ease.sineInOut, onUpdate: () => this.world.setLightLevel(L.v) });
-    this.flyTo(this.home, { duration: MOTION.dur.intro + 0.8, ease: Ease.power3InOut, lift: 3, swing: -6, onComplete: () => {
+    this.flyTo(this.home, { duration: quick ? MOTION.dur.camera : MOTION.dur.intro + 0.8, ease: quick ? MOTION.ease.camera : Ease.power3InOut, lift: quick ? 0 : 3, swing: quick ? 0 : -6, onComplete: () => {
       state.go(S.DESK);
       this.controls.enabled = true; this.controls.sync();
       this.introWave();
       tween.delayed(0.6, () => { if (state.is(S.DESK)) { ui.hud.navHints(true); this._hintsTimer = setTimeout(() => ui.hud.navHints(false), 9000); } });
       this.updateHints();
       // a deep link either names a target or hands over its own way in (a world, a project page)
-      if (direct) tween.delayed(0.4, () => (typeof direct === 'function' ? direct() : this.activate(direct)));
+      if (direct) tween.delayed(quick ? 0.1 : 0.4, () => (typeof direct === 'function' ? direct() : this.activate(direct)));
       else this._hintTimer = setTimeout(() => { if (state.is(S.DESK)) ui.hud.toast(ui.isTouch ? '<b>tap</b> anything to see what it is. the <b>note</b> is about me' : '<b>hover</b> anything to see what it is. <b>A</b> opens about me'); }, 3200);
       // a little later, once: the keyboard can tell its own story (unless the visitor has already found it)
       if (!direct) this._storyHint = setTimeout(() => { if (state.is(S.DESK) && !this.flight && !this.found.has('art4')) ui.hud.toast(ui.isTouch ? 'the <b>orange bookmark key</b> tells the story, stop by stop' : '<b>T</b> or the <b>orange bookmark key</b>: the keyboard tells its story', 3400); }, 16000);
