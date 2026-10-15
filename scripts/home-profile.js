@@ -625,8 +625,8 @@ html:has(.pf-tabs--pin) { scroll-padding-top: calc(var(--head-h) + 70px); }
 @keyframes pf-marq { to { transform: translate3d(-50%, 0, 0); } }
 .pf-logos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
 .pf-logo { display: grid; place-items: center; height: 68px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease); }
-/* a section's logo and tool masks load when it comes near (the page script marks it is-near; CSS images are never lazy otherwise) */
-.js .pf-sec:not(.is-near) :is(.pf-m, .pf-av--m, .pf-logo-m, .pf-marq-i) { -webkit-mask-image: none; mask-image: none; background-color: transparent; }
+/* a section's logo and tool marks wait until it comes near: a CSS mask is never lazy, so the first visit fetched every one of them before anyone scrolled. The page script adds .is-near about a screen ahead. Without the script (no-js), or inside the 3D desk's frame (.in-desk, where that look-ahead cannot reach), nothing is held back. */
+.js:not(.in-desk) .pf-sec:not(.is-near) :is(.pf-m, .pf-av--m, .pf-logo-m, .pf-marq-i) { -webkit-mask-image: none; mask-image: none; visibility: hidden; }
 /* the logo in one colour: the mask is the client's own silhouette, the hidden <img> only gives it its width */
 .pf-logo-m { display: block; max-width: 100%; height: 30px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
 .pf-logo-m img { display: block; height: 30px; width: auto; max-width: 100%; visibility: hidden; }
@@ -755,7 +755,19 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 .motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text, .motion-off .pf-reel.is-swap .pf-stage-top { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
-export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
+// a section's logo and tool marks load once it is marked .is-near, within 900 px of the screen (every section at once when no IntersectionObserver can be made, and before printing); this runs first in the home's own script, so an error further on cannot leave the marks hidden
+const NEAR_JS = `
+(function(){
+  var secs = [].slice.call(document.querySelectorAll('.pf-sec')), all = function () { secs.forEach(function (s) { s.classList.add('is-near'); }); };
+  addEventListener('beforeprint', all);
+  if (!('IntersectionObserver' in window)) { all(); return; }
+  try {
+    var near = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-near'); near.unobserve(e.target); } }); }, { rootMargin: '900px 0px' });
+    secs.forEach(function (s) { near.observe(s); });
+  } catch (x) { all(); }
+})();
+`;
+export const HOME_PROFILE_JS = NEAR_JS + DITHER_JS + STACK_JS + `
 (function(){
   var fine = matchMedia('(hover: hover) and (pointer: fine)').matches, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('motion-off');
   // the banner drifts a little toward the pointer
@@ -833,13 +845,6 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     tabs.querySelectorAll('a').forEach(function (a) { a.addEventListener('pointerenter', function () { go(a); }); a.addEventListener('focus', function () { go(a); }); a.addEventListener('blur', function () { go(cur); }); });
     tabs.addEventListener('pointerleave', function () { go(cur); }); addEventListener('resize', function () { go(cur); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { go(cur); });
-  })();
-  // a section's logo and tool masks are fetched when it comes within about a screen (CSS holds them until is-near)
-  (function () {
-    var secs = document.querySelectorAll('.pf-sec');
-    if (!('IntersectionObserver' in window)) { secs.forEach(function (s) { s.classList.add('is-near'); }); return; }
-    var near = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-near'); near.unobserve(e.target); } }); }, { rootMargin: '900px 0px' });
-    secs.forEach(function (s) { near.observe(s); });
   })();
   // the headings rise as their section arrives, the bio's phrases draw their stroke
   if (!reduce && 'IntersectionObserver' in window) {
