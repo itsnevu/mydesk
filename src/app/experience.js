@@ -14,7 +14,7 @@ import { audio } from 'app/audio';
 import { PROJECTS, TARGETS, DISCOVERY_ORDER, WORLDS, STORY, CHAPTERS, projectByKey, projectIndex } from 'app/data';
 import { DESK_LIGHTS, GALLERY_LIGHTS, C } from 'app/theme';
 import { setRoute } from 'app/router';
-import { openSite } from 'app/simplesite';
+import { openSite, isSiteOpen } from 'app/simplesite';
 import * as ui from 'app/ui';
 
 const STORE_KEY = 'kw.found';
@@ -865,6 +865,17 @@ export class Experience {
   loop(ts) {
     // the next frame is booked first and the frame runs guarded: one throw (a half-built object, a bad value) costs a frame, not the whole desk
     requestAnimationFrame(this.loop);
+    // a project page (#detail, its fade is MOTION.dur.base) or the portfolio sheet (#site, 0.4 s) covers the whole window: once it has faded in,
+    // the desk under it is not drawn at all. Tweens and the clock keep running, so a flight or a timed step still lands on time; closing it
+    // draws the very next frame, at the full rate (closing counts as input, even when it came from inside the framed site)
+    const covered = ui.detail.visible || isSiteOpen();
+    if (!covered) { if (this._coveredAt) this._inputAt = performance.now(); this._coveredAt = 0; }
+    else if (!this._coveredAt) { this._coveredAt = ts; this.setHovered(null); }   // (nothing stays hovered under a page: the cat's purr and a half-pressed key settle while it fades in)
+    if (covered && ts - this._coveredAt > (MOTION.dur.base + 0.1) * 1000) {
+      this.last = this.time = ts / 1000;   // (leaveWorld and emerge time the pins from this.time)
+      try { tween.update(this.time); } catch (err) { if (!this._loopErr || ts - this._loopErr > 5000) { this._loopErr = ts; console.error('[frame]', err); } }
+      return;
+    }
     // left alone for a while, the desk keeps breathing at half rate (the fans, the clock and the steam still move) so a tab left open
     // doesn't keep a laptop's fan spinning; any input brings the full rate straight back
     // (not in the overview: that is a slow camera orbit, and a moving camera at half rate judders)
