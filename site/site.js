@@ -6,6 +6,7 @@
 //   · reveals, word-by-word rises, staggered lists, loops of names that run faster (and turn) with the scroll
 //   · the intro, the menu, the curtain between pages, the pointer ring, magnetic buttons
 (() => {
+  if (window.__nf) return;
   const root = document.documentElement;
   // a link shared before the split (navygibran.dev/#project-x, /#note) belongs to the 3D desk: a project goes to its page here,
   // anything else the desk knows goes to the desk
@@ -840,7 +841,7 @@
     };
     lb.classList.toggle('one', zooms.length < 2);
     zooms.forEach((s, i) => {
-      s.closest('figure')?.setAttribute('data-cursor', 'Zoom');
+      s.closest('figure')?.setAttribute('data-cursor', jt('zoom'));
       // (a keyboard reaches each one too: Enter or Space opens it, and closing returns there)
       s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', `${s.alt}, open large`);
       s.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s.click(); } });

@@ -280,7 +280,7 @@ export function stackParts({ M, lang = 'en', name, icon, u, worlds }) {
     }
     if (!x.repos.length) lines.push(`<p class="pf-tdx-none">${esc(x.projects.length ? W.ghNone : NOT_IN_CODE.has(t) ? W.none : W.notYet)}</p>`);
     const also = [AT_LABS.includes(t) ? `<a href="${u('/labs/')}">${esc(W.labs)} ${GO_I}</a>` : '', AT_DESK.includes(t) ? `<a href="/3d/" data-track="3d_cta_click" data-from="stack">${esc(W.desk)} ${GO_I}</a>` : ''].filter(Boolean).join('');
-    return `<article class="pf-tdx" data-tool="${s}" aria-labelledby="pf-tc-${s}" hidden>
+    return `<article class="pf-tdx" data-tool="${s}" aria-labelledby="pf-tc-${s}" tabindex="-1" hidden>
       <div class="pf-tdx-h">
         <span class="pf-tdx-i" aria-hidden="true">${icon(t) || esc(MONO[t] || t.slice(0, 2).toUpperCase())}</span>
         <div class="pf-tdx-t"><b>${esc(name(t))}${x.now ? `<span class="pf-tdx-now"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.now)}</span>` : ''}</b><p>${esc(what)}</p></div>
@@ -405,6 +405,7 @@ export const STACK_CSS = `
 .pf-st.is-open .pf-td { grid-template-rows: 1fr; }
 .pf-st.is-open .pf-td-in { visibility: visible; transition: none; }
 .pf-tdx { position: relative; margin-top: 12px; padding: 16px 18px 16px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--bg-2); }
+.pf-tdx:focus { outline: none; } .pf-tdx:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 12px; }
 .pf-tdx::before { content: ""; position: absolute; top: -6px; left: var(--ax, 40px); width: 10px; height: 10px; border: solid var(--line-2); border-width: 1px 0 0 1px; background: var(--bg-2); transform: rotate(45deg); transition: left 0.45s var(--ease); }
 .pf-tdx.is-in { animation: pf-tdx-in 0.5s var(--ease); }
 @keyframes pf-tdx-in { from { opacity: 0; transform: translateY(8px); } }
@@ -538,7 +539,9 @@ export const STACK_JS = `
   sec.addEventListener('click', function (e) {
     var c = e.target.closest('.pf-tool'); if (c) { open(c); return; }
     var x = e.target.closest('.pf-tdx-x'); if (x) { var back = cur; shut(); if (back) back.focus(); return; }
-    var j = e.target.closest('[data-jump]'); if (j) { var t = sec.querySelector('.pf-tool[data-tool="' + j.dataset.jump + '"]'); if (t) { if (cur !== t) open(t, true); else rowOf(t).scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); } }
+    // (the card's buttons take the reader to the tool's row: the focus goes with them, onto the opened panel, so Tab carries on from
+    // there and Escape comes back to the tool)
+    var j = e.target.closest('[data-jump]'); if (j) { var t = sec.querySelector('.pf-tool[data-tool="' + j.dataset.jump + '"]'); if (t) { if (cur !== t) open(t, true); else rowOf(t).scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); var a = rowOf(t).querySelector('.pf-tdx[data-tool="' + t.dataset.tool + '"]'); if (a) a.focus({ preventScroll: true }); } }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur && sec.contains(document.activeElement)) { var back = cur; shut(); back.focus(); } });
   function fromHash() { var h = location.hash.match(/^#stack-([a-z0-9-]+)$/); if (!h) return; var t0 = sec.querySelector('.pf-tool[data-tool="' + h[1] + '"]'); if (t0 && cur !== t0) open(t0, true); }

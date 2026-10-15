@@ -190,7 +190,8 @@ function metaCut(s, lang = LANG) {
   s = String(s || '').replace(/\s+/g, ' ').trim();
   if (s.length <= max) return s;
   const cut = s.slice(0, max);
-  const stop = Math.max(...['. ', '。', '! ', '? ', '；', '; '].map((x) => cut.lastIndexOf(x)));
+  let stop = -1;
+  for (const m of cut.matchAll(/[.!?;](?= )|[。；]/g)) if (!(m[0] === '.' && /(?:^|[\s(])(?:PT|CV|Tbk|Jl|No|Dr|Ir|St|vs|etc|[A-Z])$/.test(cut.slice(0, m.index)))) stop = m.index;
   if (stop > max * 0.5) return cut.slice(0, stop + 1).trim();
   const soft = Math.max(...[': ', ', ', '：', '，', '、'].map((x) => cut.lastIndexOf(x)));
   if (soft > max * 0.6) return cut.slice(0, soft).trim() + (lang === 'zh' ? '……' : '...');
@@ -297,7 +298,7 @@ function roll(text, em = '') {
 
 // `pathname` is the page's path without the language prefix ('/', '/work/', '/work/<key>/'): the canonical and the alternates
 // are built from it. The default language's pages forward to a remembered choice (the switch sets it) before anything paints.
-function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false }) {
+function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false, nfSwap = false }) {
   const url = `${ORIGIN}${PFX}${pathname}`;
   if (LANG !== DEFAULT_LANG && image.startsWith(ORIGIN + '/') && image.endsWith('.jpg')) { const rel = image.slice(ORIGIN.length + 1).replace(/\.jpg$/, `-${LANG}.jpg`); if (exists(rel)) image = `${ORIGIN}/${rel}`; }
   eagerSeen = 0;
@@ -310,11 +311,15 @@ function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jp
   // (never from a path that already carries a prefix, and never from the 404 page: an old server that does not know /en/ would
   // answer it with this page, and the forward would then add /en/ again and again)
   const forward = LANG === DEFAULT_LANG && pathname !== '/404' ? `try{var pl=localStorage.getItem('nv-lang');if(pl&&pl!=='${DEFAULT_LANG}'&&/^(${OTHER_PREFIXES})$/.test(pl)&&!/^\\/(${OTHER_PREFIXES})(\\/|$)/.test(location.pathname)&&window.top===window.self){location.replace('/'+pl+location.pathname+location.search+location.hash)}}catch(e){}` : '';
+  // Vercel answers every missing address with the one 404.html at the root (in English). Under /id/ or /zh/ that page fetches its
+  // own language's copy and puts its body in place once both are in, before anything shows: the address stays as typed and the
+  // answer stays a 404. The page script waits (window.__nf) and runs on the new body; if the copy cannot come, on the English one.
+  const swap = nfSwap ? `<script>(function(){var m=/^\\/(${OTHER_PREFIXES})\\//.exec(location.pathname);if(!m)return;var d=document.documentElement,done=0,got=0,ready=0,failed=0;window.__nf=1;d.style.visibility='hidden';function run(b){b.querySelectorAll('script').forEach(function(o){var n=document.createElement('script');for(var i=0;i<o.attributes.length;i++)n.setAttribute(o.attributes[i].name,o.attributes[i].value);n.async=false;n.text=o.text;o.replaceWith(n)})}function end(h){if(done)return;done=1;window.__nf=0;if(h){var n=new DOMParser().parseFromString(h,'text/html'),a=document.querySelector('meta[name=description]'),b=n.querySelector('meta[name=description]');d.lang=n.documentElement.lang;document.title=n.title;if(a&&b)a.content=b.content;document.body.replaceWith(n.body)}run(document.body);d.style.visibility=''}function go(){if(ready&&(got||failed))end(got)}fetch('/'+m[1]+'/404.html').then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(h){got=h;go()}).catch(function(){failed=1;go()});document.addEventListener('DOMContentLoaded',function(){ready=1;go()});setTimeout(function(){failed=1;go()},2500)})()</script>\n` : '';
   return `<!doctype html>
 <html lang="${L.html}" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+${swap}<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <meta name="author" content="Navy Gibran">
@@ -1103,7 +1108,7 @@ ${footer(D)}
 }
 
 function notFound(D, ctx) {
-  return head({ title: `${t('nf')} | Navy Gibran`, description: t('nfDesc'), pathname: '/404', css: ctx.css, noindex: true }) + `
+  return head({ title: `${t('nf')} | Navy Gibran`, description: t('nfDesc'), pathname: '/404', css: ctx.css, noindex: true, nfSwap: LANG === DEFAULT_LANG }) + `
 <body class="nf">
 ${header('', '/')}
 <main id="main" class="wrap nf-in" tabindex="-1">
@@ -1271,7 +1276,7 @@ export async function renderSite() {
     const ctx = { css: cssAll, js: jsSrc };
     // (this language's data for the page script: the desk's old targets, the projects, the index the search reads, the words)
     const SP = stackParts({ M: stackModel({ D, gh: GH }), lang, name: term, icon: () => '', u, worlds: WORLDS.length });
-    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]), s: STACK.flat().map((x) => [slugOf(x), term(x), SP.tip(x)]), w: worldsFor(lang).map((w) => [w.key, w.name, w.category]) }, prefix: PFX, lang, t: t('js') }).replace(/</g, '\\u003c');
+    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]), s: STACK.flat().map((x) => [slugOf(x), term(x), SP.tip(x)]), w: worldsFor(lang).map((w) => [w.key, w.name, w.category]) }, prefix: PFX, lang, t: { ...t('js'), zoom: t('cursorZoom') } }).replace(/</g, '\\u003c');
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
     // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
     const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
@@ -1283,7 +1288,7 @@ export async function renderSite() {
     out[`${dir}labs/index.html`] = fillAll(labsPage(D, ctx));
     out[`${dir}cv/index.html`] = fillAll(cvPage(D, ctx));
     D.PROJECTS.forEach((p) => { out[`${dir}work/${p.key}/index.html`] = fillAll(projectPage(D, ctx, p)); });
-    if (lang === DEFAULT_LANG) out['404.html'] = fillAll(notFound(D, ctx));
+    out[`${dir}404.html`] = fillAll(notFound(D, ctx));
   }
   setLang(DEFAULT_LANG);
   for (const [rel, content] of ASSETS) out[rel] = content;

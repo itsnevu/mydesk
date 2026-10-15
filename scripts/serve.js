@@ -79,7 +79,7 @@ http.createServer((req, res) => {
   // (the portfolio speaks three languages: /en/ and /zh/ hold the same pages under a prefix, the default Indonesian ones at /)
   const old = !desk && OLD_PREFIXES.length && new RegExp(`^/(${OLD_PREFIXES.join('|')})(/|$)`).exec(p);
   if (old) { res.writeHead(301, { Location: p.slice(old[1].length + 1) || '/' }); return res.end(); }
-  const sitePath = !desk && /^\/s\/[\w-]+\.(css|js)$/.test(p) ? p.slice(1) : !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt|llms\.txt)$/.test(p) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/|full/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
+  const sitePath = !desk && /^\/s\/[\w-]+\.(css|js)$/.test(p) ? p.slice(1) : !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : (/^\/(index\.html|404\.html|sitemap\.xml|robots\.txt|llms\.txt)$/.test(p) || new RegExp(`^/(${LP})/404\\.html$`).test(p)) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/|full/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
   // (rendered by the worker above: any edit to the templates, the dictionaries, labs or data.js shows without a restart)
   const renderPage = (rel, status = 200) => renderSite().then((pages) => {
     const body = pages[rel];

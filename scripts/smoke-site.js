@@ -116,7 +116,7 @@ export async function checkSite(root, given = null) {   // (given: an already re
       (descs[lang + '\u0000' + desc] = descs[lang + '\u0000' + desc] || []).push(where);
       if (desc.length > 170) problems.push(`${where}: the meta description is ${desc.length} characters (search results cut it near 160)`);
     }
-    if (key !== '404.html' && !/<link rel="canonical"/.test(h)) problems.push(`${where}: no canonical link`);
+    if (!/(^|\/)404\.html$/.test(key) && !/<link rel="canonical"/.test(h)) problems.push(`${where}: no canonical link`);
     if (!/<meta property="og:image"/.test(h)) problems.push(`${where}: no og:image (a shared link would show no picture)`);
     for (const m of body.matchAll(/<a\s[^>]*target="_blank"[^>]*>/g)) if (!/rel="[^"]*noopener/.test(m[0])) problems.push(`${where}: a new-tab link without rel="noopener": ${m[0].slice(0, 90)}`);
     for (const m of h.matchAll(/<style>([\s\S]*?)<\/style>/g)) cssOf.push([`${where} <style>`, m[1]]);
