@@ -14,7 +14,7 @@ import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
 import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
 import { labsFor } from '../src/app/labs.js';
-import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
+import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS, phoneOf } from './home-profile.js';
 import { STACK, stackModel, stackParts, slugOf, toolboxGrid, STACK_CSS, TOOLBOX_CSS, TOOLBOX_JS } from './stack-tools.js';
 import { minifyJS, minifyCSS } from './jsmin.js';
 import vm from 'node:vm';
@@ -858,16 +858,17 @@ function relatedOf(list, p) {
   return RELATED.get(p.key) || [];
 }
 
-// the invitation that ends a page of work: the status, a question, WhatsApp pre-filled with the page's address, the email to copy,
-// the CV in the page's language. One per page (its heading id is pwa-h).
+// the invitation that ends a page of work: the status, a question, WhatsApp pre-filled with the page's address, the number and the
+// email to copy, the CV in the page's language. One per page (its heading id is pwa-h).
 function waBand(D, { title, msg, from, project = '' }) {
   const cv = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href;
+  const num = D.SITE.whatsapp ? phoneOf(D.SITE.whatsapp) : '';
   return `<section class="p-wa wrap" aria-labelledby="pwa-h">
     <div class="p-wa-in" data-reveal>
       <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
       <h2 class="p-wa-t" id="pwa-h">${esc(title)}</h2>
       <p class="p-wa-l">${esc(t('pwaLine'))}</p>
-      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, msg))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp"${project ? ` data-project="${project}"` : ''} data-from="${from}" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="${from}">${esc(D.SITE.email)}</button>` : ''}${cv ? `<a class="btn p-wa-cv" href="${esc(cv)}" download="${esc(cv.split('/').pop())}" data-track="cv_download" data-from="${from}">${roll(t('cv'))}</a>` : ''}</div>
+      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, msg))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp"${project ? ` data-project="${project}"` : ''} data-from="${from}" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${num ? `<button class="btn p-wa-mail p-wa-num" type="button" aria-label="${esc(t('copyNumber'))} ${esc(num)}" data-copy="+${esc(D.SITE.whatsapp)}" data-track="contact_click" data-channel="WhatsApp number"${project ? ` data-project="${project}"` : ''} data-from="${from}">${esc(num)}</button>` : ''}${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="${from}">${esc(D.SITE.email)}</button>` : ''}${cv ? `<a class="btn p-wa-cv" href="${esc(cv)}" download="${esc(cv.split('/').pop())}" data-track="cv_download" data-from="${from}">${roll(t('cv'))}</a>` : ''}</div>
     </div>
   </section>`;
 }

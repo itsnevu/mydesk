@@ -223,10 +223,13 @@ export const WORLDS_CSS = `
 .world:hover .world-shot { transform: scale(1.045); }
 .world-plate.has-shot::before { z-index: 1; opacity: 1; background: linear-gradient(to top, rgba(9, 8, 10, 0.92) 0%, rgba(9, 8, 10, 0.55) 36%, rgba(9, 8, 10, 0) 60%), linear-gradient(to bottom, rgba(9, 8, 10, 0.78), rgba(9, 8, 10, 0) 34%); }
 .world-plate.has-shot .world-top, .world-plate.has-shot .world-tag { z-index: 2; }
-.world-plate.has-shot .world-top { color: rgba(241, 234, 219, 0.92); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65); } .world-plate.has-shot .world-tag { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7); }
+.world-plate.has-shot .world-top { color: rgba(241, 234, 219, 0.92); }
+/* over a photograph each top label sits on its own dark chip (the home reel's recipe); a plate without one keeps its plain label */
+.world-plate.has-shot .world-top > * { padding: 4px calc(8px - 0.18em) 4px 8px; border-radius: 6px; background: rgba(14, 12, 9, 0.88); box-shadow: 0 0 0 1px var(--line); }
+.world-plate.has-shot .world-top b { color: color-mix(in srgb, var(--acc) 80%, var(--ink)); text-wrap: balance; } .world-plate.has-shot .world-tag { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7); }
 .world-plate.has-shot .world-tag { text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
 @media (prefers-reduced-motion: reduce) { .world:hover .world-shot { transform: none; } }
-.world-top { position: absolute; left: 22px; right: 22px; top: 18px; display: flex; justify-content: space-between; gap: 10px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
+.world-top { position: absolute; left: 22px; right: 22px; top: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
 .world-top b { color: var(--acc); font-weight: 700; }
 .world-tag { position: relative; font: italic 400 clamp(24px, 1.9vw, 30px)/1.12 var(--serif); color: var(--ink); text-wrap: balance; }
 .world-body { display: flex; flex-direction: column; gap: 10px; padding: 18px 22px 22px; flex: 1; }

@@ -1198,7 +1198,7 @@ html[lang="zh-Hans"] .faq-q summary { letter-spacing: 0.02em; }
   .foot-cols { grid-template-columns: 1fr 1fr; gap: 32px 16px; }
   .foot-cols > div:last-child { grid-column: 1 / -1; }
   .p-meta > div { grid-template-columns: 84px 1fr; }
-  .p-actions .btn { flex: 1 1 100%; }
+  .p-actions .btn { flex: 1 1 100%; padding: 0 18px; gap: 8px; letter-spacing: 0.08em; }
   .phone { bottom: -28px; right: 10px; }
   .p-crumbs > span:not(.p-count), .pc-w { display: none; }
   .loop { --L: 40px; }
@@ -1211,6 +1211,9 @@ html[lang="zh-Hans"] .faq-q summary { letter-spacing: 0.02em; }
   .mani-end { font-size: clamp(40px, 11vw, 60px); }
   .defn-word { font-size: clamp(56px, 17vw, 90px); }
 }
+
+/* (on a 320 px phone the longest Visit labels need a smaller size to stay inside the column) */
+@media (max-width: 359px) { .p-actions .btn { padding: 0 14px; font-size: 13.5px; } }
 
 /* ---------- fingers: on a touch screen every small link and button is at least 44 px to tap, the extra room taken from the space
    around it (negative margins), so nothing moves */

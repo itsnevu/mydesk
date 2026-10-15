@@ -26,7 +26,7 @@ const I = {
   right: '<svg class="ar ar-r" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
 };
 // +62 851-7953-6062 from 6285179536062 (Indonesian mobile numbers: country code, then 3-4-4)
-const phoneOf = (n) => { const d = String(n).replace(/\D/g, ''); return d.startsWith('62') && d.length >= 11 ? `+62 ${d.slice(2, 5)}-${d.slice(5, 9)}-${d.slice(9)}` : `+${d}`; };
+export const phoneOf = (n) => { const d = String(n).replace(/\D/g, ''); return d.startsWith('62') && d.length >= 11 ? `+62 ${d.slice(2, 5)}-${d.slice(5, 9)}-${d.slice(9)}` : `+${d}`; };
 const mark = (slug, cls = '') => `<i class="pf-m${cls ? ' ' + cls : ''}" style="--m:url(/site/tools/${slug}.svg)" aria-hidden="true"></i>`;
 
 export const WORDS = {
@@ -634,8 +634,10 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 .pf-stage-marks i:nth-child(1) { left: 0; top: 0; border-width: 1.5px 0 0 1.5px; } .pf-stage-marks i:nth-child(2) { right: 0; top: 0; border-width: 1.5px 1.5px 0 0; }
 .pf-stage-marks i:nth-child(3) { left: 0; bottom: 0; border-width: 0 0 1.5px 1.5px; } .pf-stage-marks i:nth-child(4) { right: 0; bottom: 0; border-width: 0 1.5px 1.5px 0; }
 .pf-stage:hover .pf-stage-marks { inset: 8px; opacity: 1; }
-.pf-stage-top { position: absolute; left: 20px; right: 20px; top: 18px; z-index: 2; display: flex; justify-content: space-between; gap: 12px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(241, 234, 219, 0.8); }
-.pf-stage-top b { color: var(--acc); font-weight: 700; text-align: right; transition: color 0.6s; }
+.pf-stage-top { position: absolute; left: 20px; right: 20px; top: 18px; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: rgba(241, 234, 219, 0.8); }
+/* each top label on its own dark chip, like the rail: the frames' tops run to white sky and mist, and some carry their own text */
+.pf-stage-top > * { padding: 4px calc(8px - 0.18em) 4px 8px; border-radius: 6px; background: rgba(14, 12, 9, 0.88); box-shadow: 0 0 0 1px var(--line); }
+.pf-stage-top b { color: color-mix(in srgb, var(--acc) 80%, var(--ink)); font-weight: 700; text-align: right; text-wrap: balance; transition: color 0.6s; }
 .pf-stage-text { position: absolute; left: 20px; right: 20px; bottom: 18px; z-index: 2; display: grid; gap: 7px; padding-right: 160px; }
 .pf-stage-tag { font: italic 400 clamp(24px, 3.6vw, 34px)/1.1 var(--serif); color: var(--ink); text-wrap: balance; text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
 .pf-stage-row { display: flex; align-items: baseline; gap: 10px; font: 700 12.5px var(--cond); letter-spacing: 0.2em; text-transform: uppercase; }
@@ -700,7 +702,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 12px; letter-spacing: 0.06em; } .pf-tabs a svg { width: 15px; height: 15px; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
-@media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { grid-column: auto; } .pf-feat:nth-child(3) > a { grid-template-columns: none; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
+@media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; align-self: stretch; } .pf-hero-cta .btn { flex: 1 1 auto; } .pf-cta-row .btn { flex: 1 1 100%; } .pf-fab { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { grid-column: auto; } .pf-feat:nth-child(3) > a { grid-template-columns: none; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
 @media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text, .pf-reel.is-swap .pf-stage-top { animation: none; } .pf-stage-bar { display: none; } }
 /* on a phone: the small uppercase labels get a floor, and "View all" / the expand button a 44 px tall touch area with the same look */
