@@ -256,9 +256,12 @@ a.detail-3d { text-decoration: none; }
 .contact-form input:focus, .contact-form textarea:focus { border-color: var(--accent); }
 .contact-form .row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 .contact-form .status { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
-.contact-links { display: flex; gap: 18px; margin: 2px 0 14px; flex-wrap: wrap; }
+.contact-links { display: flex; gap: 18px; margin: 2px 0 14px; flex-wrap: wrap; align-items: center; }
 .contact-links a { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-decoration: none; color: var(--paper); border-bottom: 1px solid var(--paper-faint); padding-bottom: 2px; transition: border-color var(--d-fast), color var(--d-fast); }
 .contact-links a:hover { color: var(--accent); border-color: var(--accent); }
+.contact-links a.cl-cv { padding: 5px 11px; border: 1px solid var(--accent); color: var(--accent); background: rgba(217, 160, 91, 0.08); transition: background var(--d-fast), color var(--d-fast), border-color var(--d-fast); }
+.contact-links a.cl-cv:hover, .contact-links a.cl-cv:focus-visible { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+@media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) { .contact-links a.cl-cv { position: relative; } .contact-links a.cl-cv::before { content: ""; position: absolute; inset: -7px -6px; } }
 
 /* ---------- discovery notice */
 #discovered { position: absolute; left: 40px; top: calc(208px + var(--safe-t)); z-index: 26; display: grid; gap: 2px; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--paper); opacity: 0; transform: translateY(-6px); transition: opacity var(--d-fast), transform var(--d-fast) var(--ease); pointer-events: none; }
@@ -386,6 +389,7 @@ button:active:not(:disabled) { translate: 0 1px; }   /* (translate, not transfor
 #site-menu::before { content: ""; position: absolute; inset: -18px -20px -18px -96px; z-index: -1; background: rgba(18, 15, 10, 0.8); border: 1px solid var(--line); backdrop-filter: blur(10px); opacity: 0; transition: opacity var(--d-fast) var(--ease); pointer-events: none; }
 #site-menu.open::before { opacity: 1; }   /* the menu stays readable over a bright monitor */
 #site-menu.open a:nth-child(5) { transition-delay: 0.2s; }
+#site-menu.open a:nth-child(6) { transition-delay: 0.25s; } #site-menu.open a:nth-child(7) { transition-delay: 0.3s; } #site-menu.open a:nth-child(8) { transition-delay: 0.35s; }
 #kbd-hints { color: rgba(231, 221, 200, 0.5); }
 #kbd-hints.visible { opacity: 1; }   /* they read at ~14% before (0.55 opacity on a faint colour) */
 #identity, #discovery, #nav-hints, #sound-toggle, #kbd-hints, #discovered { text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55); }

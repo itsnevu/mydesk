@@ -330,5 +330,6 @@ export const MENU = [
   { id: 'skills', label: 'Skills', target: 'lamp' },
   { id: 'index', label: 'Index', target: 'clock' },
   { id: 'contact', label: 'Contact', target: 'mouse' },
+  { id: 'cv', label: 'CV ↗', href: '/cv/', key: 'cv', blank: true, channel: 'Web CV' },   // the one-page CV (scripts/site.js /cv/) in a new tab, so the desk stays where it is
   { id: 'portfolio', label: 'Portfolio ↗', href: '/', key: 'exit' },   // out of the desk, to the plain portfolio
 ];

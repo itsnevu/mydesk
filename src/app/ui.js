@@ -160,6 +160,12 @@ export const menu = {
     nav.innerHTML = '';
     for (const m of MENU) {
       const a = document.createElement('a'); a.href = m.href || `#${m.target}`; a.textContent = m.label; a.dataset.key = (m.key || m.target).toUpperCase();
+      // a page of its own in a new tab (the CV): the desk stays as it is, so this is no way out (no curtain, no exit event)
+      if (m.blank) {
+        a.target = '_blank'; a.rel = 'noopener';
+        a.addEventListener('click', () => { window.nvTrack?.('contact_click', { channel: m.channel || m.label, from: '3d-menu' }); setTimeout(() => { a.blur(); menu.close(); }, 0); });
+        nav.appendChild(a); continue;
+      }
       // a plain link (the way out to the portfolio) is left to the browser
       if (m.href) { a.addEventListener('click', () => { window.nvTrack?.('3d_experience_exit', { from: 'menu' }); try { sessionStorage.setItem('nv-curtain', '#120f0a'); sessionStorage.setItem('nv-curtain-name', 'Navy Gibran'); } catch {} }); nav.appendChild(a); continue; }
       // (the link lets go of focus first: closing the menu would otherwise hand it to the toggle, and Space would reopen the menu)
@@ -299,6 +305,8 @@ const leaveHint = () => (isTouch ? '' : '<p class="mono sp-hint"><kbd>esc</kbd> 
 // the × closes the panel the way the back button does
 $('sp-body').addEventListener('click', (e) => {
   if (e.target.closest('.sp-close')) { $('back-btn').click(); return; }
+  // an outbound link (About, Contact) is counted the way the portfolio counts its own
+  const out = e.target.closest('.contact-links a'); if (out) { window.nvTrack?.('contact_click', { channel: out.dataset.channel, from: out.dataset.from }); return; }
   // a panel's own next step (go inside, look closer): the scene does what a second click on the object would
   const go = e.target.closest('[data-go]'); if (go) { go.blur(); dispatchEvent(new CustomEvent('kw:go', { detail: go.dataset.go })); }
 });
@@ -308,14 +316,15 @@ function showPanel(sig, heading, html, side = 'right') {
   el.dataset.side = side; el.dataset.pref = side; el.classList.add('visible'); setShown(el, true);
   el.querySelector('.sp-card')?.scrollTo?.({ top: 0 }); // (a new panel starts at its top, not where the last one was scrolled to)
 }
-// the same outbound links close the About panel and open the Contact one
-const linksRow = () => `<div class="contact-links">${SITE.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener">${l.label}</a>`).join('')}</div>`;
+// the same outbound links: About shows them under its status line, with the CV as its one amber button; Contact opens with them;
+// every click is counted (the #sp-body listener above)
+const linksRow = (from, cv = false) => `<div class="contact-links">${SITE.links.map((l) => `<a href="${l.href}" target="_blank" rel="noopener" data-channel="${esc(l.label)}" data-from="${from}"${cv && l.label === 'Résumé' ? ' class="cl-cv"' : ''}>${l.label === 'Résumé' ? 'Résumé (PDF)' : l.label}</a>`).join('')}</div>`;
 export const panel = {
   about() {
     const glance = `<div class="sp-group"><span class="sp-group-title mono">at a glance</span><ul class="sp-skills">${SITE.facts.map((f) => `<li>${f}</li>`).join('')}</ul></div>`;
     // (his face first: public/site/portrait.webp, the same print as on the portfolio's opening page)
     const face = `<figure class="sp-portrait" aria-hidden="true"><img src="/site/portrait.webp" alt="" width="92" height="115" decoding="async" loading="lazy"></figure>`;
-    showPanel('who I am', 'ABOUT', `${face}<p>${SITE.about}</p><p><strong>Currently:</strong> ${SITE.currently}</p><p><strong>${SITE.status}</strong> · ${SITE.where}</p>${glance}${linksRow()}`, 'right');
+    showPanel('who I am', 'ABOUT', `${face}<p>${SITE.about}</p><p><strong>${SITE.status}</strong> · ${SITE.where}</p>${linksRow('3d-about', true)}<p><strong>Currently:</strong> ${SITE.currently}</p>${glance}`, 'right');
   },
   skills() {
     const html = SITE.skills.map((g) => `<div class="sp-group"><span class="sp-group-title mono">${g.group}</span><ul class="sp-skills">${g.items.map((i) => `<li>${i}</li>`).join('')}</ul></div>`).join('');
@@ -331,7 +340,7 @@ export const panel = {
   },
   contact() {
     showPanel('get in touch', 'SAY HELLO', `
-      ${linksRow()}
+      ${linksRow('3d-contact')}
       <form class="contact-form" id="contact-form">
         <label>name<input name="name" required autocomplete="name" /></label>
         <label>email<input name="email" type="email" autocomplete="email" /></label>
