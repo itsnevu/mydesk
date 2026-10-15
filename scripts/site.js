@@ -1077,7 +1077,7 @@ function introHtml(D) {
   const posters = ['godplan-erp', 'godjah-studio', 'winfaith', 'flora-indonesia', 'fls-group-indonesia', 'dams-garage'].filter((k) => exists(`site/intro/${k}.webp`));
   const deskShot = exists('site/desk-wide-800.webp') ? 'site/desk-wide-800.webp' : exists('site/desk-wide.webp') ? 'site/desk-wide.webp' : 'og.png';
   return `<div class="intro" id="intro">
-  <div class="intro-posters" aria-hidden="true">${posters.map((k, i) => `<figure style="--i:${i}"><img src="/site/intro/${k}.webp" alt="" width="240" height="320">${MARK()}</figure>`).join('')}</div>
+  <div class="intro-posters" aria-hidden="true">${posters.map((k, i) => `<figure style="--i:${i}"><img src="/site/intro/${k}.webp" alt="" width="240" height="320" loading="lazy" decoding="async">${MARK()}</figure>`).join('')}</div>
   <div class="intro-in" aria-hidden="true">${MARK('intro-mark')}<div class="intro-word"><div class="iw-o"><span>Navy</span><span>Gibran</span></div><div class="iw-f"><span>Navy</span><span>Gibran</span></div></div><div class="intro-sub">${esc(t('role'))}</div></div>
   <div class="intro-gate" role="dialog" aria-modal="true" aria-labelledby="intro-gate-t" hidden>
     <span class="kick">${esc(t('gateKick'))}</span>
@@ -1124,6 +1124,42 @@ ${footer(D, true)}
 ` + tail(ctx.js + '\n' + HOME_PROFILE_JS);
 }
 
+// ---------- /llms.txt: who Navy is, what he built and how to reach him, as Markdown for language models (llmstxt.org)
+function llmsTxt(D) {
+  const list = counted(D), nLive = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
+  const one = (s) => metaCut(String(s || ''), 'en');
+  const link = (l) => `- ${l.label === 'Résumé' ? 'CV (PDF)' : l.label}: ${l.href.startsWith('/') ? ORIGIN + l.href : l.href.replace(/^mailto:/, '')}`;
+  return [
+    '# Navy Gibran',
+    '',
+    `> ${CONTENT.en.ldDesc || UI.en.ldDesc} ${nLive} client sites are live.`,
+    '',
+    `Full-stack developer in Indonesia (GMT+7), now at PT. Gajah Terbang Kreatif, where he built GodPlan ERP. Informatics graduate of Universitas Multimedia Nusantara (2026, GPA 3.71). Speaks Indonesian and English; reads Mandarin. ${UI.en.status}.`,
+    '',
+    '## Pages',
+    '',
+    `- [Profile](${ORIGIN}/): the portfolio at a glance (also in [Bahasa Indonesia](${ORIGIN}/id/) and [Chinese](${ORIGIN}/zh/))`,
+    `- [The full story](${ORIGIN}/full/): the work, the clients, the path and how he works`,
+    `- [All work](${ORIGIN}/work/): ${list.length} projects, each with its own page`,
+    `- [Labs](${ORIGIN}/labs/): 3D web interactive designs and experiments on GitHub`,
+    `- [CV](${ORIGIN}/cv/): one page, printable`,
+    `- [The 3D desk](${ORIGIN}/3d/): the same portfolio as a 3D room`,
+    '',
+    '## Contact',
+    '',
+    ...D.SITE.links.map(link),
+    '',
+    '## Projects',
+    '',
+    ...list.map((p) => `- [${p.title}](${ORIGIN}/work/${p.key}/): ${p.industry}. ${one(p.description)} Stack: ${p.stack}.${p.now ? ` Now ${p.now.name}, its old address retired.` : p.date === 'previous design' ? ' The first version, since replaced at the same address.' : p.url ? ` Live at ${p.url.replace(/^https?:\/\//, '').replace(/\/$/, '')}.` : ''}`),
+    '',
+    '## Stack',
+    '',
+    STACK.map((items) => items.join(', ')).join('; ') + '.',
+    '',
+  ].join('\n').replace(/[—–]/g, ',');
+}
+
 // ---------- everything, per language: { 'index.html', 'work/<key>/index.html', 'labs/index.html', 'en/index.html', ...,
 // '404.html' (the default language), 'sitemap.xml', 'robots.txt' }
 export async function renderSite() {
@@ -1168,6 +1204,7 @@ export async function renderSite() {
   urls.push(`  <url><loc>${ORIGIN}/3d/</loc><priority>0.8</priority></url>`);
   out['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
   out['robots.txt'] = `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`;
+  out['llms.txt'] = llmsTxt(D);
   // no dashes in anything the site shows (Navy's rule)
   for (const [k, v] of Object.entries(out)) if (/[—–]/.test(strip(v.replace(/<style>[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/g, '')))) console.warn(`warning: ${k} contains an em or en dash`);
   return out;
