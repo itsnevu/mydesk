@@ -1580,3 +1580,10 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .p-wa-mail:hover, .p-wa-mail:focus-visible { background: var(--ink); border-color: var(--ink); color: #140f09; }
 .p-wa-cv { background: none; color: var(--ink); }
 @media (max-width: 640px) { .p-wa-row .btn { width: 100%; } }
+
+/* the project hero's actions sit under the opening paragraph (scripts/site.js projectPage puts them right after it): on a wide screen
+   in the left column's second row, the facts spanning both rows beside them; on a narrow one, in reading order before the facts */
+.p-grid > .p-lead { grid-row: 1; }
+.p-grid > .p-actions { grid-column: 1 / 8; grid-row: 2; align-self: start; margin-top: 0; }
+.p-grid > .p-meta { grid-row: 1 / span 2; align-self: start; }
+@media (max-width: 900px) { .p-grid > .p-lead, .p-grid > .p-actions, .p-grid > .p-meta { grid-column: 1 / 13; grid-row: auto; } }

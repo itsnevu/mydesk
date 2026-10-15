@@ -893,6 +893,7 @@ ${header('work', pathname)}
       <h1 class="p-title cap" data-split>${split(p.title)}</h1>
       <div class="p-grid">
         <p class="p-lead" data-reveal>${esc(lead)}</p>
+        <div class="p-actions" data-reveal>${live}${firstBtn}${p.code ? `<a class="btn" href="${esc(p.code)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub" data-project="${p.key}" data-magnet>${roll(t('readCode'))} ${arrowR}</a>` : ''}${similar}</div>
         <dl class="p-meta" data-stagger>
           <div style="--i:0"><dt>${esc(t('industry'))}</dt><dd>${esc(tp(p, 'industry'))}</dd></div>
           <div style="--i:1"><dt>${esc(t('stackLbl'))}</dt><dd>${esc(stackOf(p))}</dd></div>
@@ -902,7 +903,6 @@ ${header('work', pathname)}
           ${p.code ? `<div style="--i:4"><dt>${esc(t('codeLbl'))}</dt><dd><a href="${esc(p.code)}" target="_blank" rel="noopener">${esc(p.code.replace(/^https:\/\//, ''))}</a></dd></div>` : ''}
         </dl>
       </div>
-      <div class="p-actions" data-reveal>${live}${firstBtn}${p.code ? `<a class="btn" href="${esc(p.code)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub" data-project="${p.key}" data-magnet>${roll(t('readCode'))} ${arrowR}</a>` : ''}${similar}</div>
       ${now}${pair}
     </header>
     <div class="p-hero wrap" data-scene="phero">
