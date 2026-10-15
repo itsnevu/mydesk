@@ -1,0 +1,705 @@
+{
+ "user": "itsnevu",
+ "at": "2026-10-15",
+ "repos": [
+  {
+   "name": "mydesk",
+   "url": "https://github.com/itsnevu/mydesk",
+   "description": "",
+   "homepage": "https://mydesk-murex.vercel.app",
+   "created": "2026-10-01",
+   "pushed": "2026-10-13",
+   "bytes": {
+    "JavaScript": 1785745,
+    "CSS": 228326,
+    "Python": 88270,
+    "HTML": 20852
+   },
+   "tools": [
+    "JavaScript",
+    "Python",
+    "Node.js",
+    "Vercel",
+    "WebGL"
+   ]
+  },
+  {
+   "name": "sheaf",
+   "url": "https://github.com/itsnevu/sheaf",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-22",
+   "pushed": "2026-09-23",
+   "bytes": {
+    "TypeScript": 901469,
+    "Solidity": 161194,
+    "CSS": 61253,
+    "JavaScript": 3070,
+    "Shell": 1063
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "REST APIs",
+    "PostgreSQL",
+    "Docker",
+    "Three.js",
+    "WebGL",
+    "Smart contracts",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "payrail",
+   "url": "https://github.com/itsnevu/payrail",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-18",
+   "pushed": "2026-09-20",
+   "bytes": {
+    "TypeScript": 399644,
+    "CSS": 65620,
+    "JavaScript": 23833,
+    "Solidity": 4677,
+    "HTML": 1356
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "REST APIs",
+    "PostgreSQL",
+    "Smart contracts",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "mosaic",
+   "url": "https://github.com/itsnevu/mosaic",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-10",
+   "pushed": "2026-09-20",
+   "bytes": {
+    "TypeScript": 298392,
+    "Solidity": 113588,
+    "JavaScript": 17397,
+    "CSS": 15311
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "REST APIs",
+    "GSAP",
+    "Three.js",
+    "WebGL",
+    "Smart contracts",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "cat",
+   "url": "https://github.com/itsnevu/cat",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-19",
+   "pushed": "2026-09-20",
+   "bytes": {
+    "TypeScript": 684839,
+    "CSS": 117952,
+    "Solidity": 76318,
+    "HTML": 38821,
+    "JavaScript": 10911,
+    "Shell": 7399
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "REST APIs",
+    "Three.js",
+    "WebGL",
+    "Smart contracts"
+   ]
+  },
+  {
+   "name": "pillar",
+   "url": "https://github.com/itsnevu/pillar",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-10",
+   "pushed": "2026-09-19",
+   "bytes": {
+    "TypeScript": 211386,
+    "CSS": 113587,
+    "Solidity": 35531,
+    "JavaScript": 13754,
+    "Shell": 2728
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "REST APIs",
+    "Smart contracts",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "prism",
+   "url": "https://github.com/itsnevu/prism",
+   "description": "Tokenized index baskets, redeemable at NAV — and paused rather than priced when a market is shut.",
+   "homepage": "",
+   "created": "2026-09-10",
+   "pushed": "2026-09-18",
+   "bytes": {
+    "TypeScript": 227567,
+    "Solidity": 123275,
+    "HTML": 78892,
+    "CSS": 41931,
+    "JavaScript": 12658,
+    "Shell": 3760
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "GSAP",
+    "Three.js",
+    "WebGL",
+    "Smart contracts",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "jarvis",
+   "url": "https://github.com/itsnevu/jarvis",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-16",
+   "pushed": "2026-09-18",
+   "bytes": {
+    "Python": 80554
+   },
+   "tools": [
+    "Python"
+   ]
+  },
+  {
+   "name": "chi",
+   "url": "https://github.com/itsnevu/chi",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-11",
+   "pushed": "2026-09-12",
+   "bytes": {
+    "TypeScript": 132076,
+    "CSS": 54873,
+    "JavaScript": 16190
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "Three.js",
+    "WebGL"
+   ]
+  },
+  {
+   "name": "e-form",
+   "url": "https://github.com/itsnevu/e-form",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-08",
+   "pushed": "2026-09-08",
+   "bytes": {
+    "TypeScript": 87908,
+    "CSS": 4392,
+    "SQL": 1292,
+    "JavaScript": 559
+   },
+   "tools": [
+    "TypeScript",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "REST APIs",
+    "PostgreSQL"
+   ]
+  },
+  {
+   "name": "voxel",
+   "url": "https://github.com/itsnevu/voxel",
+   "description": "",
+   "homepage": "",
+   "created": "2026-08-27",
+   "pushed": "2026-09-06",
+   "bytes": {
+    "JavaScript": 2182189,
+    "HTML": 127750,
+    "Solidity": 82615,
+    "Shell": 20585
+   },
+   "tools": [
+    "JavaScript",
+    "Solidity",
+    "Node.js",
+    "REST APIs",
+    "Smart contracts"
+   ]
+  },
+  {
+   "name": "adpulse",
+   "url": "https://github.com/itsnevu/adpulse",
+   "description": "",
+   "homepage": "",
+   "created": "2026-08-25",
+   "pushed": "2026-09-05",
+   "bytes": {
+    "JavaScript": 366501,
+    "SQL": 6899,
+    "Shell": 6350,
+    "CSS": 306
+   },
+   "tools": [
+    "JavaScript",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "Node.js",
+    "REST APIs",
+    "PostgreSQL",
+    "Docker"
+   ]
+  },
+  {
+   "name": "chimera",
+   "url": "https://github.com/itsnevu/chimera",
+   "description": "",
+   "homepage": "",
+   "created": "2026-08-20",
+   "pushed": "2026-09-01",
+   "bytes": {
+    "JavaScript": 195887,
+    "TypeScript": 77026,
+    "HTML": 28054,
+    "CSS": 1613
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Next.js",
+    "React",
+    "Node.js",
+    "REST APIs"
+   ]
+  },
+  {
+   "name": "streakfit",
+   "url": "https://github.com/itsnevu/streakfit",
+   "description": "",
+   "homepage": "",
+   "created": "2026-09-01",
+   "pushed": "2026-09-01",
+   "bytes": {
+    "Dart": 678311,
+    "TypeScript": 197281,
+    "HTML": 125949,
+    "Swift": 900,
+    "Kotlin": 120
+   },
+   "tools": [
+    "TypeScript",
+    "Node.js",
+    "REST APIs",
+    "PostgreSQL",
+    "Docker"
+   ]
+  },
+  {
+   "name": "Flowkite",
+   "url": "https://github.com/itsnevu/Flowkite",
+   "description": "Open-source AI browser agent that plans and acts locally in your browser, and asks before it does anything that matters.",
+   "homepage": "https://www.flowkite.xyz",
+   "created": "2026-08-10",
+   "pushed": "2026-08-28",
+   "bytes": {
+    "TypeScript": 1647428,
+    "HTML": 164465,
+    "JavaScript": 88392,
+    "CSS": 55871,
+    "Python": 2947,
+    "Shell": 975
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Python",
+    "React",
+    "Tailwind CSS",
+    "Node.js",
+    "Vercel",
+    "Three.js",
+    "WebGL"
+   ]
+  },
+  {
+   "name": "run-app",
+   "url": "https://github.com/itsnevu/run-app",
+   "description": "",
+   "homepage": "",
+   "created": "2026-08-20",
+   "pushed": "2026-08-23",
+   "bytes": {
+    "Dart": 406611,
+    "SQL": 30069,
+    "HTML": 3444,
+    "Swift": 900,
+    "Kotlin": 116
+   },
+   "tools": []
+  },
+  {
+   "name": "student-performance",
+   "url": "https://github.com/itsnevu/student-performance",
+   "description": "",
+   "homepage": "",
+   "created": "2026-04-23",
+   "pushed": "2026-08-12",
+   "bytes": {
+    "Jupyter Notebook": 542083,
+    "TypeScript": 49512,
+    "Python": 42173,
+    "CSS": 11013,
+    "JavaScript": 465
+   },
+   "tools": [
+    "TypeScript",
+    "Python",
+    "Next.js",
+    "React",
+    "Docker"
+   ]
+  },
+  {
+   "name": "credential-forgery-detection",
+   "url": "https://github.com/itsnevu/credential-forgery-detection",
+   "description": "Open-source ML + blockchain for verifying Indonesian diplomas & competency certificates: a multimodal model detects & localizes document forgery; verified docs anchored on-chain.",
+   "homepage": "",
+   "created": "2026-08-10",
+   "pushed": "2026-08-12",
+   "bytes": {
+    "Python": 186283,
+    "Shell": 1589
+   },
+   "tools": [
+    "Python"
+   ]
+  },
+  {
+   "name": "Curb",
+   "url": "https://github.com/itsnevu/Curb",
+   "description": "Guardrails and circuit breakers for AI agents — stop runaway loops, cost blowups, and destructive tool calls with one policy engine. OpenAI/Anthropic proxy + TypeScript & Python SDKs + human approval dashboard.",
+   "homepage": "https://github.com/itsnevu/Curb#readme",
+   "created": "2026-08-10",
+   "pushed": "2026-08-11",
+   "bytes": {
+    "TypeScript": 263301,
+    "Python": 25988,
+    "HTML": 16794,
+    "SQL": 4587,
+    "Shell": 396
+   },
+   "tools": [
+    "TypeScript",
+    "Python",
+    "Node.js",
+    "REST APIs",
+    "PostgreSQL",
+    "Docker"
+   ]
+  },
+  {
+   "name": "solmine",
+   "url": "https://github.com/itsnevu/solmine",
+   "description": "",
+   "homepage": "",
+   "created": "2026-07-02",
+   "pushed": "2026-07-02",
+   "skip": "Biomes, the open-source sandbox MMORPG by ill-inc, imported in one commit"
+  },
+  {
+   "name": "backend-godplan",
+   "url": "https://github.com/itsnevu/backend-godplan",
+   "description": "",
+   "homepage": "https://be-godplan.vercel.app",
+   "created": "2025-10-30",
+   "pushed": "2026-07-02",
+   "bytes": {
+    "Go": 288588,
+    "SQL": 14183,
+    "Shell": 253
+   },
+   "tools": [
+    "Go",
+    "Bun",
+    "REST APIs",
+    "PostgreSQL",
+    "Docker",
+    "Vercel",
+    "Swagger"
+   ]
+  },
+  {
+   "name": "rpg",
+   "url": "https://github.com/itsnevu/rpg",
+   "description": "",
+   "homepage": "",
+   "created": "2026-07-02",
+   "pushed": "2026-07-02",
+   "skip": "RPGJS v5 beta, imported in one commit"
+  },
+  {
+   "name": "3d-game",
+   "url": "https://github.com/itsnevu/3d-game",
+   "description": "",
+   "homepage": "",
+   "created": "2026-06-29",
+   "pushed": "2026-06-30",
+   "skip": "JDungeon3D, an open-source Godot MMORPG, published as a web build"
+  },
+  {
+   "name": "2d-rpg-game",
+   "url": "https://github.com/itsnevu/2d-rpg-game",
+   "description": "",
+   "homepage": "",
+   "created": "2026-06-25",
+   "pushed": "2026-06-27",
+   "skip": "NEAR Lands, a Phaser 3 template, started from its code"
+  },
+  {
+   "name": "nextjs-commerce-boilerplate",
+   "url": "https://github.com/itsnevu/nextjs-commerce-boilerplate",
+   "description": "",
+   "homepage": "",
+   "created": "2026-05-03",
+   "pushed": "2026-05-04",
+   "bytes": {
+    "TypeScript": 116788,
+    "CSS": 45158,
+    "JavaScript": 547
+   },
+   "tools": [
+    "TypeScript",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "PostgreSQL"
+   ]
+  },
+  {
+   "name": "IF433_Lab_Works",
+   "url": "https://github.com/itsnevu/IF433_Lab_Works",
+   "description": "",
+   "homepage": "",
+   "created": "2026-02-02",
+   "pushed": "2026-04-20",
+   "bytes": {
+    "Kotlin": 40951,
+    "Java": 378
+   },
+   "tools": []
+  },
+  {
+   "name": "sc-coinsight",
+   "url": "https://github.com/itsnevu/sc-coinsight",
+   "description": "",
+   "homepage": "",
+   "created": "2026-01-12",
+   "pushed": "2026-01-12",
+   "bytes": {
+    "Solidity": 23002,
+    "JavaScript": 16923
+   },
+   "tools": [
+    "JavaScript",
+    "Solidity",
+    "Smart contracts",
+    "Wallet integration"
+   ]
+  },
+  {
+   "name": "be-coinsight",
+   "url": "https://github.com/itsnevu/be-coinsight",
+   "description": "",
+   "homepage": "",
+   "created": "2026-01-12",
+   "pushed": "2026-01-12",
+   "bytes": {
+    "Python": 54704
+   },
+   "tools": [
+    "Python"
+   ]
+  },
+  {
+   "name": "fe-coinsight",
+   "url": "https://github.com/itsnevu/fe-coinsight",
+   "description": "",
+   "homepage": "",
+   "created": "2026-01-12",
+   "pushed": "2026-01-12",
+   "bytes": {
+    "TypeScript": 30822,
+    "JavaScript": 559,
+    "CSS": 488
+   },
+   "tools": [
+    "TypeScript",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "fe-god",
+   "url": "https://github.com/itsnevu/fe-god",
+   "description": "",
+   "homepage": "https://fe-god.vercel.app",
+   "created": "2025-10-28",
+   "pushed": "2025-11-13",
+   "bytes": {
+    "Svelte": 34105,
+    "TypeScript": 2194,
+    "CSS": 704,
+    "JavaScript": 662,
+    "HTML": 286
+   },
+   "tools": [
+    "TypeScript",
+    "SvelteKit",
+    "Tailwind CSS",
+    "Bun",
+    "GSAP",
+    "Three.js",
+    "WebGL"
+   ]
+  },
+  {
+   "name": "defi-staking-dapp",
+   "url": "https://github.com/itsnevu/defi-staking-dapp",
+   "description": "",
+   "homepage": "",
+   "created": "2025-11-04",
+   "pushed": "2025-11-04",
+   "bytes": {
+    "TypeScript": 270755,
+    "JavaScript": 5209,
+    "Solidity": 4357,
+    "CSS": 2452
+   },
+   "tools": [
+    "TypeScript",
+    "JavaScript",
+    "Solidity",
+    "Next.js",
+    "React",
+    "Tailwind CSS",
+    "Node.js",
+    "Vercel",
+    "Smart contracts",
+    "Wallet integration",
+    "dApp frontends"
+   ]
+  },
+  {
+   "name": "ojslocal",
+   "url": "https://github.com/itsnevu/ojslocal",
+   "description": "Backup Folder Open Journal System",
+   "homepage": "",
+   "created": "2025-06-03",
+   "pushed": "2025-06-03",
+   "skip": "a backup of Open Journal Systems (a README only)"
+  },
+  {
+   "name": "MBIL",
+   "url": "https://github.com/itsnevu/MBIL",
+   "description": "",
+   "homepage": "",
+   "created": "2024-12-12",
+   "pushed": "2025-01-02",
+   "bytes": {
+    "Kotlin": 47099
+   },
+   "tools": []
+  },
+  {
+   "name": "UASGKA",
+   "url": "https://github.com/itsnevu/UASGKA",
+   "description": "",
+   "homepage": "",
+   "created": "2024-11-03",
+   "pushed": "2025-01-01",
+   "bytes": {
+    "C#": 220226,
+    "ShaderLab": 80492
+   },
+   "tools": []
+  },
+  {
+   "name": "PTI-UMNGOTCHA",
+   "url": "https://github.com/itsnevu/PTI-UMNGOTCHA",
+   "description": "UTS",
+   "homepage": "",
+   "created": "2023-04-03",
+   "pushed": "2023-04-06",
+   "bytes": {
+    "HTML": 19711,
+    "CSS": 1700
+   },
+   "tools": []
+  },
+  {
+   "name": "PTI-LAB",
+   "url": "https://github.com/itsnevu/PTI-LAB",
+   "description": "PTI",
+   "homepage": "",
+   "created": "2023-04-06",
+   "pushed": "2023-04-06",
+   "bytes": {
+    "HTML": 8444,
+    "CSS": 1893
+   },
+   "tools": []
+  }
+ ]
+}

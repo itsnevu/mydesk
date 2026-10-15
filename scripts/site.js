@@ -14,6 +14,7 @@ import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
 import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
+import { STACK } from './stack-tools.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const ORIGIN = 'https://navygibran.dev';
@@ -21,6 +22,9 @@ export const ORIGIN = 'https://navygibran.dev';
 // here (or in the ADOBE_KIT env var) and the CSS stacks pick them up; until then the free stand-ins in site.css are used.
 const ADOBE_KIT = process.env.ADOBE_KIT || '';
 const read = (f) => fs.readFileSync(path.join(root, f), 'utf8').replace(/\r\n/g, '\n');   // (a Windows checkout has CRLF)
+
+// what Navy's own GitHub repositories say about his stack (written by scripts/github-stats.mjs); without it the stack shows no counts
+const GH = (() => { try { return JSON.parse(read('scripts/github-stats.json')); } catch { return null; } })();
 
 // data.js imports BACKLIGHTS from app/theme (3D only); the site doesn't need it, so the import becomes a constant
 async function loadData() {
@@ -168,7 +172,7 @@ const TERRITORIES = [
 // each tool's mark (public/site/tools/<slug>.svg, Simple Icons, CC0; the brands belong to their owners), drawn in one colour as a
 // mask like the client logos; a tool with no brand mark gets a short monogram in a ring instead
 const TOOL_MARK = {
-  Go: 'go', TypeScript: 'typescript', JavaScript: 'javascript', PHP: 'php', Solidity: 'solidity',
+  Go: 'go', TypeScript: 'typescript', JavaScript: 'javascript', PHP: 'php', Solidity: 'solidity', Python: 'python',
   'Next.js': 'nextdotjs', React: 'react', SvelteKit: 'svelte', 'Tailwind CSS': 'tailwindcss',
   'Node.js': 'nodedotjs', Bun: 'bun', PostgreSQL: 'postgresql', MySQL: 'mysql',
   WordPress: 'wordpress', WooCommerce: 'woocommerce', Elementor: 'elementor',
@@ -181,16 +185,7 @@ const TOOL_WIDE = new Set(['mysql', 'webgl', 'woocommerce', 'gsap']);   // wordm
 const toolMark = (tool) => TOOL_MARK[tool] && exists(`site/tools/${TOOL_MARK[tool]}.svg`)
   ? `<i class="tool-i${TOOL_WIDE.has(TOOL_MARK[tool]) ? ' tool-i--wide' : ''}" style="--m:url(/site/tools/${TOOL_MARK[tool]}.svg)" aria-hidden="true"></i>`
   : `<i class="tool-i tool-i--txt" aria-hidden="true">${esc(TOOL_MONO[tool] || tool.slice(0, 2).toUpperCase())}</i>`;
-// (each tool appears once; REST APIs, Swagger and DBeaver are from the stack on itsnevu.xyz; the layer names are in i18n.js)
-const STACK = [
-  ['Go', 'TypeScript', 'JavaScript', 'PHP', 'Solidity'],
-  ['Next.js', 'React', 'SvelteKit', 'Tailwind CSS'],
-  ['Node.js', 'Bun', 'REST APIs', 'PostgreSQL', 'MySQL'],
-  ['WordPress', 'WooCommerce', 'Elementor', 'Custom themes'],
-  ['Docker', 'Vercel', 'Swagger', 'DBeaver', 'Figma'],
-  ['GSAP', 'Framer Motion', 'Three.js', 'WebGL'],
-  ['Smart contracts', 'Wallet integration', 'dApp frontends'],
-];
+// (the stack itself, its layers and tools, is in scripts/stack-tools.js, shared with the profile home)
 // what each menu link shows beside the list
 // (Clients and What I build must not share a picture: client-websites-1 is itself a Winfaith shot, so Clients shows a store)
 const MENU_PV = ['shots/gallery/godplan-erp-1.webp', 'shots/gallery/orthobone-1.webp', 'shots/gallery/winfaith-1.webp', 'site/desk-keys.webp', 'site/desk-wide.webp', 'site/desk-world.webp', 'shots/labs/flowkite.webp'];
@@ -1014,7 +1009,7 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: c.name, word: c.word || null }));
-  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, exists, img, u, tp, projectMedia });
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia });
   const preload = ['site/desk-wide-800.webp', 'site/portrait.webp'].filter(exists).map((f) => `<link rel="preload" as="image" href="/${f}" fetchpriority="high">`).join('\n');
   return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
 <body class="home home-profile">

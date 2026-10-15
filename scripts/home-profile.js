@@ -5,6 +5,7 @@
 // pointer, rows light as they arrive, chips answer the hover, notes appear in the margins on a wide screen.
 // This module renders only <main>, its CSS and its script; scripts/site.js (or the preview) wraps it in the page shell.
 import { DITHER_JS } from './dither.js';
+import { STACK, stackModel, stackSection, STACK_CSS, STACK_JS } from './stack-tools.js';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
 const I = {
@@ -100,16 +101,16 @@ const PATH_META = [
   { logo: 'pahoa', mono: 'PH', chips: ['TK', 'SD', 'SMP', 'SMA', '2021'], edu: true },
 ];
 const TOOL_MARK = {
-  Go: 'go', TypeScript: 'typescript', JavaScript: 'javascript', PHP: 'php', Solidity: 'solidity', 'Next.js': 'nextdotjs', React: 'react', SvelteKit: 'svelte', 'Tailwind CSS': 'tailwindcss',
+  Go: 'go', TypeScript: 'typescript', JavaScript: 'javascript', PHP: 'php', Solidity: 'solidity', Python: 'python', 'Next.js': 'nextdotjs', React: 'react', SvelteKit: 'svelte', 'Tailwind CSS': 'tailwindcss',
   'Node.js': 'nodedotjs', Bun: 'bun', PostgreSQL: 'postgresql', MySQL: 'mysql', WordPress: 'wordpress', WooCommerce: 'woocommerce', Elementor: 'elementor',
   Docker: 'docker', Vercel: 'vercel', Swagger: 'swagger', DBeaver: 'dbeaver', Figma: 'figma', GSAP: 'gsap', 'Framer Motion': 'framer', 'Three.js': 'threedotjs', WebGL: 'webgl',
   'Smart contracts': 'ethereum', 'Wallet integration': 'walletconnect', 'C++': 'cplusplus', OJS: 'php', 'GodPlan ERP': 'go', JAKASN: 'php',
 };
-const STACK = [['Go', 'TypeScript', 'JavaScript', 'PHP', 'Solidity'], ['Next.js', 'React', 'SvelteKit', 'Tailwind CSS'], ['Node.js', 'Bun', 'REST APIs', 'PostgreSQL', 'MySQL'], ['WordPress', 'WooCommerce', 'Elementor', 'Custom themes'], ['Docker', 'Vercel', 'Swagger', 'DBeaver', 'Figma'], ['GSAP', 'Framer Motion', 'Three.js', 'WebGL'], ['Smart contracts', 'Wallet integration', 'dApp frontends']];
 const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'linkedin'], ['GitHub', 'github'], ['X', 'x']];
 
-/** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}]. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, now = new Date() }) {
+/** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
+ * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}</span>`; };
   const dur = (m) => {
@@ -156,13 +157,16 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
     ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
     : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(/site/logos/${c.key}.webp)"><img src="/site/logos/${c.key}.webp" alt="" loading="lazy" decoding="async"></span></a>`;
-  const stack = STACK.map((items, i) => `<div class="pf-st" style="--i:${i}"><span class="pf-st-n"><b>${pad(i + 1)}</b>${esc(stackNames[i] || '')}</span><div class="pf-chips">${items.map(chip).join('')}</div></div>`).join('');
   const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
   const social = SOCIAL.map(([label, slug]) => {
     const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
     return `<a class="pf-soc" href="${esc(l.href)}" target="_blank" rel="noopener" title="${esc(label)}" aria-label="${esc(label)}" data-track="contact_click" data-channel="${esc(label)}">${exists(`site/tools/${slug}.svg`) ? mark(slug) : esc(label[0])}</a>`;
   }).join('') + `<a class="pf-soc pf-soc--w" href="${u('/cv/')}" title="CV">${I.doc}<span>CV</span></a>`;
-  const sec = (title, n, extra = '') => `<div class="pf-h"><h2><em>${esc(title)}</em><sup>(${n})</sup></h2>${extra}</div>`;
+  const sec = (title, n, extra = '', id = '') => `<div class="pf-h"><h2${id ? ` id="${id}"` : ''}><em>${esc(title)}</em><sup>(${n})</sup></h2>${extra}</div>`;
+  // the stack: how often each tool shows up in the work (GitHub and the shipped projects), and what was done with it (scripts/stack-tools.js)
+  const toolIcon = (t) => { const s = TOOL_MARK[t]; return s && exists(`site/tools/${s}.svg`) ? mark(s) : ''; };
+  const stack = stackSection({ M: stackModel({ D, gh }), lang, layers: stackNames, name: (t) => CHIP_T[lang]?.[t] ?? t, icon: toolIcon, u, worlds: worlds.length,
+    sec: (n) => sec(W.stack, n, gh?.user ? `<a class="pf-all" href="https://github.com/${esc(gh.user)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub">GitHub ${I.out}</a>` : '', 'pf-st') });
   const hatch = '<div class="pf-hatch" aria-hidden="true"></div>';
   const more = (label) => `<button type="button" class="pf-more" data-more-btn data-less="${esc(W.less)}"><span>${esc(label)}</span>${I.chev}</button>`;
   // the reel: the 3D worlds of the Labs page (scripts/labs-worlds.js) as one stage over a strip of their frames, the last section
@@ -226,7 +230,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </section>
   ${hatch}${reel}
   <section class="pf-sec" aria-labelledby="pf-exp">
-    ${sec(W.exp, expRows.length)}
+    ${sec(W.exp, expRows.length, '', 'pf-exp')}
     <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
     <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
     <ol class="pf-list pf-tl" data-stagger>${edu}</ol>
@@ -234,22 +238,19 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   ${hatch}
   <section class="pf-sec pf-sec--pj" aria-labelledby="pf-pj">
     <span class="pf-note pf-note--2" aria-hidden="true">${esc(W.notes[1])}</span>
-    ${sec(W.projects, counted.length, `<a class="pf-all" href="${u('/work/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    ${sec(W.projects, counted.length, `<a class="pf-all" href="${u('/work/')}">${esc(W.viewAll)} ${I.out}</a>`, 'pf-pj')}
     <ol class="pf-feats" data-stagger aria-label="${esc(W.featured)}">${featured}</ol>
     <ol class="pf-list" data-stagger data-fold>${projects}</ol>
     ${more(W.more)}
   </section>
   ${hatch}
   <section class="pf-sec pf-sec--cl pf-sec--cream" aria-labelledby="pf-cl">
-    ${sec(W.clients, clientSites, `<a class="pf-all" href="${u('/work/client-websites/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    ${sec(W.clients, clientSites, `<a class="pf-all" href="${u('/work/client-websites/')}">${esc(W.viewAll)} ${I.out}</a>`, 'pf-cl')}
     <div class="pf-logos" data-stagger>${clients.map(logo).join('')}</div>
     <span class="pf-note pf-note--cl" aria-hidden="true">${esc(W.thanks)}</span>
   </section>
   ${hatch}
-  <section class="pf-sec" aria-labelledby="pf-st">
-    ${sec(W.stack, STACK.reduce((n, s) => n + s.length, 0))}
-    <div class="pf-stack" data-stagger>${stack}</div>
-  </section>
+  ${stack}
   ${hatch}
   <section class="pf-cta" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
@@ -395,6 +396,7 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-st:first-child { border-top: 0; }
 .pf-st-n { display: flex; gap: 8px; padding-top: 6px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); } .pf-st-n b { color: var(--accent); }
 .pf-st .pf-chips { margin-top: 0; }
+` + STACK_CSS + `
 .pf-cta { position: relative; overflow: hidden; border-bottom: 1px solid var(--line); border-radius: 0 0 14px 14px; min-height: 300px; display: grid; align-items: end; }
 .pf-cta > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; filter: brightness(0.5) saturate(0.9); transition: transform 2s var(--ease); }
 .pf-cta:hover > img { transform: scale(1.04); }
@@ -463,7 +465,7 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
   .pf { padding-top: calc(var(--head-h) + 4px); }
   .pf-card, .pf-sec, .pf-cta, .pf-hatch { border-left: 0; border-right: 0; } .pf-card, .pf-cta { border-radius: 0; }
   .pf-logos { grid-template-columns: repeat(3, 1fr); }
-  .pf-st { grid-template-columns: 1fr; row-gap: 8px; }
+  .pf-st { grid-template-columns: 1fr; row-gap: 8px; } .pf-td { margin-top: -8px; }
   .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-th { width: 72px; height: 45px; }
   .pf-feats { grid-template-columns: 1fr 1fr; } .pf-feat:nth-child(3) { display: none; }
   .pf-nums { gap: 8px; } .pf-num { padding: 12px; }
@@ -479,7 +481,7 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
-export const HOME_PROFILE_JS = DITHER_JS + `
+export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
 (function(){
   var fine = matchMedia('(hover: hover) and (pointer: fine)').matches, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('motion-off');
   // the banner drifts a little toward the pointer
