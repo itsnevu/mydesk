@@ -27,7 +27,7 @@ body[data-state="desk"] #guide-btn.pulse b { animation: guide-pulse 1.6s ease-in
 body:not([data-state="loading"]):not([data-state="gate"]):not([data-state="entering"]) #guide-btn { opacity: 1; pointer-events: auto; }
 #guide { position: absolute; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(8,6,4,0.62); backdrop-filter: blur(6px); opacity: 0; pointer-events: none; transition: opacity .3s; }
 #guide.open { opacity: 1; pointer-events: auto; }
-#guide .card { width: min(620px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 30px 30px 24px; border: 1px solid rgba(217,160,91,0.35); border-radius: 18px; background: #17130e; color: var(--paper, #e7ddc8); font-family: var(--sans, system-ui); box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: translateY(10px); transition: transform .3s; scrollbar-width: thin; scrollbar-color: rgba(217,160,91,0.45) transparent; }
+#guide .card { width: min(620px, 100%); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow: auto; padding: 30px 30px 24px; border: 1px solid rgba(217,160,91,0.35); border-radius: 18px; background: #17130e; color: var(--paper, #e7ddc8); font-family: var(--sans, system-ui); box-shadow: 0 30px 80px rgba(0,0,0,0.6); transform: translateY(10px); transition: transform .3s; scrollbar-width: thin; scrollbar-color: rgba(217,160,91,0.45) transparent; }
 #guide.open .card { transform: none; }
 #guide .quick { display: block; width: 100%; margin: 0 0 18px; padding: 16px; border: 0; border-radius: 12px; background: var(--accent, #d9a05b); color: #1a140d; font: 500 17px var(--sans, system-ui); text-align: center; cursor: pointer; }
 #guide .quick strong { font-weight: 800; }
@@ -98,7 +98,7 @@ body[data-state="gate"] #gate-tip { opacity: 1; }
 /* big (or zoomed-out) windows: grow with the rest of the HUD (styles.css, --ui); the card's height cap is divided back out of the zoom */
 @media (min-width: 1025px) {
   #guide .card, #guide-btn, #quick-btn { zoom: var(--ui, 1); }
-  #guide .card { width: min(780px, 100%); max-height: calc((100vh - 32px) / var(--ui, 1)); }
+  #guide .card { width: min(780px, 100%); max-height: calc((100vh - 32px) / var(--ui, 1)); max-height: calc((100dvh - 32px) / var(--ui, 1)); }
   /* two columns of destinations, so the whole card fits a 16:9 window without scrolling */
   #guide .rows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   #guide .rows .row { margin: 0; }
