@@ -172,10 +172,13 @@ const linkLabel = (l) => (l.label === 'Résumé' ? t('resumePdf') : l.label);
 const PERSON_ID = `${ORIGIN}/#person`;
 function personLd(D, image) {
   const pic = image || (exists('site/portrait.webp') ? 'site/portrait.webp' : 'og.png');
+  const UMN = { '@type': 'CollegeOrUniversity', name: 'Universitas Multimedia Nusantara', url: 'https://www.umn.ac.id/' };
+  const deg = (CONTENT[LANG]?.path || []).find((r) => /Multimedia Nusantara/.test(r.org || ''));
   return {
     '@type': 'Person', '@id': PERSON_ID, name: 'Navy Gibran', url: `${ORIGIN}/`, image: `${ORIGIN}/${pic}`, jobTitle: t('jobTitle'), description: t('ldDesc'),
     ...(D.SITE.email ? { email: `mailto:${D.SITE.email}` } : {}), ...(D.SITE.whatsapp ? { telephone: `+${String(D.SITE.whatsapp).replace(/\D/g, '')}` } : {}),
-    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Multimedia Nusantara' },
+    alumniOf: UMN,
+    ...(deg ? { hasCredential: { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: deg.role, recognizedBy: UMN } } : {}),
     worksFor: { '@type': 'Organization', name: 'PT. Gajah Terbang Kreatif', url: 'https://gajahterbangkreatif.id/' },
     address: { '@type': 'PostalAddress', addressCountry: 'ID' },
     knowsAbout: STACK.flat(), knowsLanguage: ['id', 'en', 'zh'],
