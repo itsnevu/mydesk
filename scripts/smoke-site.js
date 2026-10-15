@@ -10,6 +10,7 @@
 //  - one <h1> per page; a <title> and a meta description (at most 170 characters) on every page, each unique within its
 //    language; a canonical link (not on the noindex 404) and an og:image; rel="noopener" on every target="_blank" link;
 //    every url() in the stylesheets points at a rendered file or one in public/.
+//  - on /id/ and /zh/, no word that site.js translates (TERM_T) is left in English.
 // Exported as checkSite(root) -> { pages, links, anchors, problems: [..], notes: [..] }; `node scripts/smoke-site.js` runs it alone.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,6 +28,13 @@ const near = (s, i) => s.slice(Math.max(0, i - 40), i + 40).replace(/\s+/g, ' ')
 
 export async function checkSite(root, given = null) {   // (given: an already rendered page map, for testing the check itself)
   const pages = given || await (await import(pathToFileURL(path.join(root, 'scripts', 'site.js')).href)).renderSite();
+  // (the words site.js translates per language, TERM_T: on /id/ and /zh/ the English must not show; a word that is also part of a tool's
+  // name, like Motion in Framer Motion, is checked with those names blanked out)
+  const TERM = (await import(pathToFileURL(path.join(root, 'scripts', 'site.js')).href)).TERM_T || {};
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const leak = Object.fromEntries(Object.entries(TERM).map(([lg, d]) => [lg, Object.entries(d).filter(([en, tr]) => en !== tr)
+    .map(([en]) => [en, new RegExp(`(?<![A-Za-z])${esc(en)}(?![A-Za-z])`)])]));
+  const NAMES = /Framer Motion/g;   // (proper names that contain a translated word; blanked out before the check)
   const html = Object.entries(pages).filter(([k]) => k.endsWith('.html'));
   const problems = [], notes = [], titles = {}, descs = {}, cssOf = [];
   let links = 0, anchors = 0;
@@ -49,6 +57,9 @@ export async function checkSite(root, given = null) {   // (given: an already re
     const text = textOf(h);
     let i = text.search(DASH); if (i >= 0) problems.push(`${where}: a dash in the text: "${near(text, i)}"`);
     i = text.search(LEFTOVER); if (i >= 0) problems.push(`${where}: a template leftover in the text: "${near(text, i)}"`);
+    const lg = key.startsWith('id/') ? 'id' : key.startsWith('zh/') ? 'zh' : '';
+    const named = lg ? text.replace(NAMES, ' ') : text;
+    for (const [en, re] of leak[lg] || []) { const j = named.search(re); if (j >= 0) problems.push(`${where}: "${en}" is left in English (site.js TERM_T translates it): "${near(named, j)}"`); }
     const tags = tagsOf(h);
     for (const t of tags) for (const name of ['alt', 'title', 'aria-label', 'placeholder', 'content']) {
       const v = t.a[name]; if (!v) continue;

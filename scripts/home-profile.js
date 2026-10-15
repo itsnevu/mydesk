@@ -124,7 +124,7 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}</span>`; };
   const dur = (m) => {
@@ -158,7 +158,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
   const status = (p) => p.now ? W.nowIs.replace('{n}', p.now.name) : W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
   const stat = (p) => status(p) === W.status.live ? `<span class="pf-live"><i aria-hidden="true"></i>${esc(status(p))}</span>` : `<span>${esc(status(p))}</span>`;
-  const stk = (p) => (p.stack || '').split(' · ').slice(0, 2).join(' · ');
+  const stk = (p) => (p.stack ? stackOf(p) : '').split(' · ').slice(0, 2).join(' · ');   // (stackOf: site.js, the words translated)
   const sm = (rel, w) => { const x = rel.replace(/\.webp$/, `-${w}.webp`); return x !== rel && exists(x) ? x : null; };
   const cover = (rel, sizes, w, h) => { const set = [[sm(rel, 384), 384], [sm(rel, 800), 800]].filter(([x]) => x).map(([x, n]) => `/${x} ${n}w`).join(', '); return `<img src="/${rel}"${set ? ` srcset="${set}" sizes="${sizes}"` : ''} alt="" loading="lazy" decoding="async" width="${w}" height="${h}">`; };
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">

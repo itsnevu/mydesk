@@ -42,7 +42,7 @@ const t = (k, vars) => { const v = UI[LANG]?.[k] ?? UI.en[k]; return vars && typ
 const tp = (p, f) => PROJECTS_T[LANG]?.[p.key]?.[f] ?? p[f];
 // the words among the tool names (a project's stack line, the featured meta, the toolbox), in the page's language: tool names
 // stay, the few words between them are said again (Navy: "waktu bahasa china ya china semua")
-const TERM_T = {
+export const TERM_T = {   // (exported for scripts/smoke-site.js: a translated term must not leak in English onto /id/ or /zh/)
   id: { 'custom build': 'build custom', 'Modern UI': 'UI modern', 'Custom UI': 'UI custom', 'Custom CSS': 'CSS custom', 'Creative theme': 'tema kreatif',
     Payments: 'Pembayaran', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
   zh: { 'custom build': '定制开发', 'Modern UI': '现代界面', 'Custom UI': '定制界面', 'Custom CSS': '定制 CSS', 'Creative theme': '创意主题',
@@ -1111,7 +1111,7 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: clientName(c), word: c.word || null }));
-  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia,
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf,
     services: (Cn.territories || CONTENT.en.territories).map((x, i) => ({ title: x.title, body: x.body, items: x.items || [], also: TERRITORIES[i]?.also || '', proof: (TERRITORIES[i]?.proof || []).map((k) => D.PROJECTS.find((q) => q.key === k)).filter(Boolean).map((q) => ({ key: q.key, title: q.title })) })),
     process: Cn.process || CONTENT.en.process });
   const set = (list) => list.filter(([f]) => exists(f)).map(([f, w]) => `/${f} ${w}w`).join(', ');
