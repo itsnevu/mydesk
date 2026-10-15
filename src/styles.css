@@ -540,7 +540,7 @@ body[data-story] #kbd-hints, body[data-story] #nav-hints { opacity: 0 !important
   #story { zoom: var(--ui, 1); }
   .km-pin { transform: translate(-50%, calc(-100% - 10px)) scale(var(--ui, 1)); }
 }
-/* a narrow desktop window: the card rises clear of the two buttons in the bottom-left corner */
+/* a narrow desktop window: the card rises clear of the two buttons in the bottom-left corner (the way back to the portfolio, which would sit on its row, steps aside while it shows: see #exit-3d) */
 @media (max-width: 1180px) and (min-width: 761px) { #story { bottom: calc(92px + var(--safe-b)); } }
 /* phones and tablets: the card is a sheet along the bottom; the labels lose their dates */
 @media (max-width: 760px), (pointer: coarse) and (max-width: 1024px) {
@@ -643,6 +643,9 @@ body:not([data-state="loading"]):not([data-state="gate"]) #like-btn { opacity: 1
 #exit-3d:hover i { transform: translateX(-2px); }
 body:not([data-state="loading"]):not([data-state="gate"]) #exit-3d { top: auto; bottom: calc(90px + var(--safe-b)); }
 body[data-state="entering"] #exit-3d, body[data-state="switching"] #exit-3d, body[data-state="detail"] #exit-3d { opacity: 0; pointer-events: none; }
+/* a narrow desktop window: the story's card rises to this pill's height (see #story) and its row of buttons ("‹ back" first)
+   would sit under it, so while the story runs the pill steps aside; the card's ×, the ✕ or Esc end the story and bring it back */
+@media (max-width: 1180px) and (min-width: 761px) { body[data-story] #exit-3d { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity var(--d-base), visibility 0s linear var(--d-base); } }
 #gate-intro { position: absolute; z-index: 45; right: 40px; top: calc(30px + var(--safe-t)); max-width: 330px; display: grid; gap: 6px; text-align: right; color: var(--paper); text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85); opacity: 0; transform: translateY(-6px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); pointer-events: none; }
 body[data-state="gate"] #gate-intro { opacity: 1; transform: none; }
 .gi-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
