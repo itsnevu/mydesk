@@ -136,11 +136,15 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', kindEn = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', kindEn = () => '', bgOf = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
+  // a project link's curtain: its tint and its name (site/site.js raises the curtain in that colour with that title), always looked
+  // up by key, since some lists hold only { key, title }
+  const projAt = (k) => D.PROJECTS.find((q) => q.key === k);
+  const tintA = (k, withName = true) => { const q = projAt(k); if (!q) return ''; const bg = bgOf(q); return `${bg ? ` data-bg="${esc(bg)}"` : ''}${withName ? ` data-name="${esc(q.title)}"` : ''}`; };
   // the home's four steps in a business owner's words (the same four stages as /full/ and the desk; /full/ keeps CONTENT.process)
   const steps = W.steps || given;
-  const chip = (t) => { const s = TOOL_MARK[t], inner = `${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}`; return CHIP_LINK[t] ? `<a class="pf-chip pf-chip--a" href="${u(`/work/${CHIP_LINK[t]}/`)}" data-track="project_open" data-project="${CHIP_LINK[t]}" data-from="profile-chip">${inner}</a>` : `<span class="pf-chip">${inner}</span>`; };
+  const chip = (t) => { const s = TOOL_MARK[t], inner = `${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}`; return CHIP_LINK[t] ? `<a class="pf-chip pf-chip--a" href="${u(`/work/${CHIP_LINK[t]}/`)}" data-track="project_open" data-project="${CHIP_LINK[t]}" data-from="profile-chip"${tintA(CHIP_LINK[t])}>${inner}</a>` : `<span class="pf-chip">${inner}</span>`; };
   const dur = (m) => {
     if (m.days) return `${m.days} ${W.dur.d}`;
     if (!m.from) return '';
@@ -186,12 +190,12 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const stk = (p) => { const k = String(kind(p) || '').toLowerCase(), ke = String(kindEn(p) || '').toLowerCase(), en = String(p.stack || '').split(' · '); return (p.stack ? stackOf(p) : '').split(' · ').filter((x, i) => x && x.toLowerCase() !== k && (en[i] || '').toLowerCase() !== ke).slice(0, 2).join(' · '); };
   const sm = (rel, w) => { const x = rel.replace(/\.webp$/, `-${w}.webp`); return x !== rel && exists(x) ? x : null; };
   const cover = (rel, sizes, w, h) => { const set = [[sm(rel, 384), 384], [sm(rel, 800), 800]].filter(([x]) => x).map(([x, n]) => `/${x} ${n}w`).join(', '); return `<img src="/${rel}"${set ? ` srcset="${set}" sizes="${sizes}"` : ''} alt="" loading="lazy" decoding="async" width="${w}" height="${h}">`; };
-  const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
+  const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}"${tintA(p.key, false)}>
       <span class="pf-th">${m.cover ? cover(m.cover, '96px', 96, 60) : I.folder}</span>
       <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta">${kindTag(p)}<span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span></span>
       <span class="pf-pj-st">${esc(stk(p))}</span><span class="pf-go">${I.out}</span></a></li>`; };
   const hostOf = (url) => { try { return new URL(url).host.replace(/^www\./, ''); } catch (x) { return ''; } };
-  const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}">
+  const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}"${tintA(p.key, false)}>
       <span class="pf-feat-pic"><span class="pf-feat-bar" aria-hidden="true"><i></i><i></i><i></i>${p.url ? `<span>${esc(hostOf(p.url))}</span>` : ''}</span>${m.cover ? cover(m.cover, '(min-width: 800px) 240px, (min-width: 481px) 46vw, 92vw', 640, 400) : I.folder}</span>
       <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta">${kindTag(p)}<span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
       <span class="pf-go">${I.out}</span></a></li>`; };
@@ -203,8 +207,8 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const projects = counted.filter((p) => !leadKeys.has(p.key)).map(rowProject).join('');
 
   const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
-    ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
-    : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(${logoUrl(`${c.key}.webp`)})"><img src="${logoUrl(`${c.key}.webp`)}" alt="" loading="lazy" decoding="async"></span></a>`;
+    ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}"${tintA(c.key)} title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
+    : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}"${tintA(c.key)} title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(${logoUrl(`${c.key}.webp`)})"><img src="${logoUrl(`${c.key}.webp`)}" alt="" loading="lazy" decoding="async"></span></a>`;
   const marq = clients.filter((c) => !c.word && exists(`site/logos/${c.key}.webp`));
   const marquee = marq.length > 5 ? `<div class="pf-marq" aria-hidden="true"><div class="pf-marq-t">${[...marq, ...marq].map((c) => `<i class="pf-marq-i" style="--m:url(${logoUrl(`${c.key}.webp`)})"></i>`).join('')}</div></div>` : '';
   const cvHref = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href || '';
@@ -228,7 +232,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <h3>${esc(s.title)}</h3>
       <p>${esc(s.body)}</p>
       ${(s.items || []).length ? `<div class="pf-chips">${s.items.map(chip).join('')}</div>` : ''}
-      ${(s.proof || []).length || s.also ? `<div class="pf-svc-p">${(s.proof || []).map((x) => `<a href="${u(`/work/${x.key}/`)}" data-track="project_open" data-project="${x.key}" data-from="profile-services">${esc(x.title)} ${I.out}</a>`).join('')}${s.also ? `<a href="${s.also}" data-track="3d_cta_click" data-from="profile-services">${esc(W.tabs.desk)} ${I.out}</a>` : ''}</div>` : ''}
+      ${(s.proof || []).length || s.also ? `<div class="pf-svc-p">${(s.proof || []).map((x) => `<a href="${u(`/work/${x.key}/`)}" data-track="project_open" data-project="${x.key}" data-from="profile-services"${tintA(x.key)}>${esc(x.title)} ${I.out}</a>`).join('')}${s.also ? `<a href="${s.also}" data-track="3d_cta_click" data-from="profile-services">${esc(W.tabs.desk)} ${I.out}</a>` : ''}</div>` : ''}
     </li>`).join('')}</ol>
   </section>
   ${hatch}` : '';
@@ -783,6 +787,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     });
     addEventListener('scroll', function () { if (on) { on = false; peek.classList.remove('on'); } }, { passive: true });
     addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) { on = false; peek.classList.remove('on'); } });   // (WCAG 1.4.13: what appears on hover can be dismissed)
+    addEventListener('pagehide', function () { on = false; peek.classList.remove('on'); });   // (a return from a project page finds it closed)
   })();
   // the floating WhatsApp button: in once the hero's button has gone by, out again when the closing banner comes into view
   (function () {
