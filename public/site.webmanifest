@@ -1,15 +1,24 @@
 {
+  "id": "/",
   "name": "Navy Gibran",
   "short_name": "Navy Gibran",
   "description": "Full-stack developer: ERP systems in Go and Next.js, and websites for Indonesian businesses.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "minimal-ui",
   "background_color": "#0e0c09",
   "theme_color": "#0e0c09",
+  "categories": ["business", "productivity"],
   "icons": [
     { "src": "/site/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/site/icon-512.png", "sizes": "512x512", "type": "image/png" },
     { "src": "/site/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "All projects", "short_name": "Work", "url": "/work/", "icons": [{ "src": "/site/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "CV", "short_name": "CV", "url": "/cv/", "icons": [{ "src": "/site/icon-192.png", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Labs", "short_name": "Labs", "url": "/labs/", "icons": [{ "src": "/site/icon-192.png", "sizes": "192x192", "type": "image/png" }] }
   ]
 }
