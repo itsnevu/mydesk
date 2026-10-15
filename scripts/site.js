@@ -877,7 +877,7 @@ function waBand(D, { title, msg, from, project = '' }) {
   const num = D.SITE.whatsapp ? phoneOf(D.SITE.whatsapp) : '';
   return `<section class="p-wa wrap" aria-labelledby="pwa-h">
     <div class="p-wa-in" data-reveal>
-      <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
+      <span class="p-wa-k"><span class="dot dot--open dot--halo" aria-hidden="true"></span>${esc(t('status'))}</span>
       <h2 class="p-wa-t" id="pwa-h">${esc(title)}</h2>
       <p class="p-wa-l">${esc(t('pwaLine'))}</p>
       <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, msg))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp"${project ? ` data-project="${project}"` : ''} data-from="${from}" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${num ? `<button class="btn p-wa-mail p-wa-num" type="button" aria-label="${esc(t('copyNumber'))} ${esc(num)}" data-copy="+${esc(D.SITE.whatsapp)}" data-track="contact_click" data-channel="WhatsApp number"${project ? ` data-project="${project}"` : ''} data-from="${from}">${esc(num)}</button>` : ''}${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="${from}">${esc(D.SITE.email)}</button>` : ''}${cv ? `<a class="btn p-wa-cv" href="${esc(cv)}" download="${esc(cv.split('/').pop())}" data-track="cv_download" data-from="${from}">${roll(t('cv'))}</a>` : ''}</div>

@@ -1584,6 +1584,12 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .p-wa { margin-top: clamp(70px, 9vw, 130px); }
 .p-wa-in { display: grid; justify-items: start; gap: 14px; padding: clamp(28px, 4.4vw, 60px); border: 1px solid var(--line-2); border-radius: 20px; background: radial-gradient(110% 140% at 100% 0%, rgba(217, 160, 91, 0.16), transparent 55%), rgba(241, 234, 219, 0.035); }
 .p-wa-k { display: inline-flex; align-items: center; gap: 10px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
+/* the open light where these pages keep it in view (the WhatsApp band of a project, /work/ and /labs/; the profile home's hero and closing banner): the same breathing ring as .dot--open, drawn by a pseudo-element that only scales and fades, so the compositor runs it and the page is not repainted every frame. 16 px across at rest (a 4 px ring at 0.16), 22 px at the breath (7 px at 0.06): scale 1.375, opacity 0.375 */
+.dot--halo { position: relative; box-shadow: none; animation: none; }
+.dot--halo::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; background: rgba(127, 212, 156, 0.16); pointer-events: none; animation: dot-halo 2.6s ease-in-out infinite; }
+@keyframes dot-halo { 50% { transform: scale(1.375); opacity: 0.375; } }
+@media (prefers-reduced-motion: reduce), print { .dot--halo::after { animation: none; } }
+.motion-off .dot--halo::after { animation: none; }
 .p-wa-t { max-width: 16em; font: 400 clamp(34px, 4.6vw, 66px)/1.02 var(--serif); text-wrap: balance; }
 .p-wa-l { max-width: 34em; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.55; color: var(--dim); text-wrap: pretty; }
 .p-wa-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }

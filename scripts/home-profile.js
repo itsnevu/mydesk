@@ -303,7 +303,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
       <span class="pf-handle">${esc(W.handle)}</span>
       <p class="pf-bio">${bio}</p>
-      <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}<span class="pf-clock" data-clock title="${esc(W.localTime)}"></span></li><li>${nowOrg ? `${I.org}${esc(nowOrg)}` : `${I.link}${esc(W.site)}`}</li><li class="pf-open"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.open)}</li></ul>
+      <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}<span class="pf-clock" data-clock title="${esc(W.localTime)}"></span></li><li>${nowOrg ? `${I.org}${esc(nowOrg)}` : `${I.link}${esc(W.site)}`}</li><li class="pf-open"><span class="dot dot--open dot--halo" aria-hidden="true"></span>${esc(W.open)}</li></ul>
       <div class="pf-nums" data-stagger>
         <a class="pf-num" href="${u('/work/client-websites/')}" style="--i:0"><b data-count="${clientSites}">${clientSites}</b><span>${esc(W.stats.live)}</span></a>
         <a class="pf-num" href="${u('/work/')}" style="--i:1"><b data-count="${counted.length}">${counted.length}</b><span>${esc(W.stats.projects)}</span></a>
@@ -350,7 +350,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   <section class="pf-cta" id="pf-contact" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
-      <span class="pf-cta-status"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.ring)}</span>
+      <span class="pf-cta-status"><span class="dot dot--open dot--halo" aria-hidden="true"></span>${esc(W.ring)}</span>
       <h2>${esc(W.ctaTitle)}</h2>
       <p>${esc(W.ctaLine)}</p>
       <div class="pf-cta-row">
@@ -442,8 +442,11 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-tabs.has-ind a::after { display: none; }
 .pf-tabs a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease); }
 .pf-tabs a:hover, .pf-tabs a:focus-visible, .pf-tabs a[aria-current] { color: var(--ink); } .pf-tabs a[aria-current]::after, .pf-tabs a:hover::after, .pf-tabs a:focus-visible::after { transform: none; }
-.pf-hatch { height: 14px; background-color: var(--bg); background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 9px); background-size: 200% 100%; animation: pf-hatch 60s linear infinite; }
-@keyframes pf-hatch { to { background-position: -400px 0; } }
+/* (the stripes ride a pseudo-element that only slides, so the compositor moves them and the page is not repainted every frame; 140 px is eleven stripes across (9 px apart at 135deg, 12.73 px across), so the loop meets itself; the same 6.7 px a second as before) */
+.pf-hatch { position: relative; height: 14px; overflow: hidden; background-color: var(--bg); }
+.pf-hatch::before { content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: calc(100% + 150px); background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 9px); pointer-events: none; animation: pf-hatch 21s linear infinite; }
+@keyframes pf-hatch { to { transform: translateX(-140px); } }
+.motion-off .pf-hatch::before { animation: none; }
 .pf-sec { padding: clamp(18px, 2.6vw, 26px) clamp(18px, 3vw, 30px) clamp(22px, 3vw, 30px); }
 .pf-h { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .pf-h h2 { font: 400 clamp(26px, 2.6vw, 32px)/1 var(--serif); } .pf-h h2 em { color: var(--accent-2); }
@@ -735,7 +738,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
 @media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; align-self: stretch; } .pf-hero-cta .btn { flex: 1 1 auto; } .pf-cta-row .btn { flex: 1 1 100%; } .pf-fab { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { grid-column: auto; } .pf-feat:nth-child(3) > a { grid-template-columns: none; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
-@media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch::before { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text, .pf-reel.is-swap .pf-stage-top { animation: none; } .pf-stage-bar { display: none; } }
 /* on a phone: the small uppercase labels get a floor, and "View all" / the expand button a 44 px tall touch area with the same look */
 @media (max-width: 640px) {
