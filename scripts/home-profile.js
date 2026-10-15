@@ -48,6 +48,8 @@ export const WORDS = {
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
     pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs', copyMail: 'Salin email', copyNum: 'Salin nomor', aboutRow: 'Selengkapnya tentang {o}',
     services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
+    steps: [{ step: 'Perencanaan', body: 'Apa yang dibuat, dalam ruang lingkup tertulis sebelum pekerjaan dimulai.' }, { step: 'Desain', body: 'Tampilan dan cara pakainya, mengikuti kebutuhan Anda.' }, { step: 'Pembuatan', body: 'Aman, dan siap tumbuh bersama usaha Anda.' }, { step: 'Peluncuran', body: 'Online, lalu dipantau.' }],
+    priceQ: 'Berapa biayanya?', priceA: 'Tergantung apa yang Anda butuhkan: belum pernah ada dua proyek dengan cakupan yang sama, jadi tidak ada daftar harga. Ceritakan proyek Anda lewat WhatsApp.',
     ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
     rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
     reelOpen: 'Buka di Labs', reelAll: 'Jelajahi {n} dunia', reelHint: 'Arahkan ke gambar kecil untuk ganti dunia', reelHintTouch: 'Ketuk gambar kecil untuk ganti dunia', reelAlt: 'Satu frame dari dunia 3D {n}',
@@ -70,6 +72,8 @@ WORDS.en = {
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
   pause: 'Pause', play: 'Play', tabsLabel: 'Site', copyMail: 'Copy email', copyNum: 'Copy number', aboutRow: 'More about {o}',
   services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
+  steps: [{ step: 'Plan', body: 'What gets built, in a written scope before any work starts.' }, { step: 'Design', body: 'How it looks and how people use it, shaped around what you need.' }, { step: 'Build', body: 'Secure, and made to grow with your business.' }, { step: 'Launch', body: 'It goes live, then it is monitored.' }],
+  priceQ: 'How much does it cost?', priceA: 'It depends on what you need: no two projects have had the same scope, so there is no price list. Tell me about yours on WhatsApp.',
   ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
   rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
   reelOpen: 'Open in Labs', reelAll: 'Explore {n} worlds', reelHint: 'Point at a small frame to change the world', reelHintTouch: 'Tap a small frame to change the world', reelAlt: 'A frame of the 3D world {n}',
@@ -91,6 +95,8 @@ WORDS.zh = {
   featured: '精选', localTime: '当地时间', fab: '聊天',
   pause: '暂停', play: '播放', tabsLabel: '网站导航', copyMail: '复制邮箱', copyNum: '复制号码', aboutRow: '关于 {o} 的更多',
   services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
+  steps: [{ step: '规划', body: '要做什么，开工之前先有一份书面的工作范围。' }, { step: '设计', body: '外观和用法，都从你的需求出发。' }, { step: '开发', body: '做得安全，并能随你的生意一起成长。' }, { step: '上线', body: '发布，然后持续监测。' }],
+  priceQ: '费用是多少？', priceA: '取决于你要做什么：从来没有两个项目的范围完全一样，所以没有价目表。在 WhatsApp 上和我说说吧。',
   ring: '接受自由职业与全职工作', enter3d: '进入 3D 桌面', expandAll: '全部展开', collapseAll: '全部收起',
   rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
   reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
@@ -130,8 +136,10 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: given = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', kind = () => '', roll = (x) => esc(x), faq = null, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
+  // the home's four steps in a business owner's words (the same four stages as /full/ and the desk; /full/ keeps CONTENT.process)
+  const steps = W.steps || given;
   const chip = (t) => { const s = TOOL_MARK[t], inner = `${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}`; return CHIP_LINK[t] ? `<a class="pf-chip pf-chip--a" href="${u(`/work/${CHIP_LINK[t]}/`)}" data-track="project_open" data-project="${CHIP_LINK[t]}" data-from="profile-chip">${inner}</a>` : `<span class="pf-chip">${inner}</span>`; };
   const dur = (m) => {
     if (m.days) return `${m.days} ${W.dur.d}`;
@@ -223,15 +231,17 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     </li>`).join('')}</ol>
   </section>
   ${hatch}` : '';
-  // before you write: the questions a business owner asks first (i18n CONTENT faq), the first one open
-  const faqItems = (faq && faq.items) || [];
+  // before you write: the questions a business owner asks first (i18n CONTENT faq, shared with /full/), the first one open, and
+  // on the home the price question second (WORDS priceQ / priceA: no price list, the site's own fact)
+  const faqBase = (faq && faq.items) || [];
+  const faqItems = faqBase.length && W.priceQ ? [faqBase[0], [W.priceQ, W.priceA], ...faqBase.slice(1)] : faqBase;
   const faqSec = faqItems.length ? `
   <section class="pf-sec pf-faq" aria-labelledby="pf-faq">
     ${sec(faq.title, faqItems.length, '', 'pf-faq')}
     <div class="pf-faq-l">${faqItems.map(([q, a], i) => `<details class="pf-q"${i === 0 ? ' open' : ''}><summary>${esc(q)}${I.chev}</summary><p>${esc(String(a).replace('{n}', clientSites))}</p></details>`).join('')}</div>
   </section>
   ${hatch}` : '';
-  // how it works: the four steps (i18n CONTENT.process), a line through them
+  // how it works: the four steps (WORDS steps on the home, CONTENT.process on /full/), a line through them
   const proc = steps.length ? `
   <section class="pf-sec pf-proc" aria-labelledby="pf-proc">
     ${sec(W.processT, steps.length, '', 'pf-proc')}
