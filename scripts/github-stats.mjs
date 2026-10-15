@@ -82,7 +82,11 @@ RULES['dApp frontends'] = (x) => RULES['Wallet integration'](x) && (has(x.deps, 
 const t0 = Date.now();
 // (without the API, past GitHub's hourly limit, the list of the last snapshot is used again: the rest is git, which has no limit)
 let all;
-try { all = (await api(`/users/${USER}/repos?per_page=100&type=owner&sort=pushed`)).filter((r) => !r.fork && r.name.toLowerCase() !== USER.toLowerCase()); }
+try {
+  all = [];
+  for (let page = 1; ; page++) { const got = await api(`/users/${USER}/repos?per_page=100&type=owner&sort=pushed&page=${page}`); all.push(...got); if (got.length < 100) break; }
+  all = all.filter((r) => !r.fork && r.name.toLowerCase() !== USER.toLowerCase());
+}
 catch (e) {
   if (!fs.existsSync(OUT)) throw e;
   console.log(`GitHub API refused (${e.message.slice(0, 60)}...): using the repository list of the last snapshot`);

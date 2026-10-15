@@ -46,6 +46,8 @@ const UNLINKED = new Set(['sheaf', 'payrail', 'mosaic', 'cat', 'pillar', 'prism'
 // what the words call a repository, in any of the three languages, besides its product's name
 const SAYS = { 'backend-godplan': ['GodPlan'], mydesk: ['3D', 'portfolio', 'portofolio', '作品集'], 'student-performance': ['graduation', 'kelulusan', '毕业'] };
 // a tool with no brand mark gets a monogram in the panel's tile
+// tools a repository cannot show (an app on the desk, not a dependency): for the rest, none found means none public yet
+const NOT_IN_CODE = new Set(['DBeaver', 'Figma']);
 const MONO = { 'REST APIs': 'API', 'Custom themes': 'TH', 'dApp frontends': 'DA' };
 const LANG_SLUG = { TypeScript: 'typescript', JavaScript: 'javascript', Solidity: 'solidity', Python: 'python', Go: 'go', PHP: 'php', Dart: 'dart', Kotlin: 'kotlin' };
 
@@ -96,7 +98,7 @@ export const STACK_TEXT = {
     JavaScript: ['The language every browser runs: what makes a web page move and respond.', 'This portfolio and its 3D desk, on a WebGL engine of my own with no libraries; Reel Fortune, a voxel game in a single page; the AdPulse back end; the JAKASN front end at BKN.'],
     PHP: ['The server language under WordPress, which runs a large part of the web.', 'The WordPress sites and stores I build for clients, and JAKASN at BKN: a journal platform on Open Journal Systems, in PHP and MySQL.'],
     Solidity: ['The language of smart contracts: programs that hold and move money by rules anyone can read.', 'Contracts written in Foundry with OpenZeppelin and tested before they ship: milestone escrow for business payments (Pyris Pact, live) and the contracts behind every Labs world, from private payroll to prediction markets.'],
-    Python: ['A readable language that leads in data, machine learning and automation.', 'Jarvis, a voice assistant for Windows that answers in Indonesian; NEVU, a model that spots forged diplomas; a graduation predictor served through FastAPI; the Blender scripts that build the 3D desk.'],
+    Python: ['A readable language that leads in data, machine learning and automation.', 'Jarvis, a voice assistant for Windows that answers in Indonesian; NEVU, forged-diploma detection, its model now being built; a graduation predictor served through FastAPI; the Blender scripts that build the 3D desk.'],
     Go: ["Google's language for servers and APIs: fast, simple and easy to keep running.", 'The back end of GodPlan ERP, my main work since July 2025: a REST API in Gin on PostgreSQL, sign-in with JWT, documented in Swagger, shipped in Docker.'],
     'Next.js': ['A React framework for websites and web apps that load fast and can be found on Google.', 'The GodPlan ERP interface, the Godjah Studio site for Gajah Terbang Kreatif, LUXE (a store template rebranded from one file) and the AdPulse dashboard.'],
     React: ['The library behind most modern web interfaces: screens built from reusable parts.', 'Under every Next.js app I build, and in the Flowkite side panel, where you watch the agent plan, click and type.'],
@@ -105,7 +107,7 @@ export const STACK_TEXT = {
     'Node.js': ['JavaScript on the server: APIs, background jobs, scripts and build tools.', "The build and dev server of this site, the AdPulse sync jobs and API, Chimera's NFT render engine, and the Reel Fortune server."],
     Bun: ['A fast, all in one JavaScript runtime and package manager.', 'Installs and scripts in the GodPlan back end and in a SvelteKit app.'],
     'REST APIs': ['How two programs talk over the web: one asks, the other answers with data.', "The GodPlan ERP API in Go, documented in Swagger; the Express API of AdPulse; route handlers inside Next.js apps; and Winfaith's catalogue, read from the company's own API."],
-    PostgreSQL: ['A dependable open-source database for data that has to stay correct.', 'The GodPlan ERP database (employees, attendance, payroll), AdPulse, where Google Ads and Meta Ads data lands every four hours, and most of my Next.js apps.'],
+    PostgreSQL: ['A dependable open-source database for data that has to stay correct.', 'The GodPlan ERP database (employees, attendance, payroll), AdPulse, where Google Ads and Meta Ads data lands every four hours, and several of my Next.js apps.'],
     MySQL: ['The database most websites run on, WordPress included.', 'Under the WordPress stores I build, and behind JAKASN at BKN.'],
     WordPress: ['The most used website platform: the owner updates the site without calling a developer.', '{n} client sites: company profiles, catalogues and online stores for businesses in Indonesia, from car care to aluminium windows.'],
     WooCommerce: ['The shop on top of WordPress: catalogue, cart, payment and delivery.', 'Online stores where checkout and delivery are part of the build: Orthobone mattresses, the Flora Indonesia florist, the 1,700 products of FLS Group, Miniatur Kapal.'],
@@ -129,7 +131,7 @@ export const STACK_TEXT = {
     JavaScript: ['Bahasa yang dijalankan setiap browser: yang membuat halaman web bergerak dan merespons.', 'Portofolio ini dan meja 3D-nya, di atas engine WebGL buatan saya sendiri tanpa library; Reel Fortune, game voxel dalam satu halaman; back end AdPulse; front end JAKASN di BKN.'],
     PHP: ['Bahasa server di balik WordPress, yang menjalankan sebagian besar web.', 'Situs dan toko WordPress yang saya bangun untuk klien, dan JAKASN di BKN: platform jurnal di atas Open Journal Systems, dengan PHP dan MySQL.'],
     Solidity: ['Bahasa smart contract: program yang menyimpan dan memindahkan uang dengan aturan yang bisa dibaca siapa saja.', 'Kontrak yang ditulis dengan Foundry dan OpenZeppelin, dan diuji sebelum dirilis: escrow per milestone untuk pembayaran bisnis (Pyris Pact, sudah live) dan kontrak di balik setiap dunia Labs, dari payroll privat sampai pasar prediksi.'],
-    Python: ['Bahasa yang mudah dibaca, andalan untuk data, machine learning, dan otomasi.', 'Jarvis, asisten suara untuk Windows yang menjawab dalam bahasa Indonesia; NEVU, model pendeteksi ijazah palsu; prediktor kelulusan yang dilayani lewat FastAPI; dan skrip Blender yang membangun meja 3D.'],
+    Python: ['Bahasa yang mudah dibaca, andalan untuk data, machine learning, dan otomasi.', 'Jarvis, asisten suara untuk Windows yang menjawab dalam bahasa Indonesia; NEVU, pendeteksi ijazah palsu yang modelnya sedang dibangun; prediktor kelulusan yang dilayani lewat FastAPI; dan skrip Blender yang membangun meja 3D.'],
     Go: ['Bahasa dari Google untuk server dan API: cepat, sederhana, dan mudah dijaga tetap berjalan.', 'Back end GodPlan ERP, pekerjaan utama saya sejak Juli 2025: REST API dengan Gin di atas PostgreSQL, login dengan JWT, terdokumentasi di Swagger, dan dikirim dalam Docker.'],
     'Next.js': ['Framework React untuk website dan aplikasi web yang cepat dimuat dan mudah ditemukan di Google.', 'Antarmuka GodPlan ERP, situs Godjah Studio untuk Gajah Terbang Kreatif, LUXE (template toko yang diganti brand-nya dari satu file), dan dashboard AdPulse.'],
     React: ['Library di balik sebagian besar antarmuka web modern: layar yang disusun dari komponen yang bisa dipakai ulang.', 'Di bawah setiap aplikasi Next.js yang saya bangun, dan di side panel Flowkite, tempat Anda melihat agen merencanakan, mengklik, dan mengetik.'],
@@ -138,7 +140,7 @@ export const STACK_TEXT = {
     'Node.js': ['JavaScript di server: API, pekerjaan latar belakang, skrip, dan alat build.', 'Build dan dev server situs ini, sync job dan API AdPulse, engine render NFT Chimera, dan server Reel Fortune.'],
     Bun: ['Runtime dan package manager JavaScript yang cepat, semua dalam satu.', 'Instalasi dan skrip di back end GodPlan dan di sebuah aplikasi SvelteKit.'],
     'REST APIs': ['Cara dua program berbicara lewat web: satu bertanya, yang lain menjawab dengan data.', 'API GodPlan ERP dengan Go, terdokumentasi di Swagger; API Express milik AdPulse; route handler di dalam aplikasi Next.js; dan katalog Winfaith yang dibaca dari API milik perusahaannya.'],
-    PostgreSQL: ['Database open-source yang andal untuk data yang harus selalu benar.', 'Database GodPlan ERP (karyawan, absensi, penggajian), AdPulse, tempat data Google Ads dan Meta Ads masuk setiap empat jam, dan sebagian besar aplikasi Next.js saya.'],
+    PostgreSQL: ['Database open-source yang andal untuk data yang harus selalu benar.', 'Database GodPlan ERP (karyawan, absensi, penggajian), AdPulse, tempat data Google Ads dan Meta Ads masuk setiap empat jam, dan beberapa aplikasi Next.js saya.'],
     MySQL: ['Database yang menjalankan kebanyakan website, termasuk WordPress.', 'Di bawah toko WordPress yang saya bangun, dan di balik JAKASN di BKN.'],
     WordPress: ['Platform website yang paling banyak dipakai: pemilik bisa memperbarui situsnya tanpa memanggil developer.', '{n} situs klien: profil perusahaan, katalog, dan toko online untuk bisnis di Indonesia, dari perawatan mobil sampai kusen aluminium.'],
     WooCommerce: ['Toko di atas WordPress: katalog, keranjang, pembayaran, dan pengiriman.', 'Toko online yang checkout dan pengirimannya jadi bagian dari build: kasur Orthobone, florist Flora Indonesia, 1.700 produk FLS Group, dan Miniatur Kapal.'],
@@ -162,7 +164,7 @@ export const STACK_TEXT = {
     JavaScript: ['每个浏览器都在运行的语言：让网页动起来、能回应操作。', '这个作品集和它的 3D 桌面，跑在我自己写的 WebGL 引擎上，不用任何库；Reel Fortune，一个装在单个页面里的体素游戏；AdPulse 的后端；以及在 BKN 做的 JAKASN 前端。'],
     PHP: ['WordPress 背后的服务器语言，支撑着很大一部分网站。', '我为客户搭建的 WordPress 网站和网店，以及在 BKN 做的 JAKASN：基于 Open Journal Systems 的期刊平台，用 PHP 和 MySQL。'],
     Solidity: ['智能合约的语言：按任何人都能读懂的规则来保管和转移资金的程序。', '用 Foundry 和 OpenZeppelin 编写、上线前先测试的合约：面向企业付款的里程碑托管（Pyris Pact，已上线），以及实验室每个世界背后的合约，从私密薪资到预测市场。'],
-    Python: ['易读的语言，在数据、机器学习和自动化领域领先。', 'Jarvis，一个用印尼语回答的 Windows 语音助手；NEVU，识别伪造文凭的模型；通过 FastAPI 提供服务的毕业预测器；以及搭建 3D 桌面的 Blender 脚本。'],
+    Python: ['易读的语言，在数据、机器学习和自动化领域领先。', 'Jarvis，一个用印尼语回答的 Windows 语音助手；NEVU，识别伪造文凭的项目，模型正在开发中；通过 FastAPI 提供服务的毕业预测器；以及搭建 3D 桌面的 Blender 脚本。'],
     Go: ['Google 推出的服务器与 API 语言：快速、简洁、易于长期运行。', 'GodPlan ERP 的后端，自 2025 年 7 月以来我的主要工作：基于 Gin 和 PostgreSQL 的 REST API，用 JWT 登录，用 Swagger 写文档，用 Docker 交付。'],
     'Next.js': ['基于 React 的框架，做加载快、容易在 Google 上被找到的网站和网页应用。', 'GodPlan ERP 的界面、为 Gajah Terbang Kreatif 做的 Godjah Studio 网站、LUXE（改一个文件就能换品牌的商店模板），以及 AdPulse 的仪表盘。'],
     React: ['大多数现代网页界面背后的库：用可复用的组件拼出页面。', '我做的每个 Next.js 应用的底层，以及 Flowkite 的侧边栏，你可以在那里看着智能体规划、点击和输入。'],
@@ -171,7 +173,7 @@ export const STACK_TEXT = {
     'Node.js': ['在服务器上运行的 JavaScript：API、后台任务、脚本和构建工具。', '本站的构建和开发服务器、AdPulse 的同步任务和 API、Chimera 的 NFT 渲染引擎，以及 Reel Fortune 的服务器。'],
     Bun: ['一体化的快速 JavaScript 运行时和包管理器。', 'GodPlan 后端和一个 SvelteKit 应用里的安装与脚本。'],
     'REST APIs': ['两个程序在网上对话的方式：一方提问，另一方用数据回答。', '用 Go 写的 GodPlan ERP API，用 Swagger 写文档；AdPulse 的 Express API；Next.js 应用里的路由处理；以及从公司自有 API 读取的 Winfaith 产品目录。'],
-    PostgreSQL: ['可靠的开源数据库，用于必须保持准确的数据。', 'GodPlan ERP 的数据库（员工、考勤、薪资）、每四小时汇入 Google Ads 和 Meta Ads 数据的 AdPulse，以及我的大部分 Next.js 应用。'],
+    PostgreSQL: ['可靠的开源数据库，用于必须保持准确的数据。', 'GodPlan ERP 的数据库（员工、考勤、薪资）、每四小时汇入 Google Ads 和 Meta Ads 数据的 AdPulse，以及我的几个 Next.js 应用。'],
     MySQL: ['大多数网站所用的数据库，包括 WordPress。', '我搭建的 WordPress 网店的底层，以及 BKN 的 JAKASN 背后。'],
     WordPress: ['使用最广的网站平台：网站主人不用找开发者就能自己更新。', '{n} 个客户网站：为印尼企业做的企业官网、产品目录和网店，从汽车美容到铝合金门窗。'],
     WooCommerce: ['WordPress 上的商店：商品目录、购物车、付款和配送。', '把结账和配送都做进去的网店：Orthobone 床垫、Flora Indonesia 花店、FLS Group 的 1,700 多件商品、Miniatur Kapal。'],
@@ -195,31 +197,31 @@ export const STACK_TEXT = {
 export const STACK_UI = {
   en: {
     lead: 'What I use most, counted from my own code on GitHub and from the projects I have shipped. Tap a tool to see what I built with it.',
-    langs: 'Most used languages', tools: 'Most used tools', meta: '{n} repositories on GitHub · {d}',
-    note: 'Share of my own code: forks, libraries and builds left out.', repos: '{n} repos', repo1: '1 repo', other: 'Other',
+    langs: 'Most used languages', tools: 'Most used tools', meta: '{n} of my own repositories on GitHub · {d}',
+    note: 'Share of my own code: forks, copies of other people\'s projects, libraries, builds, HTML and CSS left out.', repos: '{n} repos', repo1: '1 repo', other: 'Other',
     legend: 'How often it shows up in my repositories and projects', l1: '1 to 3', l2: '4 to 9', l3: '10 or more', now: 'At my job now',
     how: 'What I did with it', gh: 'On GitHub', ghN: '{n} repositories', gh1: '1 repository', share: '{p}% of my code', latest: 'latest push {d}',
-    ghNone: 'Not in a public repository: this is client and company work.', none: 'A tool I work in, not something a repository records.',
+    ghNone: 'Not in a public repository: this is client and company work.', none: 'A tool I work in, not something a repository records.', notYet: 'Not in a public repository yet.',
     ship: 'Shipped in', shipN: '{n} projects', ship1: '1 project', more: '+{n} more', seeAll: 'See them on GitHub', close: 'Close', labs: 'Labs', desk: 'The 3D desk', open: 'What I did with {t}',
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], locale: 'en-US',
   },
   id: {
     lead: 'Yang paling sering saya pakai, dihitung dari kode saya sendiri di GitHub dan dari proyek yang sudah saya kerjakan. Ketuk sebuah tool untuk melihat apa yang saya bangun dengannya.',
-    langs: 'Bahasa paling sering dipakai', tools: 'Tool paling sering dipakai', meta: '{n} repositori di GitHub · {d}',
-    note: 'Porsi dari kode saya sendiri: fork, library, dan hasil build tidak dihitung.', repos: '{n} repo', repo1: '1 repo', other: 'Lainnya',
+    langs: 'Bahasa paling sering dipakai', tools: 'Tool paling sering dipakai', meta: '{n} repositori milik saya di GitHub · {d}',
+    note: 'Porsi dari kode saya sendiri: fork, salinan proyek orang lain, library, hasil build, HTML, dan CSS tidak dihitung.', repos: '{n} repo', repo1: '1 repo', other: 'Lainnya',
     legend: 'Seberapa sering muncul di repositori dan proyek saya', l1: '1 sampai 3', l2: '4 sampai 9', l3: '10 atau lebih', now: 'Dipakai di kantor sekarang',
     how: 'Yang saya kerjakan dengannya', gh: 'Di GitHub', ghN: '{n} repositori', gh1: '1 repositori', share: '{p}% dari kode saya', latest: 'push terakhir {d}',
-    ghNone: 'Tidak ada di repositori publik: ini pekerjaan klien dan kantor.', none: 'Tool yang saya pakai bekerja, bukan sesuatu yang tercatat di repositori.',
+    ghNone: 'Tidak ada di repositori publik: ini pekerjaan klien dan kantor.', none: 'Tool yang saya pakai bekerja, bukan sesuatu yang tercatat di repositori.', notYet: 'Belum ada di repositori publik.',
     ship: 'Dipakai di proyek', shipN: '{n} proyek', ship1: '1 proyek', more: '+{n} lagi', seeAll: 'Lihat di GitHub', close: 'Tutup', labs: 'Labs', desk: 'Meja 3D', open: 'Yang saya kerjakan dengan {t}',
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'], locale: 'id-ID',
   },
   zh: {
     lead: '我最常用的技术，按我在 GitHub 上自己的代码和已交付的项目统计。点一下任何工具，看看我用它做了什么。',
-    langs: '最常用的语言', tools: '最常用的工具', meta: 'GitHub 上的 {n} 个仓库 · {d}',
-    note: '按我自己代码的占比计算：不含复刻、第三方库和构建产物。', repos: '{n} 个仓库', repo1: '1 个仓库', other: '其他',
+    langs: '最常用的语言', tools: '最常用的工具', meta: 'GitHub 上我自己的 {n} 个仓库 · {d}',
+    note: '按我自己代码的占比计算：不含复刻、他人项目的副本、第三方库、构建产物以及 HTML 和 CSS。', repos: '{n} 个仓库', repo1: '1 个仓库', other: '其他',
     legend: '在我的仓库和项目里出现的频率', l1: '1 到 3', l2: '4 到 9', l3: '10 及以上', now: '目前工作中在用',
     how: '我用它做了什么', gh: 'GitHub 上', ghN: '{n} 个仓库', gh1: '1 个仓库', share: '占我代码的 {p}%', latest: '最近推送 {d}',
-    ghNone: '不在公开仓库里：这是客户和公司的工作。', none: '这是我工作中用的工具，仓库里不会留下记录。',
+    ghNone: '不在公开仓库里：这是客户和公司的工作。', none: '这是我工作中用的工具，仓库里不会留下记录。', notYet: '目前还不在公开仓库里。',
     ship: '交付的项目', shipN: '{n} 个项目', ship1: '1 个项目', more: '还有 {n} 个', seeAll: '在 GitHub 上查看', close: '关闭', labs: '实验室', desk: '3D 桌面', open: '我用 {t} 做了什么',
     months: null, locale: 'zh-CN',
   },
@@ -246,6 +248,7 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
   const meter = (lv) => lv ? `<span class="pf-u" aria-hidden="true"><i${lv >= 1 ? ' class="on"' : ''}></i><i${lv >= 2 ? ' class="on"' : ''}></i><i${lv >= 3 ? ' class="on"' : ''}></i></span>` : '';
   const tip = (t) => {
     const x = M.tools[t], bits = [];
+    if (x.now) bits.push(W.now);
     if (x.repos.length) bits.push(x.repos.length === 1 ? W.gh1 : fill(W.ghN, { n: x.repos.length }));
     if (x.projects.length) bits.push(x.projects.length === 1 ? W.ship1 : fill(W.shipN, { n: x.projects.length }));
     return bits.join(' · ');
@@ -255,7 +258,7 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
   // a tool's chip: a button that opens what was done with it, under its row
   const chip = (t, i) => {
     const x = M.tools[t], s = slugOf(t);
-    return `<button type="button" class="pf-chip pf-tool${x.now ? ' is-now' : ''}" id="pf-tc-${s}" data-tool="${s}" data-u="${x.level}" aria-expanded="false" aria-controls="pf-td-${i}"${tip(t) ? ` title="${esc(tip(t))}"` : ''} data-track="stack_tool" data-name="${esc(t)}">${icon(t)}<span>${esc(name(t))}</span>${meter(x.level)}</button>`;
+    return `<button type="button" class="pf-chip pf-tool${x.now ? ' is-now' : ''}" id="pf-tc-${s}" data-tool="${s}" data-u="${x.level}" aria-expanded="false" aria-controls="pf-td-${i}"${tip(t) ? ` title="${esc(tip(t))}" aria-description="${esc(tip(t))}"` : ''} data-track="stack_tool" data-name="${esc(t)}">${icon(t)}<span>${esc(name(t))}</span>${meter(x.level)}</button>`;
   };
   // what was done with it: the plain words, then the evidence, each with its links
   const detail = (t) => {
@@ -278,7 +281,7 @@ export function stackSection({ M, lang = 'en', layers, name, icon, u, worlds, se
       lines.push(`<div class="pf-tdx-f"><span class="pf-tdx-k"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>${esc(W.ship)}</span><span class="pf-tdx-v">${esc(x.projects.length === 1 ? W.ship1 : fill(W.shipN, { n: x.projects.length }))}</span>
         <span class="pf-tdx-ln">${shown.map((p) => `<a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="stack">${esc(p.title)} ${GO_I}</a>`).join('')}${left > 0 ? `<a class="pf-tdx-more" href="${allAt}">${esc(fill(W.more, { n: left }))} ${GO_I}</a>` : ''}</span></div>`);
     }
-    if (!x.repos.length) lines.push(`<p class="pf-tdx-none">${esc(x.projects.length ? W.ghNone : W.none)}</p>`);
+    if (!x.repos.length) lines.push(`<p class="pf-tdx-none">${esc(x.projects.length ? W.ghNone : NOT_IN_CODE.has(t) ? W.none : W.notYet)}</p>`);
     const also = [AT_LABS.includes(t) ? `<a href="${u('/labs/')}">${esc(W.labs)} ${GO_I}</a>` : '', AT_DESK.includes(t) ? `<a href="/3d/" data-track="3d_cta_click" data-from="stack">${esc(W.desk)} ${GO_I}</a>` : ''].filter(Boolean).join('');
     return `<article class="pf-tdx" data-tool="${s}" aria-labelledby="pf-tc-${s}" hidden>
       <div class="pf-tdx-h">
@@ -428,6 +431,7 @@ export const STACK_JS = `
   function shut() {
     if (!cur) return; var row = rowOf(cur);
     cur.setAttribute('aria-expanded', 'false'); row.classList.remove('is-open'); row.querySelector('.pf-td').inert = true; cur = null;
+    if (/^#stack-/.test(location.hash)) try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   }
   function open(chip, scroll) {
     if (cur === chip) { shut(); return; }
@@ -448,7 +452,7 @@ export const STACK_JS = `
   }
   sec.addEventListener('click', function (e) {
     var c = e.target.closest('.pf-tool'); if (c) { open(c); return; }
-    var x = e.target.closest('.pf-tdx-x'); if (x) { var back = cur; shut(); if (back) back.focus(); try { history.replaceState(null, '', location.pathname + location.search); } catch (e2) {} return; }
+    var x = e.target.closest('.pf-tdx-x'); if (x) { var back = cur; shut(); if (back) back.focus(); return; }
     var j = e.target.closest('[data-jump]'); if (j) { var t = sec.querySelector('.pf-tool[data-tool="' + j.dataset.jump + '"]'); if (t) { if (cur !== t) open(t, true); else rowOf(t).scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' }); } }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && cur && sec.contains(document.activeElement)) { var back = cur; shut(); back.focus(); } });
