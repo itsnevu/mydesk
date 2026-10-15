@@ -290,11 +290,17 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const ringText = `${W.ring} · ${W.ring} · `;
   const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ...(faqItems.length ? [['pf-faq', faq.title]] : []), ['pf-contact', W.rail.contact]]
     .map(([id, label], i) => `<li><a href="#${id}" data-rail="${id}"><b>${pad(i)}</b><span>${esc(label)}</span></a></li>`).join('');
+  // the banner's loop: each <source> names its 960x540 copy in data-small, which the page script plays on a banner at most 1100
+  // device pixels wide. Both copies are re-made from desk-loop.webm whenever the loop is re-rendered (no -pix_fmt, so they keep its
+  // full range bt470bg colours and the mp4 stays yuvj420p like the 1440 one; the x264 settings are the 1440 mp4's own):
+  // ffmpeg -i public/site/desk-loop.webm -vf scale=960:540:flags=lanczos -an -c:v libvpx-vp9 -b:v 0 -crf 44 -deadline good -cpu-used 4 -row-mt 1 public/site/desk-loop-960.webm
+  // ffmpeg -i public/site/desk-loop.webm -vf scale=960:540:flags=lanczos -an -c:v libx264 -preset slower -crf 29 -movflags +faststart public/site/desk-loop-960.mp4
+  const loopSrc = (ext) => exists(`site/desk-loop.${ext}`) ? `<source src="/site/desk-loop.${ext}" type="video/${ext}"${exists(`site/desk-loop-960.${ext}`) ? ` data-small="/site/desk-loop-960.${ext}"` : ''}>` : '';
   return `<main id="main" tabindex="-1">
 <div class="pf">
   <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
   <section class="pf-card" id="pf-me" aria-label="Navy Gibran">
-    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}<a class="pf-banner-go" href="/3d/" aria-label="${esc(W.enter3d)}" data-track="3d_cta_click" data-from="profile-banner">${I.cube}<span>${esc(W.enter3d)}</span>${I.right}</a></div>
+    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${loopSrc('webm')}${loopSrc('mp4')}</video>` : ''}<a class="pf-banner-go" href="/3d/" aria-label="${esc(W.enter3d)}" data-track="3d_cta_click" data-from="profile-banner">${I.cube}<span>${esc(W.enter3d)}</span>${I.right}</a></div>
     <div class="pf-card-in">
       <div class="pf-id">
         <div class="pf-face-w"><figure class="pf-face">${exists('site/portrait-240.webp') ? `<img src="/site/portrait.webp" srcset="/site/portrait-240.webp 240w, ${exists('site/portrait-360.webp') ? '/site/portrait-360.webp 360w, ' : ''}/site/portrait.webp 640w" sizes="(max-width: 480px) 100px, 116px" alt="${esc(W.altPortrait)}" width="640" height="800" fetchpriority="high" decoding="async">` : img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure><svg class="pf-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="pf-ring-p" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#pf-ring-p" textLength="536" lengthAdjust="spacing">${esc(ringText)}</textPath></text></svg></div>
@@ -776,12 +782,15 @@ export const HOME_PROFILE_JS = NEAR_JS + DITHER_JS + STACK_JS + `
   // the banner drifts a little toward the pointer
   var card = document.querySelector('.pf-card'), bimg = document.querySelector('.pf-banner img');
   if (card && bimg && fine && !reduce) card.addEventListener('pointermove', function (e) { var r = card.getBoundingClientRect(); bimg.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); bimg.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
-  // the banner's loop of the desk, on a desktop that is not saving data (the still stays under it, and for everyone else)
+  // the banner's loop of the desk, on a desktop that is not saving data (the still stays under it, and for everyone else); it plays
+  // the 960 px copy (data-small) when the banner is at most 1100 device pixels wide, so on 1x and 1.25x screens: the banner is at most
+  // 778 CSS px, since .pf is at most 780 px with 1px side borders, and the video, unlike the still, is not scaled
   var bv = document.querySelector('.pf-banner-v');
   var cn = navigator.connection;
   if (bv && fine && !reduce && !(cn && (cn.saveData || /(^|-)(2g|3g)$/.test(cn.effectiveType || '')))) {
     var play = function () { var q = bv.play(); if (q && q.catch) q.catch(function () {}); };
     var go = function () {
+      if (bv.offsetWidth * (window.devicePixelRatio || 1) <= 1100) [].forEach.call(bv.querySelectorAll('source[data-small]'), function (s) { s.setAttribute('src', s.getAttribute('data-small')); });
       bv.addEventListener('playing', function () { bv.classList.add('on'); }, { once: true }); bv.load(); play();
       if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) play(); else bv.pause(); }); }).observe(bv);
     };
