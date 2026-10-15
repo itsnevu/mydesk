@@ -1503,6 +1503,8 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .cv-prole { font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
 .cv-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px; overflow-wrap: anywhere; }
 .cv-links a { --ul: var(--line-2); }
+.cv-skill-key { margin: -4px 0 6px; font: italic 400 14px/1.4 var(--text); color: var(--faint); }
+.cv-skill b { font-weight: 600; color: var(--ink); }
 .cv-skill { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.5; color: var(--dim); }
 .cv-layer { font: 600 11px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
 .cv-langs { font-size: 15px; line-height: 1.55; color: var(--dim); }
@@ -1541,6 +1543,8 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
   body.cv-page .cv-links { gap: 3pt; font-size: 8.5pt; }
   body.cv-page .cv-skill { padding: 4pt 0; font-size: 8.5pt; line-height: 1.35; }
   body.cv-page .cv-layer { font-size: 6.5pt; }
+  body.cv-page .cv-skill-key { font-size: 7.5pt; margin: 0 0 3pt; color: #555; }
+  body.cv-page .cv-skill b { color: #111; }
   body.cv-page .cv-langs { font-size: 8.5pt; }
   body.cv-page .cv-sel a[data-print]::after { font-size: 7pt; }
 }

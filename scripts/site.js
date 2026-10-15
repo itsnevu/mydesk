@@ -981,6 +981,7 @@ function cvPage(D, ctx) {
   const pdf = D.SITE.links.find((l) => l.label === 'Résumé')?.href;
   const links = D.SITE.links.filter((l) => l.label !== 'Résumé');
   const facts = t('facts').map((f) => fill(f, { n: clientSites.length }));
+  const SM = stackModel({ D, gh: GH }), byUse = (items) => items.map((x, k) => [x, k]).sort((a, b) => (SM.tools[b[0]]?.places || 0) - (SM.tools[a[0]]?.places || 0) || a[1] - b[1]).map(([x]) => x);
   // a selected project as a recruiter reads it: the role, then the first thing built (the page's address shows when printed)
   const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => { const did = tp(p, 'did') || p.did || [], role = tp(p, 'role') || p.role;
     return `<li><a ${pAttrs(p, 'cv')} data-print="navygibran.dev${u(`/work/${p.key}/`)}"><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(stackOf(p))}</span>${role ? `<span class="cv-prole">${esc(role)}</span>` : ''}<p>${esc(did[0] || featuredText(p.key).line)}</p></li>`; }).join('');
@@ -1012,7 +1013,8 @@ ${header('cv', '/cv/')}
       <h2 class="lbl">${esc(t('cv_contact'))}</h2>
       <ul class="cv-links">${D.SITE.email ? `<li><a href="mailto:${esc(D.SITE.email)}">${esc(D.SITE.email)}</a></li>` : ''}<li><a href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener">${esc(phone(D.SITE.whatsapp))}</a></li>${links.filter((l) => l.label !== 'WhatsApp' && l.label !== 'Email').map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}: ${esc(l.href.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}</a></li>`).join('')}<li><a href="${ORIGIN}${u('/')}">navygibran.dev</a></li></ul>
       <h2 class="lbl">${esc(t('cv_skills'))}</h2>
-      ${STACK.map((items, i) => `<div class="cv-skill"><span class="cv-layer">${esc(layers[i] || CONTENT.en.stack[i])}</span><span>${items.map((x) => esc(term(x))).join(' · ')}</span></div>`).join('')}
+      <p class="cv-skill-key">${esc(t('cv_bold'))}</p>
+      ${STACK.map((items, i) => `<div class="cv-skill"><span class="cv-layer">${esc(layers[i] || CONTENT.en.stack[i])}</span><span>${byUse(items).map((x) => (SM.tools[x]?.level === 3 ? `<b>${esc(term(x))}</b>` : esc(term(x)))).join(' · ')}</span></div>`).join('')}
       <h2 class="lbl">${esc(t('cv_lang'))}</h2>
       <p class="cv-langs">${esc(t('cv_langLine'))}</p>
     </aside>
