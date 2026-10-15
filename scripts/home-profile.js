@@ -36,7 +36,7 @@ export const WORDS = {
     live: 'situs live', tabs: { home: 'Beranda', work: 'Karya', labs: 'Labs', cv: 'CV', desk: 'Desk 3D' },
     exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack',
     viewAll: 'Lihat semua', more: 'Tampilkan lebih banyak', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
-    status: { live: 'Live', first: 'Versi pertama', done: 'Selesai' }, year: { 'godplan-erp': '2025', jakasn: '2025' },
+    status: { live: 'Live', first: 'Versi pertama', done: 'Selesai' }, year: { 'godplan-erp': 'Sejak 2025', jakasn: '2025' },
     dur: { y: 'tahun', m: 'bulan', d: 'hari' }, present: 'sekarang',
     thanks: 'Terima kasih sudah mempercayakan brand Anda kepada saya.',
     notes: ['Dari mengangkat TV ke lantai atas sampai membangun ERP.', 'Dua puluh enam proyek. Dua puluh tiga di antaranya online hari ini.', 'Satu pesan cukup untuk mulai.'],
@@ -60,7 +60,7 @@ WORDS.en = {
   live: 'live sites', tabs: { home: 'Home', work: 'Work', labs: 'Labs', cv: 'CV', desk: '3D desk' },
   exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack',
   viewAll: 'View all', more: 'Show more', less: 'Show less', open_: 'Open', close_: 'Close',
-  status: { live: 'Live', first: 'First version', done: 'Done' }, dur: { y: 'yr', m: 'mo', d: 'days' }, present: 'present',
+  status: { live: 'Live', first: 'First version', done: 'Done' }, year: { 'godplan-erp': 'Since 2025', jakasn: '2025' }, dur: { y: 'yr', m: 'mo', d: 'days' }, present: 'present',
   thanks: 'Thank you for trusting me with your brand.',
   notes: ['From carrying TVs upstairs to building an ERP.', 'Twenty-six projects. Twenty-three of them are live today.', 'One message is enough to start.'],
   ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
@@ -81,7 +81,7 @@ WORDS.zh = {
   live: '个上线网站', tabs: { home: '首页', work: '作品', labs: '实验室', cv: '简历', desk: '3D 桌面' },
   exp: '经历', edu: '教育', projects: '项目', clients: '客户', stack: '技术栈',
   viewAll: '查看全部', more: '显示更多', less: '收起', open_: '展开', close_: '收起',
-  status: { live: '已上线', first: '第一版', done: '已完成' }, dur: { y: '年', m: '个月', d: '天' }, present: '至今',
+  status: { live: '已上线', first: '第一版', done: '已完成' }, year: { 'godplan-erp': '2025 年至今', jakasn: '2025' }, dur: { y: '年', m: '个月', d: '天' }, present: '至今',
   thanks: '感谢你把品牌托付给我。',
   notes: ['从扛电视上楼，到构建 ERP。', '二十六个项目，其中二十三个如今在线。', '一条消息就能开始。'],
   ctaTitle: '说说你的生意。', ctaLine: '一个网站、一家网店或一套系统。一条消息就能开始，而且由我本人回复。',
@@ -148,11 +148,11 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const rowPath = (r, m, i, open = false) => `<li class="pf-row pf-exp${m.from && m.to === null ? ' pf-row--now' : ''}${open ? ' open' : ''}" style="--i:${i}">
       ${m.from && m.to === null ? '<i class="pf-pulse" aria-hidden="true"></i>' : ''}${avatar(m)}
       <div class="pf-body">
-        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="${open}" aria-label="${esc(W.aboutRow.replace('{o}', r.org))}">${I.chev}</button></div>
+        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="${open}" aria-controls="pf-fold-${i}" aria-label="${esc(W.aboutRow.replace('{o}', r.org))}">${I.chev}</button></div>
         <span class="pf-role">${esc(r.role)}</span>
         <span class="pf-meta"><span>${esc(r.when)}</span>${dur(m) ? `<i>·</i><span>${esc(dur(m))}</span>` : ''}</span>
         <div class="pf-chips">${m.chips.map(chip).join('')}</div>
-        <div class="pf-fold"><p>${esc(r.body)}</p></div>
+        <div class="pf-fold" id="pf-fold-${i}"><p>${esc(r.body)}</p></div>
       </div>
     </li>`;
   const rows = path.map((r, i) => [r, PATH_META[i] || { chips: [] }, i]);
@@ -267,7 +267,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   const bio = (W.hl || []).reduce((h, ph) => h.replace(esc(ph), `<mark class="pf-hl">${esc(ph)}</mark>`), esc(W.bio));
   const ringText = `${W.ring} · ${W.ring} · `;
-  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ...(faqItems.length ? [['pf-faq', faq.title]] : []), ['pf-contact', W.rail.contact]]
+  const rail = [['pf-me', W.rail.me], ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ...(faqItems.length ? [['pf-faq', faq.title]] : []), ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-contact', W.rail.contact]]
     .map(([id, label], i) => `<li><a href="#${id}" data-rail="${id}"><b>${pad(i)}</b><span>${esc(label)}</span></a></li>`).join('');
   return `<main id="main" tabindex="-1">
 <div class="pf">
@@ -299,7 +299,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
     <i class="pf-tabs-ind" aria-hidden="true"></i>
   </nav>
-  ${hatch}${reel}
+  ${hatch}
   <section class="pf-sec" aria-labelledby="pf-exp">
     ${sec(W.exp, expRows.length, `<button type="button" class="pf-all pf-xall" data-open="${esc(W.expandAll)}" data-close="${esc(W.collapseAll)}">${esc(W.expandAll)}</button>`, 'pf-exp')}
     <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
@@ -323,7 +323,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </section>
   ${hatch}
   ${stack}
-  ${hatch}${proc}${faqSec}
+  ${hatch}${proc}${faqSec}${reel}
   <section class="pf-cta" id="pf-contact" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
@@ -334,6 +334,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
         <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(W.chat)} ${I.out}</a>
         ${D.SITE.whatsapp ? `<button class="btn pf-cta-mail pf-cta-num" type="button" aria-label="${esc(W.copyNum)} ${esc(phoneOf(D.SITE.whatsapp))}" data-copy="+${esc(D.SITE.whatsapp)}" data-track="contact_click" data-channel="WhatsApp number" data-from="profile-cta" data-magnet>${exists('site/tools/whatsapp.svg') ? mark('whatsapp') : ''}<span>${esc(phoneOf(D.SITE.whatsapp))}</span></button>` : ''}
         ${D.SITE.email ? `<button class="btn pf-cta-mail" type="button" aria-label="${esc(W.copyMail)} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="profile-cta" data-magnet>${exists('site/tools/gmail.svg') ? mark('gmail') : ''}<span>${esc(D.SITE.email)}</span></button>` : ''}
+        ${cvHref ? `<a class="btn pf-cta-cv" href="${esc(cvHref)}" download="${esc(cvHref.split('/').pop())}" data-track="cv_download" data-from="profile-cta" data-magnet>${I.doc}${roll(W.cvBtn)}</a>` : ''}
         <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${roll(W.see3d)} ${I.right}</a>
       </div>
     </div>
@@ -453,6 +454,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-fold { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease); }
 .pf-fold > p { overflow: hidden; margin: 0; font-size: 16px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
 .pf-exp.open .pf-fold { grid-template-rows: 1fr; } .pf-exp.open .pf-fold > p { padding-top: 6px; }
+.pf-fold > p { visibility: hidden; transition: visibility 0s 0.5s; } .pf-exp.open .pf-fold > p { visibility: visible; transition: none; }   /* (a closed row's story is not read out either) */
 /* the experience as a timeline: a line down the avatar column, each stop a ring on it */
 .pf-tl { position: relative; }
 .pf-tl::before { content: ""; position: absolute; left: 21px; top: 24px; bottom: 24px; width: 1px; background: linear-gradient(var(--line-2), var(--line) 70%, transparent); }
@@ -546,7 +548,8 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-hx .pf-h h2 sup { transition-delay: 0.25s; }
 .pf-hx .pf-h:not(.in) h2 em { transform: translateY(0.45em); opacity: 0; } .pf-hx .pf-h:not(.in) h2 sup { opacity: 0; }
 /* the targets of the rail land under the pinned tabs */
-#pf-me, #pf-reel, #pf-exp, #pf-svc, #pf-pj, #pf-cl, #pf-st, #pf-proc, #pf-faq, #pf-contact { scroll-margin-top: calc(var(--head-h) + 70px); }
+/* the pinned tabs never cover what the page scrolls to: the rail's jumps, Show less, keyboard focus */
+html:has(.pf-tabs--pin) { scroll-padding-top: calc(var(--head-h) + 70px); }
 /* the chapter rail: the sections as numbers in the left margin, the one in view lit, its name on hover (a wide screen with a mouse) */
 .pf-rail { display: none; }
 @media (min-width: 1360px) and (hover: hover) {
@@ -609,6 +612,8 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-cta-status { display: inline-flex; align-items: center; gap: 10px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
 .pf-cta-mail { gap: 10px; border-color: rgba(241, 234, 219, 0.45); background: rgba(9, 8, 10, 0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--ink); text-transform: none; letter-spacing: 0.04em; font-size: 14px; cursor: pointer; }
 .pf-cta-mail:hover, .pf-cta-mail:focus-visible { background: var(--ink); border-color: var(--ink); color: #140f09; }
+.pf-cta-cv { gap: 8px; border-color: rgba(241, 234, 219, 0.45); background: rgba(9, 8, 10, 0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--ink); } .pf-cta-cv svg { width: 16px; height: 16px; }
+.pf-cta-cv:hover, .pf-cta-cv:focus-visible { background: var(--ink); border-color: var(--ink); color: #140f09; }
 body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-mail .pf-m { width: 17px; height: 17px; }
 /* ---------- the reel: the Labs worlds as one 16:9 stage (the frame fading to the next, a slow push in, the words rising, a thin
    clock along the bottom) over a strip of their frames that scrolls sideways; the colour of the words is the world's own hue */
@@ -767,9 +772,11 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   })();
   // a row's story opens under it
   var setOpen = function (row, on) { row.classList.toggle('open', on); var b = row.querySelector('.pf-tg'); if (b) b.setAttribute('aria-expanded', String(on)); };
-  document.querySelectorAll('.pf-exp').forEach(function (row) { row.addEventListener('click', function (e) { if (e.target.closest('a') || (window.getSelection && String(getSelection()).length)) return; setOpen(row, !row.classList.contains('open')); }); });
   var xall = document.querySelector('.pf-xall');
-  if (xall) xall.addEventListener('click', function () { var on = !xall.classList.contains('on'); xall.classList.toggle('on', on); xall.textContent = on ? xall.dataset.close : xall.dataset.open; (xall.closest('section') || document).querySelectorAll('.pf-exp').forEach(function (row) { setOpen(row, on); }); });
+  // Expand all says what a press would do: Collapse all once every row is open (by it or one by one), Expand all otherwise
+  var syncAll = function () { if (!xall) return; var all = true, rows = (xall.closest('section') || document).querySelectorAll('.pf-exp'); rows.forEach(function (r) { if (!r.classList.contains('open')) all = false; }); all = all && rows.length > 0; xall.classList.toggle('on', all); xall.textContent = all ? xall.dataset.close : xall.dataset.open; };
+  document.querySelectorAll('.pf-exp').forEach(function (row) { row.addEventListener('click', function (e) { if (e.target.closest('a') || (window.getSelection && String(getSelection()).length)) return; setOpen(row, !row.classList.contains('open')); syncAll(); }); });
+  if (xall) { xall.addEventListener('click', function () { var on = !xall.classList.contains('on'); (xall.closest('section') || document).querySelectorAll('.pf-exp').forEach(function (row) { setOpen(row, on); }); syncAll(); }); syncAll(); }
   // the tabs: one indicator that slides to the tab pointed at, and back to the page's own
   (function () {
     var tabs = document.querySelector('.pf-tabs'), ind = tabs && tabs.querySelector('.pf-tabs-ind'); if (!ind) return;

@@ -1002,11 +1002,17 @@ function archivePage(D, ctx) {
       <span class="arc-n">${pad(i + 1)}</span><span class="arc-t">${esc(p.title)}</span><span class="arc-i">${esc(industryLine(p))}</span><span class="arc-s">${esc(stackOf(p))}</span>
     </a></li>`;
   }).join('');
-  const ld = { '@context': 'https://schema.org', '@type': 'CollectionPage', name: t('t_work'), url: `${ORIGIN}${u('/work/')}`, inLanguage: L.html, hasPart: list.map((p) => ({ '@type': 'CreativeWork', name: p.title, url: `${ORIGIN}${u(`/work/${p.key}/`)}` })) };
+  const ld = { '@context': 'https://schema.org', '@graph': [
+    { '@type': 'CollectionPage', '@id': `${ORIGIN}${u('/work/')}#page`, name: t('t_work'), url: `${ORIGIN}${u('/work/')}`, inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, hasPart: list.map((p) => ({ '@type': 'CreativeWork', name: p.title, url: `${ORIGIN}${u(`/work/${p.key}/`)}` })) },
+    { '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Navy Gibran', item: `${ORIGIN}${u('/')}` },
+      { '@type': 'ListItem', position: 2, name: t('m_work'), item: `${ORIGIN}${u('/work/')}` },
+    ] },
+  ] };
   return head({
     title: t('t_work'), description: t('d_work', { n: list.length }), pathname: '/work/', css: ctx.css,
     image: exists('site/og/work.jpg') ? `${ORIGIN}/site/og/work.jpg` : undefined, imageAlt: t('ogWorkAlt'),
-    extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n`,
+    extra: `${ldScript(ld)}\n`,
   }) + `
 <body class="archive">
 ${header('work', '/work/')}
@@ -1033,7 +1039,23 @@ ${footer(D)}
 function labsPage(D, ctx) {
   // (the worlds and the experiments speak the page's language: scripts/labs-worlds.js and labs.js hold their translations)
   const M = labsMetaFor(LANG), labsCount = M.count;
-  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: M.imageAlt }) + `
+  // what search engines read: the page in the site, the worlds (CreativeWork) and the experiments (SoftwareSourceCode) as its list,
+  // and where it sits; the author is named, since the Person's full entry lives on the home
+  const pageUrl = `${ORIGIN}${u('/labs/')}`, me = { '@type': 'Person', '@id': PERSON_ID, name: 'Navy Gibran', url: `${ORIGIN}/` };
+  const LIC = { MIT: 'https://opensource.org/licenses/MIT', 'Apache 2.0': 'https://www.apache.org/licenses/LICENSE-2.0' };
+  const wl = worldsFor(LANG), ll = labsFor(LANG);
+  const ld = { '@context': 'https://schema.org', '@graph': [
+    { '@type': 'CollectionPage', '@id': `${pageUrl}#page`, url: pageUrl, name: M.title, description: M.pageDescription, inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, author: me,
+      mainEntity: { '@type': 'ItemList', numberOfItems: wl.length + ll.length, itemListElement: [
+        ...wl.map((w, i) => ({ '@type': 'ListItem', position: i + 1, item: { '@type': 'CreativeWork', name: w.name, description: w.tagline, url: w.url, genre: w.category, creator: me, ...(exists(`site/labs/${w.key}.webp`) ? { image: `${ORIGIN}/site/labs/${w.key}.webp` } : {}) } })),
+        ...ll.map((l, j) => { const gh = (l.links || []).find(([n]) => n === 'GitHub')?.[1]; return { '@type': 'ListItem', position: wl.length + j + 1, item: { '@type': 'SoftwareSourceCode', name: l.name, description: l.line, ...(gh ? { codeRepository: gh } : {}), programmingLanguage: l.lang, ...(LIC[l.license] ? { license: LIC[l.license] } : {}), author: me } }; }),
+      ] } },
+    { '@type': 'BreadcrumbList', itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Navy Gibran', item: `${ORIGIN}${u('/')}` },
+      { '@type': 'ListItem', position: 2, name: M.menu.label, item: pageUrl },
+    ] },
+  ] };
+  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: M.imageAlt, extra: `${ldScript(ld)}\n` }) + `
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
 <main id="main" tabindex="-1">

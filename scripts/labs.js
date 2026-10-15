@@ -152,7 +152,7 @@ export function labsMain({ exists = () => false, img = null, chapter = null, lan
 
 // (the English meta, as the site has always read it; labsMetaFor(lang) below gives the same in every language)
 export const LABS_META = {
-  title: 'Labs | Navy Gibran',
+  title: 'Labs: 3D web interactive design & experiments | Navy Gibran',
   description: `${LABS.length} experiments by Navy Gibran, every one on GitHub: an AI browser agent, guardrails for agents, a voice assistant in Indonesian, ad analytics with AI insight, a Three.js fishing game and more.`,
   menu: { label: 'Labs', sub: `${LABS.length} experiments, no client` },
 };
@@ -163,11 +163,11 @@ const META = {
   en: { title: LABS_META.title, description: LABS_META.description, label: LABS_META.menu.label, sub: LABS_META.menu.sub,
     page: '{w} 3D web interactive designs, each a scroll-driven world with a working app in the browser, and {n} experiments by Navy Gibran on GitHub.',
     imageAlt: 'Labs: the worlds and experiments of Navy Gibran' },
-  id: { title: 'Labs | Navy Gibran', label: 'Labs', sub: '{n} eksperimen, tanpa klien',
+  id: { title: 'Labs: 3D web interactive design & eksperimen | Navy Gibran', label: 'Labs', sub: '{n} eksperimen, tanpa klien',
     description: '{n} eksperimen karya Navy Gibran, semuanya ada di GitHub: agen browser AI, guardrail untuk agen, asisten suara berbahasa Indonesia, analitik iklan dengan insight AI, game memancing Three.js dan lainnya.',
     page: '{w} karya 3D web interactive design, tiap dunia bergerak mengikuti scroll dengan aplikasi yang jalan di browser, dan {n} eksperimen Navy Gibran di GitHub.',
     imageAlt: 'Labs: dunia dan eksperimen Navy Gibran' },
-  zh: { title: '实验室 | Navy Gibran', label: '实验室', sub: '{n} 个实验，没有客户',
+  zh: { title: '实验室：3D 网页交互设计与实验 | Navy Gibran', label: '实验室', sub: '{n} 个实验，没有客户',
     description: 'Navy Gibran 的 {n} 个实验，全部开源在 GitHub 上：一个 AI 浏览器智能体、给智能体用的护栏、一个说印尼语的语音助手、带 AI 洞察的广告分析、一款 Three.js 钓鱼游戏，等等。',
     page: '{w} 个 3D 网页交互设计，每个都是随滚动展开、背后有真实应用在浏览器里运行的世界；另有 Navy Gibran 在 GitHub 上的 {n} 个实验。',
     imageAlt: '实验室：Navy Gibran 的世界与实验' },
