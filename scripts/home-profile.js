@@ -34,7 +34,7 @@ export const WORDS = {
     handle: '@itsnevu', role: 'Full-stack developer', where: 'Indonesia', site: 'navygibran.dev', open: 'Menerima proyek baru',
     bio: 'Saya membangun website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Dua puluh tiga situs klien online hari ini. Saya juga membangun sistem ERP dengan Go dan Next.js.',
     live: 'situs live', tabs: { home: 'Beranda', work: 'Karya', labs: 'Labs', cv: 'CV', desk: 'Desk 3D' },
-    exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack',
+    exp: 'Pengalaman', edu: 'Pendidikan', early: 'Masa awal', projects: 'Proyek', clients: 'Klien', stack: 'Stack',
     viewAll: 'Lihat semua', more: 'Tampilkan lebih banyak', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
     status: { live: 'Live', first: 'Versi pertama', done: 'Selesai' }, year: { 'godplan-erp': 'Sejak 2025', jakasn: '2025' },
     dur: { y: 'tahun', m: 'bulan', d: 'hari' }, present: 'sekarang',
@@ -60,7 +60,7 @@ WORDS.en = {
   role: 'Full-stack developer', where: 'Indonesia', open: 'Taking new projects',
   bio: 'I build websites for businesses: company profiles, online stores and custom applications. Twenty-three client sites are live today. I also build ERP systems in Go and Next.js.',
   live: 'live sites', tabs: { home: 'Home', work: 'Work', labs: 'Labs', cv: 'CV', desk: '3D desk' },
-  exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack',
+  exp: 'Experience', edu: 'Education', early: 'Early days', projects: 'Projects', clients: 'Clients', stack: 'Stack',
   viewAll: 'View all', more: 'Show more', less: 'Show less', open_: 'Open', close_: 'Close',
   status: { live: 'Live', first: 'First version', done: 'Done' }, year: { 'godplan-erp': 'Since 2025', jakasn: '2025' }, dur: { y: 'yr', m: 'mo', d: 'days' }, present: 'present',
   thanks: 'Thank you for trusting me with your brand.',
@@ -83,7 +83,7 @@ WORDS.zh = {
   role: '全栈开发者', where: '印度尼西亚', open: '接新项目',
   bio: '我为企业做网站：企业官网、网上商店和定制应用。如今有二十三个客户网站在线运行。我也用 Go 和 Next.js 做 ERP 系统。',
   live: '个上线网站', tabs: { home: '首页', work: '作品', labs: '实验室', cv: '简历', desk: '3D 桌面' },
-  exp: '经历', edu: '教育', projects: '项目', clients: '客户', stack: '技术栈',
+  exp: '经历', edu: '教育', early: '早期经历', projects: '项目', clients: '客户', stack: '技术栈',
   viewAll: '查看全部', more: '显示更多', less: '收起', open_: '展开', close_: '收起',
   status: { live: '已上线', first: '第一版', done: '已完成' }, year: { 'godplan-erp': '2025 年至今', jakasn: '2025' }, dur: { y: '年', m: '个月', d: '天' }, present: '至今',
   thanks: '感谢你把品牌托付给我。',
@@ -115,14 +115,15 @@ const CHIP_T = {
 };
 
 // what each stop of the path carries beyond its words (the words come from i18n, in the same order): a logo, its chips, its
-// span in months (year, month; null = present) for the duration, and whether it is education
+// span in months (year, month; null = present) for the duration, and whether it is education (`edu`) or from before the developer
+// jobs (`early`, listed under Early days)
 // (`logo` is a one-colour mark in public/site/logos, made from the organisation's own site: a .webp silhouette, or an .svg)
 const PATH_META = [
   { logo: 'gajah-terbang-kreatif', mono: 'GTK', chips: ['Go', 'Next.js', 'WordPress', 'GodPlan ERP'], from: [2025, 7], to: null },
   { logo: 'bkn', mono: 'BKN', chips: ['PHP', 'MySQL', 'OJS', 'JAKASN'], from: [2025, 1], to: [2025, 6] },
-  { logo: 'umn', mono: 'PC', chips: ['C++', 'Competitive programming'], from: [2024, 1], to: [2025, 1], loose: true },
-  { logo: 'compnet', big: true, mono: 'NCI', chips: ['Hardware', '341 laptops', 'BNI'], days: 2 },   // (the BNI laptops: Compnet's job, BNI the client)
-  { logo: 'compnet', big: true, mono: 'NCI', chips: ['Field work', 'Pertamina'] },
+  { logo: 'umn', mono: 'PC', chips: ['C++', 'Competitive programming'], from: [2024, 1], to: [2025, 1], loose: true, early: true },
+  { logo: 'compnet', big: true, mono: 'NCI', chips: ['Hardware', '341 laptops', 'BNI'], days: 2, early: true },   // (the BNI laptops: Compnet's job, BNI the client)
+  { logo: 'compnet', big: true, mono: 'NCI', chips: ['Field work', 'Pertamina'], early: true },
   { logo: 'umn', mono: 'UMN', chips: ['Teaching assistant', 'OOP', 'SOLID', 'Design patterns', 'GPA 3.71'], from: [2022, 8], to: [2026, 6], loose: true, edu: true },
   { logo: 'pahoa', mono: 'PH', chips: ['TK', 'SD', 'SMP', 'SMA', '2021'], edu: true },
 ];
@@ -170,9 +171,10 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       </div>
     </li>`;
   const rows = path.map((r, i) => [r, PATH_META[i] || { chips: [] }, i]);
-  const expRows = rows.filter(([, m]) => !m.edu), eduRows = rows.filter(([, m]) => m.edu);
+  const expRows = rows.filter(([, m]) => !m.edu && !m.early), earlyRows = rows.filter(([, m]) => m.early && !m.edu), eduRows = rows.filter(([, m]) => m.edu);
   const nowOrg = (rows.find(([, m]) => m.from && m.to === null) || [])[0]?.org || '';   // (the job with no end: shown in the hero)
   const exp = expRows.map(([r, m, i], k) => rowPath(r, m, i, k < 2)).join('');   // (the two jobs open: a recruiter reads them without a click)
+  const early = earlyRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
   const edu = eduRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
 
   const counted = D.PROJECTS.filter((p) => p.key !== 'client-websites');
@@ -323,6 +325,8 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   <section class="pf-sec" aria-labelledby="pf-exp">
     ${sec(W.exp, expRows.length, `<button type="button" class="pf-all pf-xall" data-open="${esc(W.expandAll)}" data-close="${esc(W.collapseAll)}">${esc(W.expandAll)}</button>`, 'pf-exp')}
     <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
+    ${early ? `<div class="pf-h pf-h--sub"><h3>${I.work}${esc(W.early)}<sup>(${earlyRows.length})</sup></h3></div>
+    <ol class="pf-list pf-tl" data-stagger>${early}</ol>` : ''}
     <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
     <ol class="pf-list pf-tl" data-stagger>${edu}</ol>
   </section>
