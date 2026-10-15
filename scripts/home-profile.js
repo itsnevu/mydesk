@@ -20,6 +20,8 @@ const I = {
   cap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5L2 9zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
   out: '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  pause: '<svg class="pz" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  play: '<svg class="pl" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg>',
   right: '<svg class="ar ar-r" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
 };
 const mark = (slug, cls = '') => `<i class="pf-m${cls ? ' ' + cls : ''}" style="--m:url(/site/tools/${slug}.svg)" aria-hidden="true"></i>`;
@@ -41,6 +43,7 @@ export const WORDS = {
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
+    pause: 'Jeda', play: 'Putar',
     services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
     ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
     rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
@@ -62,6 +65,7 @@ WORDS.en = {
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
+  pause: 'Pause', play: 'Play',
   services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
   ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
   rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
@@ -82,6 +86,7 @@ WORDS.zh = {
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
+  pause: '暂停', play: '播放',
   services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
   ring: '接受自由职业与全职工作', enter3d: '进入 3D 书桌', expandAll: '全部展开', collapseAll: '全部收起',
   rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
@@ -154,13 +159,15 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const status = (p) => p.now ? W.nowIs.replace('{n}', p.now.name) : W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
   const stat = (p) => status(p) === W.status.live ? `<span class="pf-live"><i aria-hidden="true"></i>${esc(status(p))}</span>` : `<span>${esc(status(p))}</span>`;
   const stk = (p) => (p.stack || '').split(' · ').slice(0, 2).join(' · ');
+  const sm = (rel, w) => { const x = rel.replace(/\.webp$/, `-${w}.webp`); return x !== rel && exists(x) ? x : null; };
+  const cover = (rel, sizes, w, h) => { const set = [[sm(rel, 384), 384], [sm(rel, 800), 800]].filter(([x]) => x).map(([x, n]) => `/${x} ${n}w`).join(', '); return `<img src="/${rel}"${set ? ` srcset="${set}" sizes="${sizes}"` : ''} alt="" loading="lazy" decoding="async" width="${w}" height="${h}">`; };
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
-      <span class="pf-th">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="64" height="40">` : I.folder}</span>
+      <span class="pf-th">${m.cover ? cover(m.cover, '96px', 96, 60) : I.folder}</span>
       <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span></span>
       <span class="pf-pj-st">${esc(stk(p))}</span><span class="pf-go">${I.out}</span></a></li>`; };
   const hostOf = (url) => { try { return new URL(url).host.replace(/^www\./, ''); } catch (x) { return ''; } };
   const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}">
-      <span class="pf-feat-pic"><span class="pf-feat-bar" aria-hidden="true"><i></i><i></i><i></i>${p.url ? `<span>${esc(hostOf(p.url))}</span>` : ''}</span>${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="640" height="400">` : I.folder}</span>
+      <span class="pf-feat-pic"><span class="pf-feat-bar" aria-hidden="true"><i></i><i></i><i></i>${p.url ? `<span>${esc(hostOf(p.url))}</span>` : ''}</span>${m.cover ? cover(m.cover, '(min-width: 800px) 240px, (min-width: 481px) 46vw, 92vw', 640, 400) : I.folder}</span>
       <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
       <span class="pf-go">${I.out}</span></a></li>`; };
   const featured = counted.slice(0, 3).map(feat).join('');
@@ -227,6 +234,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <ul class="pf-strip" aria-label="${esc(W.reel)}">${shots.map(thumb).join('')}</ul>
     <div class="pf-reel-row">
       <a class="btn btn-fill" href="${u('/labs/')}" data-track="lab_open" data-channel="profile-reel-btn" data-magnet>${esc(W.reelAll.replace('{n}', n))} ${I.out}</a>
+      <button type="button" class="pf-reel-pause" aria-pressed="false" data-pause="${esc(W.pause)}" data-play="${esc(W.play)}">${I.pause}${I.play}<span>${esc(W.pause)}</span></button>
       <span class="pf-reel-hint"><span class="if-hover">${esc(W.reelHint)}</span><span class="if-touch">${esc(W.reelHintTouch)}</span></span>
     </div>
   </section>
@@ -244,7 +252,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}<a class="pf-banner-go" href="/3d/" data-track="3d_cta_click" data-from="profile-banner">${I.cube}<span>${esc(W.enter3d)}</span>${I.right}</a></div>
     <div class="pf-card-in">
       <div class="pf-id">
-        <div class="pf-face-w"><figure class="pf-face">${img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure><svg class="pf-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="pf-ring-p" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#pf-ring-p" textLength="536" lengthAdjust="spacing">${esc(ringText)}</textPath></text></svg></div>
+        <div class="pf-face-w"><figure class="pf-face">${exists('site/portrait-240.webp') ? `<img src="/site/portrait.webp" srcset="/site/portrait-240.webp 240w, ${exists('site/portrait-360.webp') ? '/site/portrait-360.webp 360w, ' : ''}/site/portrait.webp 640w" sizes="(max-width: 480px) 100px, 116px" alt="${esc(W.altPortrait)}" width="640" height="800" fetchpriority="high" decoding="async">` : img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure><svg class="pf-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="pf-ring-p" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#pf-ring-p" textLength="536" lengthAdjust="spacing">${esc(ringText)}</textPath></text></svg></div>
         <div class="pf-hero-cta"><a class="btn btn-fill pf-hero-wa" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="profile-hero" data-magnet>${esc(W.chat)} ${I.out}</a>${exists('cv/Navy-Gibran-CV.pdf') ? `<a class="btn pf-hero-cv" href="/cv/Navy-Gibran-CV.pdf" download data-track="cv_download" data-from="profile-hero" data-magnet>${I.doc}<span>${esc(W.cvBtn)}</span></a>` : ''}</div>
       </div>
       <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
@@ -603,6 +611,10 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 .pf-strip.is-drag { cursor: grabbing; scroll-snap-type: none; } .pf-strip.is-drag .pf-thumb { pointer-events: none; }
 .pf-reel-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
 .pf-reel-row .btn { height: 50px; padding: 0 24px; font-size: 13.5px; }
+.pf-reel-pause { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px; background: none; color: var(--dim); font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
+.pf-reel-pause:hover, .pf-reel-pause:focus-visible { border-color: var(--ink); color: var(--ink); }
+.pf-reel-pause svg { width: 13px; height: 13px; } .pf-reel-pause .pl, .pf-reel-pause[aria-pressed="true"] .pz { display: none; } .pf-reel-pause[aria-pressed="true"] .pl { display: block; }
+.pf-reel.is-paused .pf-stage-bar::after { animation-play-state: paused; }
 .pf-reel-hint { font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
 .pf-reel-hint .if-touch { display: none; }
 @media (hover: none), (pointer: coarse) { .pf-reel-hint .if-touch { display: inline; } .pf-stage-go { display: none; } .pf-stage-open { display: inline-flex; } .pf-stage-text { padding-right: 0; } .pf-stage-marks { opacity: 0.4; } }
@@ -631,13 +643,13 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-stage { border-radius: 10px; } .pf-stage-top { left: 14px; right: 14px; top: 14px; } .pf-stage-text { left: 14px; right: 14px; bottom: 14px; gap: 5px; }
   .pf-stage-marks { inset: 9px; } .pf-stage-marks i { width: 11px; height: 11px; }
   .pf-thumb { width: 104px; } .pf-reel-row .btn { width: 100%; }
-  .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 10.5px; letter-spacing: 0.08em; } .pf-tabs a svg { width: 14px; height: 14px; }
+  .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 12px; letter-spacing: 0.06em; } .pf-tabs a svg { width: 15px; height: 15px; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
-@media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: 14px; height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
+@media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: 14px; height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
 @media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
-@media (prefers-reduced-motion: reduce) { .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
-.motion-off .pf-marq-t { animation: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
+@media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
+.motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
 export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
@@ -648,7 +660,16 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   if (card && bimg && fine && !reduce) card.addEventListener('pointermove', function (e) { var r = card.getBoundingClientRect(); bimg.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); bimg.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
   // the banner's loop of the desk, on a desktop that is not saving data (the still stays under it, and for everyone else)
   var bv = document.querySelector('.pf-banner-v');
-  if (bv && fine && !reduce && !(navigator.connection && navigator.connection.saveData)) { bv.addEventListener('playing', function () { bv.classList.add('on'); }, { once: true }); bv.load(); var pl = bv.play(); if (pl && pl.catch) pl.catch(function () {}); }
+  var cn = navigator.connection;
+  if (bv && fine && !reduce && !(cn && (cn.saveData || /(^|-)(2g|3g)$/.test(cn.effectiveType || '')))) {
+    var play = function () { var q = bv.play(); if (q && q.catch) q.catch(function () {}); };
+    var go = function () {
+      bv.addEventListener('playing', function () { bv.classList.add('on'); }, { once: true }); bv.load(); play();
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) play(); else bv.pause(); }); }).observe(bv);
+    };
+    var later = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 1200); })(go, { timeout: 3000 }); };
+    if (document.readyState === 'complete') later(); else addEventListener('load', later, { once: true });
+  }
   // the local time where Navy works (Western Indonesia, UTC+7), after the country
   var clk = document.querySelector('[data-clock]');
   if (clk && window.Intl) { try { var fmt = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); var tick = function () { clk.textContent = fmt.format(new Date()) + ' WIB'; }; tick(); setInterval(tick, 30000); } catch (x) {} }
@@ -734,7 +755,8 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
       if (t.dataset.small) { im.srcset = t.dataset.small + ' 800w, ' + t.dataset.big + ' 1280w'; im.sizes = '(min-width: 800px) 720px, 100vw'; }
       im.src = t.dataset.big; pics.appendChild(im); imgs[i] = im; return im;
     }
-    function hold() { reel.classList.toggle('is-hold', over || off || document.hidden); }
+    var focused = false, paused = false;
+    function hold() { reel.classList.toggle('is-hold', over || focused || paused || off || document.hidden); reel.classList.toggle('is-paused', paused); }
     var restT = 0, auto = 0;
     function rest() { clearTimeout(restT); over = true; hold(); restT = setTimeout(function () { over = false; hold(); }, 6000); }   // (a finger on the reel: it waits a while)
     function centre(t) { clearTimeout(auto); auto = setTimeout(function () { auto = 0; }, 900); strip.scrollTo({ left: t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2, behavior: reduce ? 'auto' : 'smooth' }); }
@@ -775,6 +797,10 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     stage.addEventListener('pointerup', function (e) { var dx = e.clientX - sx, dy = e.clientY - sy; if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) { swiped = true; show(cur + (dx < 0 ? 1 : -1), true); } });
     stage.addEventListener('click', function (e) { if (swiped) { e.preventDefault(); swiped = false; } });
     stage.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') { e.preventDefault(); show(cur + 1, true); } else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1, true); } });
+    reel.addEventListener('focusin', function () { focused = true; hold(); });
+    reel.addEventListener('focusout', function (e) { if (!reel.contains(e.relatedTarget)) { focused = false; hold(); } });
+    var pz = reel.querySelector('.pf-reel-pause');
+    if (pz) pz.addEventListener('click', function () { paused = !paused; pz.setAttribute('aria-pressed', String(paused)); pz.querySelector('span').textContent = paused ? pz.dataset.play : pz.dataset.pause; hold(); });
     [stage, strip].forEach(function (el) { el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { clearTimeout(restT); over = true; hold(); } }); el.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { over = false; hold(); } }); });
     reel.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') rest(); });
     strip.addEventListener('scroll', function () { if (!auto && !fine) rest(); }, { passive: true });   // (the strip scrolled by hand, not by the reel itself)
@@ -787,7 +813,14 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   // the pointer erases it where it passes and leaves a short trail (mouse only), a click sends a ring out; a phone gets a coarser
   // cell at 30 fps, reduced motion gets one still frame, and without WebGL2 the CSS dots stay.
   if (!window.requestAnimationFrame || typeof nvDither !== 'function') return;
-  var field = nvDither({ waveColor: '#8c8c8c', backgroundColor: '#0e0c09', pixelSize: fine ? 2 : 3, dpr: fine ? 1.5 : 1, fps: fine ? 60 : 30, mouse: fine && !reduce, mouseRadius: 0.3, trail: 0.5, clickRipple: fine && !reduce, intro: !reduce, animate: !reduce });
+  var field = nvDither({ waveColor: '#8c8c8c', backgroundColor: '#0e0c09', pixelSize: fine ? 2 : 3, dpr: fine ? 1.5 : 1, fps: fine ? 30 : 24, mouse: fine && !reduce, mouseRadius: 0.3, trail: 0.5, clickRipple: fine && !reduce, intro: !reduce, animate: !reduce });
   if (!field) return;
   document.body.prepend(field.canvas); document.body.classList.add('has-field'); requestAnimationFrame(function () { field.canvas.classList.add('on'); }); field.start();
+  // (it rests when nobody moves: after twelve quiet seconds no more frames are drawn, the picture holds; the next move wakes it)
+  if (!reduce) {
+    var quiet = 0, asleep = false, nap = function () { clearTimeout(quiet); quiet = setTimeout(function () { asleep = true; field.stop(); }, 12000); };
+    var stir = function () { if (asleep) { asleep = false; field.start(); } nap(); };
+    ['pointermove', 'pointerdown', 'wheel', 'scroll', 'keydown', 'touchstart'].forEach(function (ev) { addEventListener(ev, stir, { passive: true }); });
+    nap();
+  }
 })();`;
