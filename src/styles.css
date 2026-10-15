@@ -688,3 +688,10 @@ body.hints-on #hud-wa { opacity: 0; pointer-events: none; }
 .detail-strip button .strip-plate { display: flex; flex-direction: column; justify-content: center; gap: 4px; width: 100%; height: 76px; padding: 8px 10px; box-sizing: border-box; white-space: normal; background: radial-gradient(ellipse at 30% 20%, rgba(217, 160, 91, 0.18), transparent 60%), var(--surface); }
 .detail-strip button .strip-plate b { display: block; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--paper); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .detail-strip button .strip-plate i { display: block; font-style: normal; font-size: 9px; letter-spacing: 0.12em; color: var(--accent); white-space: nowrap; }
+
+/* ---------- small words people read sit at 4.5:1 or better (the faint tone read at 2:1 and stays for bars, borders and decoration); a contact field shows its edge at 3:1; the panel's close button shows focus in amber */
+.loading-percent, .gate-tag, .gate-hint, .discovery-value #discovery-total, #nav-hints, .detail-index, .sp-group-title, .ov-list-idx, .ov-list-meta, .contact-form label, #discovered #disc-sub, .dl-hint, .dl-left, #kbd-hints, .shot-plate small { color: var(--paper-dim); }
+#nav-hints b { color: var(--paper); }   /* the keys stay a step brighter than what they do */
+.sp-hint { opacity: 1; }   /* it inherits --paper-dim from .sp-body; at .45 it read at 2:1 */
+.contact-form input, .contact-form textarea { border-color: rgba(231, 221, 200, 0.42); }   /* 3.3:1 against the panel; :focus still turns it amber */
+.sp-close:focus-visible { border-color: var(--accent); }

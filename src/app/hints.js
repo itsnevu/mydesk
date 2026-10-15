@@ -11,7 +11,8 @@ const CSS = `
 #hints .hn { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 7px; padding: 5px 11px 5px 5px; border: 1px solid rgba(217,160,91,0.55); border-radius: 999px; background: rgba(20,16,11,0.88); backdrop-filter: blur(6px); color: var(--paper, #e7ddc8); font: 600 13px var(--sans, system-ui); white-space: nowrap; transform: translate(-50%, calc(-100% - 9px)); pointer-events: auto; cursor: pointer; opacity: 0; animation: hn-in .4s cubic-bezier(.22,1,.36,1) forwards; animation-delay: calc(var(--i) * 30ms); }
 #hints .hn::after { content: ""; position: absolute; left: 50%; top: 100%; width: 1px; height: 9px; background: rgba(217,160,91,0.7); }
 #hints .hn b { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: var(--accent, #d9a05b); color: #1a140d; font: 700 11px var(--mono, monospace); }
-#hints .hn:hover, #hints .hn:focus-visible { border-color: var(--accent, #d9a05b); background: rgba(40,28,16,0.96); outline: none; }
+#hints .hn:hover { border-color: var(--accent, #d9a05b); background: rgba(40,28,16,0.96); }
+#hints .hn:focus-visible { border-color: var(--accent, #d9a05b); background: rgba(40,28,16,0.96); outline: 2px solid var(--accent, #d9a05b); outline-offset: 2px; z-index: 1; }
 #hints .hn.off { visibility: hidden; }
 body.hints-on #toast { opacity: 0 !important; }   /* a message would sit on the bar */
 @keyframes hn-in { from { opacity: 0; } to { opacity: 1; } }
