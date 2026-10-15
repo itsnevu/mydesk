@@ -747,7 +747,7 @@
     const ico = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
     const pal = document.createElement('dialog');
     pal.className = 'pal'; pal.setAttribute('aria-label', jt('palAria'));
-    pal.innerHTML = `<div class="pal-bar">${ico}<input class="pal-in" type="search" role="combobox" aria-label="${jt('palInput')}" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" placeholder="${jt('palPh')}" autocomplete="off" spellcheck="false"><button class="pal-esc" type="button" aria-label="Close">esc</button></div>`
+    pal.innerHTML = `<div class="pal-bar">${ico}<input class="pal-in" type="search" role="combobox" aria-label="${jt('palInput')}" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" placeholder="${jt('palPh')}" autocomplete="off" spellcheck="false"><button class="pal-esc" type="button" aria-label="${jt('palClose')}">esc</button></div>`
       + `<ul class="pal-list" id="pal-list" role="listbox" aria-label="${jt('palResults')}"></ul>`
       + `<div class="pal-foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> ${jt('palChoose')}</span><span><kbd>↵</kbd> ${jt('palGo')}</span><span><kbd>esc</kbd> ${jt('palClose')}</span></div>`;
     document.body.append(pal);
@@ -845,13 +845,16 @@
       const s = zooms[at];
       big.style.animation = 'none'; void big.offsetWidth; big.style.animation = '';
       big.src = s.getAttribute('src'); big.alt = s.alt;   // (the original, never the phone-sized copy the page may be showing)
-      num.textContent = `${at + 1} / ${zooms.length}`; cap.textContent = s.alt.replace(/: (screenshot|another page)( \d+)?$/, '');
+      num.textContent = `${at + 1} / ${zooms.length}`;
+      // (the screenshot, screenshotN and anotherPage words of scripts/i18n.js in en, id and zh: a caption is the project's name alone
+      // in every language; the phone picture's "X on a phone", "X di ponsel" and "X 手机端" stay whole, as in English)
+      cap.textContent = s.alt.replace(/(?:: |：)(?:screenshot|another page|tangkapan layar|halaman lain|截图|另一页)(?: \d+)?$/, '');
     };
     lb.classList.toggle('one', zooms.length < 2);
     zooms.forEach((s, i) => {
       s.closest('figure')?.setAttribute('data-cursor', jt('zoom'));
       // (a keyboard reaches each one too: Enter or Space opens it, and closing returns there)
-      s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', `${s.alt}, open large`);
+      s.tabIndex = 0; s.setAttribute('role', 'button'); s.setAttribute('aria-label', jt('openLarge', { t: s.alt }));
       s.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s.click(); } });
       s.addEventListener('click', () => {
         show(i); lb.showModal(); locked = true;
