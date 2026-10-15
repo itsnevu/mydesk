@@ -515,7 +515,7 @@ function home(D, ctx) {
   const rest = counted(D).filter((p) => !featuredKeys.has(p.key));
   const index = rest.map((p, i) => {
     const m = projectMedia(D, p);
-    return `<li style="--i:${i}"><a ${pAttrs(p)}${m.cover ? ` data-preview="/${m.cover}"` : ''}><span class="ix-n">${pad(i + 1)}</span>${m.cover ? `<span class="ix-thumb" aria-hidden="true"><img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'}<span class="ix-name">${esc(p.title)}</span><span class="ix-ind">${esc(industryLine(p))}</span><span class="ix-stack">${esc(stackOf(p))}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`;
+    return `<li style="--i:${i}"><a ${pAttrs(p)}${m.cover ? ` data-preview="/${m.cover}"` : ''}><span class="ix-n">${pad(i + 1)}</span>${m.cover ? `<span class="ix-thumb" aria-hidden="true"><img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : `<span class="ix-thumb ix-thumb--none" aria-hidden="true" style="--nbg:${tint(p).bg}"><b>${esc(p.title.length <= 8 ? p.title : p.title.split(/\s+/).map((w) => w[0]).join('').slice(0, 3))}</b></span>`}<span class="ix-name">${esc(p.title)}</span><span class="ix-ind">${esc(industryLine(p))}</span><span class="ix-stack">${esc(stackOf(p))}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`;
   }).join('');
   // three rows of names, the way Ownitt closes its projects: big capitals, a dot between, each row its own direction
   const allNames = counted(D).filter((p) => p.date !== 'previous design').map((p) => p.title);
