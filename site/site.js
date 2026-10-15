@@ -80,16 +80,21 @@
   // a browser with cross-document view transitions (Chrome 126+) morphs the clicked picture into the project page's own instead of
   // raising the curtain: the picture gets its transition name at the click, the project page's hero picture always has it
   const vt = !reduce && 'PageRevealEvent' in window && typeof CSS !== 'undefined' && CSS.supports('view-transition-name', 'x');
+  // (the picture named 'shot' at the last leave is cleared at the next leave, and once a return has played its morph back, so a
+  // page restored from the back/forward cache never holds two names or a stale one)
+  let shotEl = null;
+  const unshot = () => { if (shotEl) { shotEl.style.viewTransitionName = ''; shotEl = null; } };
   addEventListener('pagereveal', (e) => {
-    if (!e.viewTransition) return;
+    if (!e.viewTransition) { unshot(); return; }
     root.classList.add('vt-in');
     document.querySelector('.p-hero [data-reveal]')?.classList.add('in');   // (the hero arrives morphed, not clipped open)
-    e.viewTransition.finished.then(() => root.classList.remove('vt-in'));
+    e.viewTransition.finished.then(() => { root.classList.remove('vt-in'); unshot(); });
   });
   const leaveTo = (href, bg, name, carry = true, pic = null) => {
     if (inDesk) { const u = new URL(href, location.href); if (u.pathname.startsWith('/3d')) { toDesk(u.hash); return; } }
+    unshot();
     if (reduce) { location.href = href; return; }
-    if (vt && pic) { pic.style.viewTransitionName = 'shot'; location.href = href; return; }
+    if (vt && pic) { shotEl = pic; pic.style.viewTransitionName = 'shot'; location.href = href; return; }
     if (carry) try { sessionStorage.setItem('nv-curtain', bg || '1'); if (name) sessionStorage.setItem('nv-curtain-name', name); else sessionStorage.removeItem('nv-curtain-name'); } catch {}
     const ct = curtain.querySelector('.curtain-t'); if (ct) ct.textContent = name || '';
     // a project link sends the curtain up in that project's colour; anything else in cream
@@ -150,7 +155,7 @@
       return;
     }
     if (url.pathname.startsWith('/3d')) { e.preventDefault(); leaveTo(url.href, '#0a0806', jt('deskName'), false); return; }   // (its own loader takes over)
-    if (url.pathname !== location.pathname) { e.preventDefault(); leaveTo(url.href, a.dataset.bg, a.dataset.name, true, a.dataset.project ? a.querySelector('.case-big > img, .more-pic img, .arc-pic img, .ix-thumb img') : null); }
+    if (url.pathname !== location.pathname) { e.preventDefault(); leaveTo(url.href, a.dataset.bg, a.dataset.name, true, a.dataset.project ? a.querySelector('.case-big > img, .more-pic img, .arc-pic img, .ix-thumb img, .pf-feat-pic > img, .pf-th > img') : null); }
   });
 
   // ---------- the intro: posters of the work, the mark, the name in outline then filled, a count while the fonts arrive
