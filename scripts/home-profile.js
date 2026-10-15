@@ -157,6 +157,8 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
     ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
     : `<a class="pf-logo" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}" aria-label="${esc(c.name)}"><span class="pf-logo-m" style="--m:url(/site/logos/${c.key}.webp)"><img src="/site/logos/${c.key}.webp" alt="" loading="lazy" decoding="async"></span></a>`;
+  const marq = clients.filter((c) => !c.word && exists(`site/logos/${c.key}.webp`));
+  const marquee = marq.length > 5 ? `<div class="pf-marq" aria-hidden="true"><div class="pf-marq-t">${[...marq, ...marq].map((c) => `<i class="pf-marq-i" style="--m:url(/site/logos/${c.key}.webp)"></i>`).join('')}</div></div>` : '';
   const wa = `https://wa.me/${D.SITE.whatsapp}?text=${encodeURIComponent(W.waText)}`;
   const social = SOCIAL.map(([label, slug]) => {
     const l = D.SITE.links.find((x) => x.label === label); if (!l) return '';
@@ -220,14 +222,14 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       </div>
       <div class="pf-socials">${social}</div>
     </div>
-    <nav class="pf-tabs" aria-label="Site">
-      <a href="${u('/')}" aria-current="page">${I.home}<span>${esc(W.tabs.home)}</span></a>
-      <a href="${u('/work/')}">${I.folder}<span>${esc(W.tabs.work)}</span></a>
-      <a href="${u('/labs/')}">${I.flask}<span>${esc(W.tabs.labs)}</span></a>
-      <a href="${u('/cv/')}">${I.doc}<span>${esc(W.tabs.cv)}</span></a>
-      <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
-    </nav>
   </section>
+  <nav class="pf-tabs pf-tabs--pin" aria-label="Site">
+    <a href="${u('/')}" aria-current="page">${I.home}<span>${esc(W.tabs.home)}</span></a>
+    <a href="${u('/work/')}">${I.folder}<span>${esc(W.tabs.work)}</span></a>
+    <a href="${u('/labs/')}">${I.flask}<span>${esc(W.tabs.labs)}</span></a>
+    <a href="${u('/cv/')}">${I.doc}<span>${esc(W.tabs.cv)}</span></a>
+    <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
+  </nav>
   ${hatch}${reel}
   <section class="pf-sec" aria-labelledby="pf-exp">
     ${sec(W.exp, expRows.length, '', 'pf-exp')}
@@ -246,6 +248,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   ${hatch}
   <section class="pf-sec pf-sec--cl pf-sec--cream" aria-labelledby="pf-cl">
     ${sec(W.clients, clientSites, `<a class="pf-all" href="${u('/work/client-websites/')}">${esc(W.viewAll)} ${I.out}</a>`, 'pf-cl')}
+    ${marquee}
     <div class="pf-logos" data-stagger>${clients.map(logo).join('')}</div>
     <span class="pf-note pf-note--cl" aria-hidden="true">${esc(W.thanks)}</span>
   </section>
@@ -316,6 +319,9 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-m { display: inline-block; width: 18px; height: 18px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
 .pf-tabs { position: sticky; top: 0; z-index: 3; display: flex; border-top: 1px solid var(--line); background: rgba(14, 12, 9, 0.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); overflow-x: auto; scrollbar-width: none; }
 .pf-tabs::-webkit-scrollbar { display: none; }
+/* pinned for the whole column: under the site header while it shows, sliding up to the top when it hides on the way down */
+.pf-tabs--pin { top: calc(var(--head-h) - 10px); z-index: 20; border-left: 1px solid var(--line); border-right: 1px solid var(--line); box-shadow: 0 1px 0 var(--line); transition: top 0.7s var(--ease); }
+body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-tabs a { position: relative; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: max-content; height: 50px; padding: 0 16px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; }
 .pf-tabs a svg { width: 16px; height: 16px; }
 .pf-tabs a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease); }
@@ -384,6 +390,12 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-sec--cream .pf-h h2 em { color: var(--cream-ink); } .pf-sec--cream .pf-h sup, .pf-sec--cream .pf-all { color: var(--cream-dim); } .pf-sec--cream .pf-all:hover { color: var(--cream-ink); }
 .pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); } .pf-sec--cream .pf-logo:hover { border-color: var(--cream-ink); color: var(--cream-ink); background: rgba(23, 18, 12, 0.04); }
 .pf-sec--cream .pf-note--cl { color: var(--accent-2); }
+/* the marks sliding by, slowly, across the cream (paused under the pointer, still for reduced motion) */
+.pf-marq { --pad: clamp(18px, 3vw, 30px); margin: 0 calc(-1 * var(--pad)) 18px; padding: 14px 0; overflow: hidden; border-top: 1px solid var(--cream-line); border-bottom: 1px solid var(--cream-line); -webkit-mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+.pf-marq-t { display: flex; width: max-content; animation: pf-marq 60s linear infinite; }
+.pf-marq:hover .pf-marq-t { animation-play-state: paused; }
+.pf-marq-i { flex: none; width: 112px; height: 32px; margin-right: 44px; background: var(--cream-ink); opacity: 0.72; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
+@keyframes pf-marq { to { transform: translate3d(-50%, 0, 0); } }
 .pf-logos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
 .pf-logo { display: grid; place-items: center; height: 68px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease); }
 /* the logo in one colour: the mask is the client's own silhouette, the hidden <img> only gives it its width */
@@ -463,7 +475,8 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 }
 @media (max-width: 800px) {
   .pf { padding-top: calc(var(--head-h) + 4px); }
-  .pf-card, .pf-sec, .pf-cta, .pf-hatch { border-left: 0; border-right: 0; } .pf-card, .pf-cta { border-radius: 0; }
+  .pf-card, .pf-sec, .pf-cta, .pf-hatch, .pf-tabs--pin { border-left: 0; border-right: 0; }
+  .pf-marq-i { width: 88px; height: 26px; margin-right: 32px; } .pf-card, .pf-cta { border-radius: 0; }
   .pf-logos { grid-template-columns: repeat(3, 1fr); }
   .pf-st { grid-template-columns: 1fr; row-gap: 8px; } .pf-td { margin-top: -8px; }
   .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-th { width: 72px; height: 45px; }
@@ -476,9 +489,9 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
 @media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
-@media (prefers-reduced-motion: reduce) { .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
-.motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
+.motion-off .pf-marq-t { animation: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
 export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
