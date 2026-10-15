@@ -170,7 +170,7 @@ export const PROJECTS = [
 // page shows them in a browser frame; projects without one keep their generated card.
 // More screenshots per project, from Navy (public/shots/gallery/<key>-<n>.webp, n from 1): the project page shows them in its browser
 // frame with a row of thumbnails under it; GALLERY_PHONE is a phone screenshot for a project without a live one (GodPlan is internal)
-export const GALLERY = { 'the-bedji-group': 4, 'duta-mesh': 3, 'kusen-tangsel': 3, nudelisius: 3, godtive: 4, 'godjah-studio': 4, 'godplan-erp': 1, 'client-websites': 6, winfaith: 5, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 2, rameinaja: 1, recon: 3, airon: 3, izzi: 3 };
+export const GALLERY = { 'the-bedji-group': 4, 'duta-mesh': 3, 'kusen-tangsel': 3, nudelisius: 3, godtive: 4, 'godjah-studio': 4, 'godplan-erp': 1, 'client-websites': 6, winfaith: 5, 'flora-indonesia': 3, 'miniatur-kapal': 3, 'dams-garage': 3, 'yukti-rasa-mitrabumi': 3, 'nf-optical': 3, 'gajah-terbang-kreatif': 4, 'gracia-box': 3, orthobone: 3, rameinaja: 1, recon: 3, airon: 3, izzi: 3, 'fls-group-indonesia': 3, 'little-aivy': 3, 'fortunarack': 3, 'rathera-beauty-studio': 3, 'ur-branded-bae': 3 };
 export const GALLERY_PHONE = { 'godplan-erp': 'shots/gallery/godplan-erp-m.webp', 'client-websites': 'shots/little-aivy-m.webp' };
 // what the browser frame's address bar says for a project with no single address of its own
 export const SHOT_HOST = { 'client-websites': 'twenty-three live sites' };
