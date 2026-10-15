@@ -805,6 +805,20 @@ function relatedOf(list, p) {
   return RELATED.get(p.key) || [];
 }
 
+// the invitation that ends a page of work: the status, a question, WhatsApp pre-filled with the page's address, the email to copy,
+// the CV in the page's language. One per page (its heading id is pwa-h).
+function waBand(D, { title, msg, from, project = '' }) {
+  const cv = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href;
+  return `<section class="p-wa wrap" aria-labelledby="pwa-h">
+    <div class="p-wa-in" data-reveal>
+      <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
+      <h2 class="p-wa-t" id="pwa-h">${esc(title)}</h2>
+      <p class="p-wa-l">${esc(t('pwaLine'))}</p>
+      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, msg))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp"${project ? ` data-project="${project}"` : ''} data-from="${from}" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="${from}">${esc(D.SITE.email)}</button>` : ''}${cv ? `<a class="btn p-wa-cv" href="${esc(cv)}" download="${esc(cv.split('/').pop())}" data-track="cv_download" data-from="${from}">${roll(t('cv'))}</a>` : ''}</div>
+    </div>
+  </section>`;
+}
+
 function projectPage(D, ctx, p) {
   const list = workOrder(D.PROJECTS);
   // the arrows and "next project" walk the twenty-six projects (all three Gajah Terbang sites among them; the hub only from itself)
@@ -858,14 +872,9 @@ function projectPage(D, ctx, p) {
       <ul class="more-list" data-stagger>${related.map((x, k) => moreCard(D, x, k, 'related')).join('')}</ul>
     </section>` : '';
   // the invitation before "Next project": the status, "want something like this?", WhatsApp pre-filled with this project, the email
-  const band = isHub(p) ? '' : `<section class="p-wa wrap" aria-labelledby="pwa-h">
-    <div class="p-wa-in" data-reveal>
-      <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
-      <h2 class="p-wa-t" id="pwa-h">${esc(t('pwaTitle', { t: p.title }))}</h2>
-      <p class="p-wa-l">${esc(t('pwaLine'))}</p>
-      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, `${t('waSimilar', { t: p.title })} ${ORIGIN}${u(`/work/${p.key}/`)}`))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-from="project-band" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="project-band">${esc(D.SITE.email)}</button>` : ''}${(() => { const cv = (D.SITE.links.find((l) => l.label === 'Résumé') || {}).href; return cv ? `<a class="btn p-wa-cv" href="${esc(cv)}" download="${esc(cv.split('/').pop())}" data-track="cv_download" data-from="project-band">${roll(t('cv'))}</a>` : ''; })()}</div>
-    </div>
-  </section>`;
+  const band = waBand(D, isHub(p)
+    ? { title: t('pwaTitleSites'), msg: `${t('waHello')} ${ORIGIN}${u(`/work/${p.key}/`)}`, from: 'hub-band' }
+    : { title: t('pwaTitle', { t: p.title }), msg: `${t('waSimilar', { t: p.title })} ${ORIGIN}${u(`/work/${p.key}/`)}`, from: 'project-band', project: p.key });
   const pathname = `/work/${p.key}/`;
 
   const ld = { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: desc, url: `${ORIGIN}${u(pathname)}`, inLanguage: L.html, creator: { '@id': PERSON_ID }, ...(p.year ? { dateCreated: String(p.year) } : {}), keywords: p.stack.split(' · ').join(', '), ...(p.url && !p.now ? { sameAs: p.url } : {}), ...(m.cover ? { image: `${ORIGIN}/${m.cover}` } : {}) };
@@ -960,6 +969,7 @@ ${header('work', '/work/')}
     <ol class="arc-grid" data-stagger>${cards}</ol>
     <div class="arc-dock" role="group" aria-label="${esc(t('showByKind'))}" hidden><div class="arc-dock-t">${pills}</div></div>
   </section>
+${waBand(D, { title: t('pwaTitleWork'), msg: `${t('waHello')} ${ORIGIN}${u('/work/')}`, from: 'archive-band' })}
 </main>
 ${footer(D)}
 ` + tail(ctx.js);
@@ -976,6 +986,7 @@ ${header('labs', '/labs/')}
 <main id="main" tabindex="-1">
 ${worldsSection({ t, u, splitPair, labsCount, exists, img, lang: LANG })}
 ${labsMain({ exists, img, splitPair, lang: LANG, chapter: { kick: t('lw_moreKick'), title: t('lw_moreTitle'), em: t('lw_moreEm') } })}
+${waBand(D, { title: t('pwaTitleLabs'), msg: `${t('waHello')} ${ORIGIN}${u('/labs/')}`, from: 'labs-band' })}
 </main>
 ${footer(D)}
 ` + tail(ctx.js);
