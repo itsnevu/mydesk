@@ -236,8 +236,8 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </section>
   ${hatch}` : '';
   const more = (label) => `<button type="button" class="pf-more" data-more-btn data-less="${esc(W.less)}"><span>${esc(label)}</span>${I.chev}</button>`;
-  // the reel: the 3D worlds of the Labs page (scripts/labs-worlds.js) as one stage over a strip of their frames, the last section
-  // before the closing banner (Navy: "paling bawah"). The page script walks the stage through the worlds and brings up the frame pointed
+  // the reel: the 3D worlds of the Labs page (scripts/labs-worlds.js) as one stage over a strip of their frames, right under the card
+  // and the tabs (it sat at the bottom until 2026-10-15, when Navy approved moving it up: "coba analisa dan kerjain"). The page script walks the stage through the worlds and brings up the frame pointed
   // at; the stage, every frame, the header's link and the button are all doors to /labs (the frame's own card, #w-<key>).
   // Only the first frame is in the markup (the stage fetches the others as it goes); the strip uses the 360 px copies.
   const shots = worlds.filter((w) => exists(`site/labs/${w.key}.webp`));
@@ -269,7 +269,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   const bio = (W.hl || []).reduce((h, ph) => h.replace(esc(ph), `<mark class="pf-hl">${esc(ph)}</mark>`), esc(W.bio));
   const ringText = `${W.ring} · ${W.ring} · `;
-  const rail = [['pf-me', W.rail.me], ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ...(faqItems.length ? [['pf-faq', faq.title]] : []), ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-contact', W.rail.contact]]
+  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ...(faqItems.length ? [['pf-faq', faq.title]] : []), ['pf-contact', W.rail.contact]]
     .map(([id, label], i) => `<li><a href="#${id}" data-rail="${id}"><b>${pad(i)}</b><span>${esc(label)}</span></a></li>`).join('');
   return `<main id="main" tabindex="-1">
 <div class="pf">
@@ -301,7 +301,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
     <i class="pf-tabs-ind" aria-hidden="true"></i>
   </nav>
-  ${hatch}
+  ${hatch}${reel}
   <section class="pf-sec" aria-labelledby="pf-exp">
     ${sec(W.exp, expRows.length, `<button type="button" class="pf-all pf-xall" data-open="${esc(W.expandAll)}" data-close="${esc(W.collapseAll)}">${esc(W.expandAll)}</button>`, 'pf-exp')}
     <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
@@ -325,7 +325,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </section>
   ${hatch}
   ${stack}
-  ${hatch}${proc}${faqSec}${reel}
+  ${hatch}${proc}${faqSec}
   <section class="pf-cta" id="pf-contact" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
