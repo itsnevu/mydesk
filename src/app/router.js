@@ -13,13 +13,15 @@ export function parseRoute() {
 // of leaving the site; moving from one thing to the next replaces that entry, and coming back out turns it back into the bare
 // address without popping history (a programmatic step back could land after the next push and close the wrong thing).
 // The entry keeps { kw: history.length } from when it was pushed: while it is still the newest entry of the tab, the next thing
-// opened takes it over instead of pushing another, so opening and closing things never piles up dead Back presses. Once anything
+// opened takes it over instead of pushing another, so opening and closing things does not pile up dead Back presses. Once anything
 // comes after it (a page opened inside the site sheet's frame, a link from the site), the next open pushes as before, so Back
-// still closes it first. push/replaceState fire no hashchange.
+// still closes it first. A tab at the browser's 50-entry limit always pushes, as before: history.length stops growing there (the
+// oldest entry is dropped instead), so the stamp could no longer tell whether anything came after it. 50 is the smallest such
+// limit (Chrome and Firefox keep 50 entries, Safari 100). push/replaceState fire no hashchange.
 export function setRoute(hash) {
   const next = hash ? `#${hash}` : location.pathname + location.search;
   if (location.hash === (hash ? `#${hash}` : '')) return;
-  if (hash && !location.hash && history.state?.kw !== history.length) { history.pushState(null, '', next); history.replaceState({ kw: history.length }, '', next); }
+  if (hash && !location.hash && (history.length >= 50 || history.state?.kw !== history.length)) { history.pushState(null, '', next); history.replaceState({ kw: history.length }, '', next); }
   else history.replaceState(history.state, '', next);
 }
 
