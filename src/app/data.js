@@ -69,7 +69,7 @@ export const DIORAMAS = Object.fromEntries(WORLDS.map((w) => [w.project, { kind:
 // `portal` links a project to its world on the keyboard, `url` is the live site.
 // `date` is free text; 'live' stands in until the real date is known (the timeline groups those last).
 export const PROJECTS = [
-  { key: 'godplan-erp', title: 'GodPlan ERP', date: 'since July 2025', industry: 'HR & workforce', stack: 'Go · Next.js · TypeScript · PostgreSQL', portal: 'f1', hue: 36,
+  { key: 'godplan-erp', code: 'https://github.com/itsnevu/backend-godplan', title: 'GodPlan ERP', date: 'since July 2025', industry: 'HR & workforce', stack: 'Go · Next.js · TypeScript · PostgreSQL', portal: 'f1', hue: 36,
     description: 'One system for the parts of running a company that usually sprawl across four tools and a spreadsheet: employees, attendance and leave, payroll, tasks and CRM. Architecture and full-stack build at PT. Gajah Terbang Kreatif, and built for the phone too.',
     role: 'Architecture and full-stack build', did: ['The architecture: Go services on PostgreSQL, a Next.js and TypeScript front end, shipped in Docker','Authentication and the employees module, with headcount carried up to the dashboard','The dashboard: headcount, today’s attendance, pending tasks and monthly payroll on one screen','System health (database state, storage, backups) reported in the interface instead of buried on a server','Built for the phone too'], modules: ['Dashboard','Employees','Attendance & leave','Payroll','Tasks','CRM','System health'] },
   { key: 'client-websites', title: 'Client Websites', date: 'live', industry: '10+ industries', stack: 'WordPress · WooCommerce · Elementor · SvelteKit · Next.js', portal: 'f2', hue: 22,

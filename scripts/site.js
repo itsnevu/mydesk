@@ -842,7 +842,7 @@ function projectPage(D, ctx, p) {
     </section>` : '';
   const sitesList = list.filter((x) => x.url && x.date !== 'previous design');
   const sites = p.key === 'client-websites' ? `<section class="wrap sites-all" aria-labelledby="sites-h"><div class="inside-head"><div data-reveal>${kick(t('allN', { n: sitesList.length }))}</div><h2 class="serif-h" id="sites-h" data-split>${splitPair(t('everySiteTitle'), t('everySiteEm'))}</h2></div>
-      <ul class="index-list" data-stagger>${sitesList.map((x, k) => `<li style="--i:${k}"><a ${pAttrs(x)}><span class="ix-n">${pad(k + 1)}</span>${(() => { const c = projectMedia(D, x).cover; return c ? `<span class="ix-thumb" aria-hidden="true"><img src="/${c}" alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'; })()}<span class="ix-name">${esc(x.title)}</span><span class="ix-ind">${esc(tp(x, 'industry'))}</span><span class="ix-stack">${esc(stackOf(x))}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`).join('')}</ul></section>` : '';
+      <ul class="index-list" data-stagger>${sitesList.map((x, k) => `<li style="--i:${k}"><a ${pAttrs(x)}><span class="ix-n">${pad(k + 1)}</span>${(() => { const c = projectMedia(D, x).cover, c4 = c && c.replace(/\.webp$/, '-384.webp'); return c ? `<span class="ix-thumb" aria-hidden="true"><img src="/${c}"${exists(c4) ? ` srcset="/${c4} 384w" sizes="96px"` : ''} alt="" loading="lazy" decoding="async" width="96" height="60"></span>` : '<span class="ix-thumb ix-thumb--none" aria-hidden="true"></span>'; })()}<span class="ix-name">${esc(x.title)}</span><span class="ix-ind">${esc(tp(x, 'industry'))}</span><span class="ix-stack">${esc(stackOf(x))}</span><span class="ix-go" aria-hidden="true">${arrowR}</span></a></li>`).join('')}</ul></section>` : '';
   const gallery = m.shots.length > 1 ? `<section class="gallery wrap" aria-label="${esc(t('screenshots'))}">
       ${m.shots.slice(1).map((s, k) => `<figure class="shot g-${k % 3}" data-reveal="clip">${img(s, t('screenshotN', { t: p.title, n: k + 2 }), { sizes: k % 3 ? '(min-width: 900px) 62vw, 100vw' : '(min-width: 1100px) 1300px, 100vw' })}</figure>`).join('')}
     </section>` : '';
@@ -896,9 +896,10 @@ ${header('work', pathname)}
           ${role ? `<div style="--i:2"><dt>${esc(t('roleLbl'))}</dt><dd>${esc(role)}</dd></div>` : ''}
           <div style="--i:2"><dt>${esc(p.date === 'live' ? t('statusLbl') : t('when'))}</dt><dd>${esc(status)}</dd></div>
           ${p.url ? `<div style="--i:3"><dt>${esc(t('address'))}</dt><dd>${p.now ? `${esc(host(p.url))} <span class="was">${esc(t('formerAddress'))}</span>` : redesign ? `${esc(host(p.url))} <span class="was">${esc(t('servesUpgrade'))}</span>` : `<a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(host(p.url))}</a>`}</dd></div>` : ''}
+          ${p.code ? `<div style="--i:4"><dt>${esc(t('codeLbl'))}</dt><dd><a href="${esc(p.code)}" target="_blank" rel="noopener">${esc(p.code.replace(/^https:\/\//, ''))}</a></dd></div>` : ''}
         </dl>
       </div>
-      <div class="p-actions" data-reveal>${live}${firstBtn}${similar}</div>
+      <div class="p-actions" data-reveal>${live}${firstBtn}${p.code ? `<a class="btn" href="${esc(p.code)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub" data-project="${p.key}" data-magnet>${roll(t('readCode'))} ${arrowR}</a>` : ''}${similar}</div>
       ${now}${pair}
     </header>
     <div class="p-hero wrap" data-scene="phero">
