@@ -258,6 +258,13 @@ export const CONTENT = {
       ],
       mineEnd: ['Then the software fits the business,', 'and people actually use it.'],
     },
+    faqTitle: 'Before you write', faq: [
+      ['How do we start?', 'Send a sentence or two about what you need, on WhatsApp or by email. You get a written scope back before anything starts.'],
+      ['What can you build for my business?', 'A company website, an online store with cart and checkout, or a custom system such as an ERP for employees, attendance and payroll. {n} client sites so far.'],
+      ['Can my team edit the website afterwards?', 'Yes. A site built on WordPress and Elementor is handed over so your team edits its own pages.'],
+      ['Which language do we work in?', 'Bahasa Indonesia or English, whichever you prefer.'],
+      ['Who will I be talking to?', 'To me, Navy. I answer every message myself.'],
+    ],
     process: [
       { step: 'Strategy', body: 'The roadmap and the architecture.' }, { step: 'Design', body: 'The experience, from requirements and Figma prototypes.' },
       { step: 'Development', body: 'Secure, scalable systems with clear boundaries.' }, { step: 'Deployment', body: 'The launch, then monitoring.' },
@@ -300,6 +307,13 @@ export const CONTENT = {
       ],
       mineEnd: ['Lalu software-nya yang menyesuaikan bisnis,', 'dan orang benar-benar memakainya.'],
     },
+    faqTitle: 'Sebelum Anda menulis', faq: [
+      ['Bagaimana cara memulai?', 'Kirim satu atau dua kalimat tentang kebutuhan Anda lewat WhatsApp atau email. Anda akan menerima ruang lingkup tertulis sebelum pekerjaan dimulai.'],
+      ['Apa yang bisa dibuat untuk bisnis saya?', 'Website perusahaan, toko online dengan keranjang dan checkout, atau sistem custom seperti ERP untuk karyawan, absensi, dan penggajian. Sudah {n} situs klien sejauh ini.'],
+      ['Apakah tim saya bisa mengedit websitenya nanti?', 'Bisa. Situs yang dibangun dengan WordPress dan Elementor diserahkan supaya tim Anda bisa mengedit halamannya sendiri.'],
+      ['Pakai bahasa apa?', 'Bahasa Indonesia atau Inggris, mana yang Anda suka.'],
+      ['Siapa yang akan saya ajak bicara?', 'Saya sendiri, Navy. Setiap pesan saya balas sendiri.'],
+    ],
     process: [
       { step: 'Strategi', body: 'Peta jalan dan arsitekturnya.' }, { step: 'Desain', body: 'Pengalamannya, dari kebutuhan dan prototipe Figma.' },
       { step: 'Pengembangan', body: 'Sistem yang aman dan skalabel dengan batas yang jelas.' }, { step: 'Peluncuran', body: 'Rilis, lalu pemantauan.' },
@@ -342,6 +356,13 @@ export const CONTENT = {
       ],
       mineEnd: ['然后，软件去贴合生意，', '人们才真正会用它。'],
     },
+    faqTitle: '写信之前', faq: [
+      ['怎么开始？', '用 WhatsApp 或邮件说一两句你的需求就行。开工之前，你会先收到一份书面的工作范围。'],
+      ['你能为我的生意做什么？', '企业官网、带购物车和结账的网店，或者定制系统，比如管理员工、考勤和薪资的 ERP。到目前为止已有 {n} 个客户网站。'],
+      ['之后我的团队能自己改网站吗？', '可以。用 WordPress 和 Elementor 搭建的网站会交接给你，你的团队可以自己编辑页面。'],
+      ['用什么语言沟通？', '印尼语或英语，按你的习惯来。'],
+      ['我会和谁沟通？', '就是我，Navy。每条消息都由我本人回复。'],
+    ],
     process: [
       { step: '策略', body: '路线图与架构。' }, { step: '设计', body: '从需求和 Figma 原型出发的体验。' },
       { step: '开发', body: '安全、可扩展、边界清晰的系统。' }, { step: '上线', body: '发布，然后持续监测。' },

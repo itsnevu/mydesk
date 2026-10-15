@@ -561,11 +561,13 @@ function home(D, ctx) {
   const rotate = t('rotate');
 
   const ld = { '@context': 'https://schema.org', ...personLd(D, heroPhoto) };
+  const faq = (C().faq || CONTENT.en.faq || []).map(([q, a]) => [q, fill(a, { n: clientSites.length })]);
+  const faqLd = faq.length ? { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faq.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) } : null;
 
   // (the story lives at /full/: the home itself is the simple page, which carries the intro and the gate; see simplePage)
   return head({
     title: t('t_full'), description: t('d_home', { n: clientSites.length }), pathname: '/full/', css: ctx.css + STACK_CSS + TOOLBOX_CSS, imageAlt: t('ogHomeAlt'),
-    extra: `${heroPreload}\n<script type="application/ld+json">${JSON.stringify(ld)}</script>\n`,
+    extra: `${heroPreload}\n<script type="application/ld+json">${JSON.stringify(ld)}</script>\n${faqLd ? ldScript(faqLd) + '\n' : ''}`,
   }) + `
 <body class="home">
 ${header('home', '/full/')}
@@ -724,6 +726,7 @@ ${header('home', '/full/')}
         <div class="contact-links" data-stagger>${contactLinks}</div>
       </div>
     </div>
+    ${faq.length ? `<div class="faq" data-reveal><h3 class="lbl faq-t">${esc(C().faqTitle || CONTENT.en.faqTitle)}</h3>${faq.map(([q, a], i) => `<details class="faq-q"${i === 0 ? ' open' : ''}><summary>${esc(q)}<span class="faq-i" aria-hidden="true"></span></summary><p>${esc(a)}</p></details>`).join('')}</div>` : ''}
   </section>
 </main>
 ${footer(D)}

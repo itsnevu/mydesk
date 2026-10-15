@@ -816,6 +816,18 @@ body.menu-open { overflow: hidden; }
 .copy:hover .copy-a, .copy:focus-visible .copy-a { background: var(--ink); color: #140f09; border-color: var(--ink); }
 .toast { position: fixed; left: 50%; bottom: calc(26px + env(safe-area-inset-bottom)); z-index: 270; padding: 13px 22px; border-radius: 999px; background: var(--ink); color: #140f09; font: 700 13px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45); transform: translate(-50%, 180%); transition: transform 0.6s var(--ease); pointer-events: none; }
 .toast.on { transform: translate(-50%, 0); }
+.faq { grid-column: 1 / -1; margin-top: clamp(50px, 6vw, 90px); border-top: 1px solid var(--line-2); }
+.faq-t { display: block; margin: 22px 0 8px; color: var(--accent); }
+.faq-q { border-bottom: 1px solid var(--line); }
+.faq-q summary { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; list-style: none; cursor: pointer; font: 700 clamp(19px, 1.7vw, 26px)/1.2 var(--cond); text-transform: uppercase; letter-spacing: 0.01em; transition: color 0.3s; }
+.faq-q summary::-webkit-details-marker { display: none; }
+.faq-q summary:hover, .faq-q summary:focus-visible { color: var(--accent-2); }
+.faq-i { position: relative; flex: none; width: 16px; height: 16px; }
+.faq-i::before, .faq-i::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; margin-top: -0.75px; background: currentColor; transition: transform 0.45s var(--ease); }
+.faq-i::after { transform: rotate(90deg); }
+.faq-q[open] .faq-i::after { transform: none; }
+.faq-q p { max-width: 46em; margin: -4px 0 22px; font-size: clamp(17px, 1.3vw, 20px); line-height: 1.55; color: var(--dim); text-wrap: pretty; }
+html[lang="zh-Hans"] .faq-q summary { letter-spacing: 0.02em; }
 .contact-links { width: 100%; border-top: 1px solid var(--line-2); }
 .contact-links a { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid var(--line); font: 700 clamp(26px, 2.4vw, 38px)/1 var(--cond); text-transform: uppercase; transition: color 0.3s, padding 0.5s var(--ease); }
 .contact-links a:hover, .contact-links a:focus-visible { color: var(--accent-2); padding-left: 12px; }
