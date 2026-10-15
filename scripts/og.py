@@ -5,8 +5,11 @@
 #                                 the Chinese words are set in Microsoft YaHei, the site's own faces having no Han)
 #   python scripts/og.py cv       only the CV's three cards: public/site/og/cv.jpg, cv-id.jpg, cv-zh.jpg (words from
 #                                 node scripts/site.js --og-cv; the full runs above draw them too, each in its languages)
+#   python scripts/og.py labs     only the Labs page's three cards: public/site/og/labs.jpg, labs-id.jpg, labs-zh.jpg (words and
+#                                 worlds from node scripts/site.js --og-labs; the full runs draw them too)
 # writes public/og.jpg (the site's card), public/site/og/<key>.jpg (one card per project, in its colours, with its screenshot),
-# public/site/og/work.jpg (the archive's: its title and a wall of the screenshots),
+# public/site/og/work.jpg (the archive's: its title and a wall of the screenshots), public/site/og/labs.jpg (the Labs page's: its
+# title and a wall of the worlds' frames), public/site/og/cv.jpg (the CV's: its facts beside the sheet),
 # public/apple-touch-icon.png, public/favicon.ico, public/favicon.svg and public/site/icon-192.png, icon-512.png,
 # icon-maskable-512.png. The mark everywhere is site/mark.svg (Navy's logo, traced: scripts/trace-mark.py).
 # Needs Pillow. The fonts are in scripts/fonts (SIL Open Font License 1.1, licences beside them).
@@ -342,6 +345,66 @@ def archive_card(data, ui=None):
     return card
 
 
+def labs_data(lang=None):
+    """the Labs card's words and the worlds in the page's order (node scripts/site.js --og-labs [id|zh])"""
+    return json.loads(subprocess.run(['node', os.path.join(ROOT, 'scripts', 'site.js'), '--og-labs'] + ([lang] if lang else []), capture_output=True, text=True, encoding='utf8', check=True).stdout)
+
+
+def labs_card(L):
+    """the Labs card (/labs/): its title as the page sets it, and the worlds' photographed frames as the archive's wall, the
+    leading worlds in the column that shows whole (then the one the right edge cuts, then the one under the fade, then the last)"""
+    card = Image.new('RGBA', (W, H), BG + (255,))
+    tw, th, gap = 250, 125, 16
+    wall = Image.new('RGBA', (3 * tw + 4 * gap + 140, 4 * th + 3 * gap), (0, 0, 0, 0))
+    frames = []
+    for key in L['worlds']:
+        for name in (f'{key}-800.webp', f'{key}.webp'):
+            if os.path.exists(os.path.join(PUB, 'site', 'labs', name)):
+                frames.append(os.path.join(PUB, 'site', 'labs', name))
+                break
+    slots = [(row, col) for col in (1, 2, 0, 3) for row in range(4)]
+    for (row, col), f in zip(slots, frames):
+        shot = Image.open(f).convert('RGB')
+        sh = round(shot.height * tw / shot.width)
+        shot = shot.resize((tw, sh), Image.LANCZOS)
+        if sh < th:
+            shot = shot.resize((round(tw * th / sh), th), Image.LANCZOS)
+            left = (shot.width - tw) // 2
+            shot = shot.crop((left, 0, left + tw, th))
+        else:
+            top = (sh - th) // 2
+            shot = shot.crop((0, top, tw, top + th))
+        wall.alpha_composite(rounded(shot, 8), ((row % 2) * 70 + col * (tw + gap) - (35 if row % 2 else 0), row * (th + gap)))
+    x0, y0 = 500, round((H - wall.height) / 2)
+    layer = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    layer.alpha_composite(wall.crop((0, 0, min(wall.width, W - x0), wall.height)), (x0, y0))
+    fade = Image.new('L', (W, H), 0)
+    fd = ImageDraw.Draw(fade)
+    for x in range(W):
+        t = min(1, max(0, (x - x0) / 360))
+        fd.line([(x, 0), (x, H)], fill=round(205 * t ** 1.4))
+    layer.putalpha(ImageChops.multiply(layer.split()[-1], fade))
+    card.alpha_composite(layer)
+    glow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(glow).ellipse((-260, -220, 560, 520), fill=ACC + (34,))
+    card.alpha_composite(glow.filter(ImageFilter.GaussianBlur(120)))
+    d = ImageDraw.Draw(card, 'RGBA')
+    kicker(d, 72, 96, L['kick'], (241, 234, 219, 185), ACC)
+    # the title and its italic half, each at the largest size that fits the left column, centred together in their band
+    title, em = L['title'].upper(), L['em']
+    ts = next((s for s in range(150, 58, -4) if d.textlength(title, font=tfont(COND, s, title)) <= 440), 58)
+    es = next((s for s in range(168, 58, -4) if d.textlength(em, font=tfont(ITALIC, s, em)) <= 440), 58)
+    block = round(ts * 0.9) + es
+    top = 140 + (330 - block) // 2
+    d.text((64, top), title, font=tfont(COND, ts, title), fill=INK)
+    d.text((70, top + round(ts * 0.9)), em, font=tfont(ITALIC, es, em), fill=ACC2)
+    line = L['count'].upper()
+    spaced(d, 72, 486, line, tfont(COND_SB, 19, line), (241, 234, 219, 170), 2.6)
+    mark(card, 72, 560, 0.15, ACC)
+    spaced(d, 112, 566, 'NAVYGIBRAN.DEV/LABS', font(COND_SB, 20), (241, 234, 219, 165), 3)
+    return card
+
+
 def paper(c):
     """the CV as a sheet of paper, in its own layout but without words beyond the name (any smaller would be a blur): the head
     with its chips, the column of experience, education and projects, the narrow one of contact and skills"""
@@ -466,8 +529,14 @@ def favicon(path):
 
 
 if __name__ == '__main__':
-    if 'cv' in sys.argv[1:]:   # python scripts/og.py cv → only the CV's three cards
+    only = [a for a in sys.argv[1:] if a in ('cv', 'labs')]
+    if 'cv' in only:     # python scripts/og.py cv → only the CV's three cards
         cv_cards(['en', 'id', 'zh'])
+    if 'labs' in only:   # python scripts/og.py labs → only the Labs page's three cards
+        for lang in (None, 'id', 'zh'):
+            name = f"labs{'-' + lang if lang else ''}.jpg"
+            print(f'site/og/{name}', save_jpg(labs_card(labs_data(lang)), os.path.join(PUB, 'site', 'og', name)))
+    if only:
         sys.exit(0)
     langs = [a for a in sys.argv[1:] if a in ('id', 'zh')]
     if langs:
@@ -479,6 +548,7 @@ if __name__ == '__main__':
         for p in data:
             print(f"site/og/{p['key']}-{lang}.jpg", save_jpg(project_card(p, ui), os.path.join(PUB, 'site', 'og', f"{p['key']}-{lang}.jpg")))
         print(f'site/og/work-{lang}.jpg', save_jpg(archive_card(data, ui), os.path.join(PUB, 'site', 'og', f'work-{lang}.jpg')))
+        print(f'site/og/labs-{lang}.jpg', save_jpg(labs_card(labs_data(lang)), os.path.join(PUB, 'site', 'og', f'labs-{lang}.jpg')))
     if langs:
         sys.exit(0)
     data = json.loads(subprocess.run(['node', os.path.join(ROOT, 'scripts', 'site.js'), '--og-data'], capture_output=True, text=True, encoding='utf8', check=True).stdout)
@@ -486,6 +556,7 @@ if __name__ == '__main__':
     for p in data:
         print(f"site/og/{p['key']}.jpg", save_jpg(project_card(p), os.path.join(PUB, 'site', 'og', p['key'] + '.jpg')))
     print('site/og/work.jpg', save_jpg(archive_card(data), os.path.join(PUB, 'site', 'og', 'work.jpg')))
+    print('site/og/labs.jpg', save_jpg(labs_card(labs_data()), os.path.join(PUB, 'site', 'og', 'labs.jpg')))
     cv_cards(['en'])
     icon(180, 0.7, os.path.join(PUB, 'apple-touch-icon.png'))
     icon(192, 0.7, os.path.join(PUB, 'site', 'icon-192.png'))

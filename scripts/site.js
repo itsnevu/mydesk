@@ -1066,7 +1066,7 @@ function labsPage(D, ctx) {
       { '@type': 'ListItem', position: 2, name: M.menu.label, item: pageUrl },
     ] },
   ] };
-  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, imageAlt: M.imageAlt, extra: `${ldScript(ld)}\n` }) + `
+  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, image: exists('site/og/labs.jpg') ? `${ORIGIN}/site/og/labs.jpg` : undefined, imageAlt: M.imageAlt, extra: `${ldScript(ld)}\n` }) + `
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
 <main id="main" tabindex="-1">
@@ -1356,6 +1356,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const lead = t('archiveLead', { n: order.length });
     process.stdout.write(JSON.stringify({ lang: want, ui: { role: t('role'), country: { id: 'Indonesia', zh: '印度尼西亚' }[want] || 'Indonesia', motto: t('motto'), project: t('project').trim(), every: t('everySite'), archive: t('archive'), allThe: t('allThe'), workEm: t('workEm'), count: lead.split(/(?<=[.。])\s*/)[0].replace(/[.。]$/, '') }, projects: list }));
   }
+} else if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes('--og-labs')) {
+  const want = process.argv[process.argv.indexOf('--og-labs') + 1];
+  if (want && LANGS[want]) setLang(want);
+  const M = labsMetaFor(LANG);
+  process.stdout.write(JSON.stringify({ lang: LANG, worlds: WORLDS.map((w) => w.key), kick: M.menu.label, title: t('lw_title'), em: t('lw_em'), count: t('lw_count', { n: M.worlds, m: M.count }) }));
 } else if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const dist = process.env.KW_OUT ? path.resolve(process.env.KW_OUT) : path.join(root, 'dist');
   const pages = await renderSite();

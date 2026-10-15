@@ -585,8 +585,11 @@
     const apply = (kind, remember) => {
       pills.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.kind === kind)));
       const show = () => {
+        // (the new set is shown while the grid is still faded, and that faded state is read once, so a card that was hidden
+        // rises like the others instead of appearing at once; numbered in reading order, they come back in turn)
         let n = 0;
-        cards.forEach((c) => { c.hidden = !(kind === 'all' || c.dataset.kind === kind); if (!c.hidden) n++; });
+        cards.forEach((c) => { c.hidden = !(kind === 'all' || c.dataset.kind === kind); if (!c.hidden) c.style.setProperty('--i', Math.min(n++, 9)); });
+        void arcGrid.offsetWidth;
         arcGrid.classList.add('in'); arcGrid.classList.remove('fading');
         const st = sec.querySelector('[role="status"]'); if (st && remember) st.textContent = jt('filtered', { n, t: cards.length });
       };

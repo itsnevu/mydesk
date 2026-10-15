@@ -982,7 +982,7 @@ html[lang="zh-Hans"] .faq-q summary { letter-spacing: 0.02em; }
 .arc-card a:hover .arc-t, .arc-card a:focus-visible .arc-t { color: var(--accent-2); }
 .arc-i { font-style: italic; font-size: 16px; color: var(--dim); }
 .arc-s { margin-top: 2px; font: 600 11px/1.5 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
-.js .arc-grid.fading > .arc-card { opacity: 0; transform: translate3d(0, 16px, 0); transition-duration: 0.2s; transition-delay: 0s; }
+.js .arc-grid.fading > :is(.arc-card, .world) { opacity: 0; transform: translate3d(0, 16px, 0); transition-duration: 0.2s; transition-delay: 0s; }
 .arc-more { margin-top: 36px; }
 /* the filters as a dock at the foot of the screen once the list has been read past them, gone again near its end; on a phone
    the pills slide sideways inside it */
