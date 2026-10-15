@@ -15,6 +15,8 @@ import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
 import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
 import { STACK } from './stack-tools.js';
+import { minifyJS, minifyCSS } from './jsmin.js';
+import vm from 'node:vm';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const ORIGIN = 'https://navygibran.dev';
@@ -150,13 +152,48 @@ const CLIENTS = [
   { key: 'yukti-rasa-mitrabumi', name: 'PT. Yukti Rasa Mitrabumi' }, { key: 'nf-optical', name: 'NF Optical' }, { key: 'godjah-studio', name: 'Godjah Studio' },
   { key: 'miniatur-kapal', name: 'Miniatur Kapal', word: ['Miniatur', 'Kapal'] }, { key: 'gracia-box', name: 'Gracia Box' },
   { key: 'orthobone', name: 'Orthobone' }, { key: 'recon', name: 'Recon' }, { key: 'fortunarack', name: 'Fortunarack' }, { key: 'izzi', name: 'Izzi' },
-  { key: 'rameinaja', name: 'RameinAja, now Reparty Indonesia', word: ['Ramein', 'Aja'] }, { key: 'little-aivy', name: 'Little Aivy' }, { key: 'airon', name: 'Airon' },
+  { key: 'rameinaja', name: 'RameinAja', now: 'Reparty Indonesia', word: ['Ramein', 'Aja'] }, { key: 'little-aivy', name: 'Little Aivy' }, { key: 'airon', name: 'Airon' },
   { key: 'fls-group-indonesia', name: 'FLS Group Indonesia' }, { key: 'the-bedji-group', name: 'The Bedji Group' }, { key: 'godtive', name: 'Godtive' },
   { key: 'duta-mesh', name: 'CV. Duta Mesh' }, { key: 'kusen-tangsel', name: 'Kusen Tangsel, Gita Makmur Aluminium' }, { key: 'nudelisius', name: 'Nudelisius' },
   // (Ur Branded Bae's mark: the white letters, ring and sparkles lifted off its gradient badge; Rathera's site carries another
   // studio's logo, Yolaine Beauty Bar, so Rathera stays by name until Navy sends its own mark)
   { key: 'ur-branded-bae', name: 'Ur Branded Bae' }, { key: 'rathera-beauty-studio', name: 'Rathera Beauty Studio', word: ['Rathera', 'Beauty Studio'] },
 ];
+// the transparent pixel an <img> holds until the page script gives it a picture
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+// a client's name as the page says it: a business that has since taken another name says so, in the page's language
+const clientName = (c) => (c.now ? c.name + t('nowSuffix', { n: c.now }) : c.name);
+// a link elsewhere by the name the page's language gives it (the CV's file is "Résumé" in data.js, a word only English uses)
+const linkLabel = (l) => (l.label === 'Résumé' ? t('resumePdf') : l.label);
+// Navy as one person for search engines: one @id on every page and in every language (the home at / is the entity's home), so
+// the home, the story, the CV and the projects all speak of the same Navy Gibran rather than three of him
+const PERSON_ID = `${ORIGIN}/#person`;
+function personLd(D, image) {
+  const pic = image || (exists('site/portrait.webp') ? 'site/portrait.webp' : 'og.png');
+  return {
+    '@type': 'Person', '@id': PERSON_ID, name: 'Navy Gibran', url: `${ORIGIN}/`, image: `${ORIGIN}/${pic}`, jobTitle: t('jobTitle'), description: t('ldDesc'),
+    ...(D.SITE.email ? { email: `mailto:${D.SITE.email}` } : {}), ...(D.SITE.whatsapp ? { telephone: `+${String(D.SITE.whatsapp).replace(/\D/g, '')}` } : {}),
+    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Multimedia Nusantara' },
+    worksFor: { '@type': 'Organization', name: 'PT. Gajah Terbang Kreatif', url: 'https://gajahterbangkreatif.id/' },
+    address: { '@type': 'PostalAddress', addressCountry: 'ID' },
+    knowsAbout: STACK.flat(), knowsLanguage: ['id', 'en', 'zh'],
+    sameAs: D.SITE.links.filter((l) => /linkedin|github|x\.com/.test(l.href)).map((l) => l.href),
+  };
+}
+const ldScript = (o) => `<script type="application/ld+json">${JSON.stringify(o).replace(/</g, '\\u003c')}</script>`;
+// a description for search results: whole sentences up to about 155 characters (about 80 in Chinese, whose characters are wider),
+// cut at the last sentence or clause that fits, never inside a word, and marked with an ellipsis only when something was cut
+function metaCut(s, lang = LANG) {
+  const max = lang === 'zh' ? 80 : 155;
+  s = String(s || '').replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const stop = Math.max(...['. ', '。', '! ', '? ', '；', '; '].map((x) => cut.lastIndexOf(x)));
+  if (stop > max * 0.5) return cut.slice(0, stop + 1).trim();
+  const soft = Math.max(...[': ', ', ', '：', '，', '、'].map((x) => cut.lastIndexOf(x)));
+  if (soft > max * 0.6) return cut.slice(0, soft).trim() + (lang === 'zh' ? '……' : '...');
+  return cut.replace(/\s+\S*$/, '').replace(/[,.;:]$/, '') + (lang === 'zh' ? '……' : '...');
+}
 
 // what I build, by kind of work ("territories"): the proof (project pages) is here, the words are in i18n.js, in the same order
 const TERRITORIES = [
@@ -165,7 +202,7 @@ const TERRITORIES = [
   { proof: ['flora-indonesia', 'orthobone', 'fls-group-indonesia'] },
   { proof: ['godjah-studio', 'winfaith'] },
   // (`also` adds a place that is not a project page: the desk itself is the proof here)
-  { proof: ['godjah-studio', 'winfaith'], also: '/3d/' },
+  { proof: ['godjah-studio', 'winfaith'], also: '/3d/', labs: true },
   // (Web3 is in the toolbox below, not a territory: there is no project to show for it yet, and a territory without proof reads as padding)
 ];
 
@@ -275,9 +312,7 @@ function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jp
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <meta name="author" content="Navy Gibran">
-<link rel="canonical" href="${url}">
-${alts}
-<meta name="robots" content="${noindex ? 'noindex' : 'index, follow, max-image-preview:large'}">
+${noindex ? '' : `<link rel="canonical" href="${url}">\n${alts}\n`}<meta name="robots" content="${noindex ? 'noindex' : 'index, follow, max-image-preview:large'}">
 <meta name="theme-color" content="${esc(theme)}">
 <meta name="color-scheme" content="dark">
 <meta property="og:type" content="website">
@@ -302,8 +337,9 @@ ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alt
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/site/fonts/barlow-condensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/fonts/instrument-serif-400-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/site/fonts/newsreader-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 ${ADOBE_KIT ? `<link rel="stylesheet" href="https://use.typekit.net/${esc(ADOBE_KIT)}.css">\n` : ''}<script>(function(d){${viewFwd}${forward}d.classList.replace('no-js','js');try{if(window.top!==window.self)d.classList.add('in-desk')}catch(e){}try{var k=Math.max(1,Math.min(innerWidth/1600,innerHeight/900));if(k>1.02&&CSS.supports('zoom','1.5')){d.style.setProperty('--k',k.toFixed(4));d.style.zoom=k.toFixed(4)}}catch(e){}try{if(localStorage.getItem('nv-motion')==='off')d.classList.add('motion-off')}catch(e){}try{var s=sessionStorage,c=s.getItem('nv-curtain');if(c){d.classList.add('curtain-on');if(c!=='1'){d.style.setProperty('--curtain',c);d.classList.add('curtain-tint')}s.removeItem('nv-curtain')}${intro ? "if(!c&&!s.getItem('nv-intro')&&!d.classList.contains('in-desk')&&!d.classList.contains('motion-off')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro-on')" : ''}}catch(e){}})(document.documentElement)</script>
-<style>${css}</style>
+<style>${minCss(css)}</style>
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/3d/*"}}]},"eagerness":"moderate"},{"where":{"href_matches":"/3d/*"},"eagerness":"conservative"}]}</script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script>
 ${extra}</head>`;
@@ -357,14 +393,14 @@ function header(current, pathname, D = null) {
 ${D ? menuSimple(D, current, pathname) : `<div class="menu" id="menu" aria-hidden="true">
   <div class="menu-bg" aria-hidden="true">${MARK()}</div>
   <nav class="menu-links" aria-label="${esc(t('menuMain'))}">
-    ${item(u('/full/#work'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: WORLDS.length + (+(LABS_META.menu.sub.match(/\d+/) || [0])[0]) })))}
+    ${item(u('/work/'), '01', t('m_work'), 'work', 0, '', esc(t('ms_work', { n: '__N_PROJECTS__' })))}${item(u('/full/#clients'), '02', t('m_clients'), 'clients', 1, '', esc(t('ms_clients', { n: '__N_CLIENTS__' })))}${item(u('/full/#territories'), '03', t('m_terr'), 'terr', 2, '', esc(t('ms_terr', { n: nTerr })))}${item(u('/full/#path'), '04', t('m_path'), 'path', 3, '', esc(t('ms_path')))}${item(u('/full/#contact'), '05', t('m_contact'), 'contact', 4, '', esc(t('ms_contact')))}${item('/3d/', '06', t('m_desk'), 'desk', 5, t('m_deskEm'), esc(t('ms_desk')))}${item(u('/labs/'), '07', t('m_labs'), 'labs', 6, '', esc(t('ms_labs', { n: WORLDS.length + (+(LABS_META.menu.sub.match(/\d+/) || [0])[0]) })))}
   </nav>
   <div class="menu-side">
     <div class="menu-pv" aria-hidden="true">${pv}<span class="menu-pv-mark">${MARK()}</span><span class="menu-pv-cap"><b></b><span></span></span></div>
     <p>${esc(t('menuBlurb'))}</p>
     <p class="menu-now"><span class="dot" aria-hidden="true"></span><span><b>${esc(t('now'))}</b> ${esc(cap1(t('nowLine')))}</span></p>
     <p class="menu-now menu-status"><span class="dot dot--open" aria-hidden="true"></span><span>${esc(`${t('status')} · ${t('where')}`)}</span></p>
-    <button class="menu-find" type="button" data-palette><span>${esc(t('find'))}</span><kbd data-kbd>Ctrl K</kbd></button>
+    <div class="menu-acts"><button class="menu-find" type="button" data-palette><span>${esc(t('find'))}</span><kbd data-kbd>Ctrl K</kbd></button><a class="menu-find menu-cv" href="${u('/cv/')}"${current === 'cv' ? ' aria-current="page"' : ''}><span>${esc(t('m_cv'))}</span></a></div>
     <div><span class="lbl">${esc(t('elsewhere'))}</span><ul>__MENU_LINKS__</ul></div>
     ${langSwitch(pathname)}
     <span class="lbl menu-clock" data-clock>${esc(t('clock'))}</span>
@@ -374,7 +410,7 @@ ${D ? menuSimple(D, current, pathname) : `<div class="menu" id="menu" aria-hidde
 }
 
 function footer(D, simple = false) {
-  const links = D.SITE.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a>`).join('');
+  const links = D.SITE.links.map((l) => `<a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a>`).join('');
   const bar = `<div class="foot-bar"><span>© ${esc(D.SITE.copyright || D.SITE.year)} Navy Gibran</span><button class="motion" type="button" aria-pressed="false">${esc(t('motion'))} <b>${esc(t('on'))}</b></button><em>${esc(t('motto'))}</em><span data-clock>${esc(t('clock'))}</span><a href="#top" class="to-top">${roll(t('toTop'))} <span class="up" aria-hidden="true">↑</span></a></div>`;
   // the simple reading's footer: the mark and the name, the links elsewhere, the bar; no giant letters, no columns
   if (simple) return `<footer class="foot foot--simple" data-scene="foot" data-hide-tab>
@@ -396,7 +432,24 @@ function footer(D, simple = false) {
 </footer>`;
 }
 
-const tail = (js) => `<script>${js}</script>\n</body>\n</html>\n`;
+const minCache = new Map();
+function minJs(js) {
+  if (minCache.has(js)) return minCache.get(js);
+  let out = js;
+  try {
+    const m = minifyJS(js), again = minifyJS(m.code);
+    if (again.code === m.code && again.tokens.length === m.tokens.length) { new vm.Script(m.code); out = m.code; }
+  } catch (e) { console.warn('page script left unminified:', e.message); }
+  minCache.set(js, out);
+  return out;
+}
+function minCss(css) {
+  if (minCache.has(css)) return minCache.get(css);
+  let out = css; try { out = minifyCSS(css); } catch (e) { console.warn('page CSS left unminified:', e.message); }
+  minCache.set(css, out);
+  return out;
+}
+const tail = (js) => `<script>${minJs(js)}</script>\n</body>\n</html>\n`;
 
 // ---------- home
 function home(D, ctx) {
@@ -427,7 +480,7 @@ function home(D, ctx) {
           ${did ? `<ul class="case-did">${did.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
           <span class="case-cta">${esc(t('viewProject'))} ${circleGo}</span>
         </div>
-        <div class="case-media"><div class="case-big"${m.shots.length > 1 ? ` data-shots="${esc(JSON.stringify(m.shots.map((s) => '/' + s)))}"` : ''}>${m.cover ? img(m.cover, t('screenshot', { t: p.title }), { sizes: '(min-width: 1100px) 56vw, 100vw' }) : plate(p)}${m.shots.length > 1 ? `<img class="case-alt" alt="" aria-hidden="true" decoding="async"><img class="case-alt" alt="" aria-hidden="true" decoding="async"><span class="case-bars" aria-hidden="true">${m.shots.map(() => '<i></i>').join('')}</span>` : ''}</div>${small}</div>
+        <div class="case-media"><div class="case-big"${m.shots.length > 1 ? ` data-shots="${esc(JSON.stringify(m.shots.map((s) => '/' + s)))}"` : ''}>${m.cover ? img(m.cover, t('screenshot', { t: p.title }), { sizes: '(min-width: 1100px) 56vw, 100vw' }) : plate(p)}${m.shots.length > 1 ? `<img class="case-alt" alt="" src="${BLANK}" aria-hidden="true" decoding="async"><img class="case-alt" alt="" src="${BLANK}" aria-hidden="true" decoding="async"><span class="case-bars" aria-hidden="true">${m.shots.map(() => '<i></i>').join('')}</span>` : ''}</div>${small}</div>
         <span class="case-ghost" aria-hidden="true">${pad(i + 1)}</span>
       </a>
     </li>`;
@@ -447,11 +500,11 @@ function home(D, ctx) {
 
   // ---- the client loop: two rows that run opposite ways, faster when the page moves
   const logo = (c) => {
-    if (c.word) return `<a class="logo" href="${u(`/work/${c.key}/`)}" tabindex="-1"><span class="logo-word">${esc(c.word[0])} <em>${esc(c.word[1])}</em></span><span class="logo-n">${esc(c.name)}</span></a>`;
+    if (c.word) return `<a class="logo" href="${u(`/work/${c.key}/`)}" tabindex="-1"><span class="logo-word">${esc(c.word[0])} <em>${esc(c.word[1])}</em></span><span class="logo-n">${esc(clientName(c))}</span></a>`;
     const f = `site/logos/${c.key}.webp`, d = imgSize(f);
     if (!d) return '';
     const a = d.w / d.h, h = Math.min(1.1, Math.max(0.5, 1.05 / Math.sqrt(a)));
-    return `<a class="logo" href="${u(`/work/${c.key}/`)}" tabindex="-1" style="--w:${(h * a).toFixed(3)};--h:${h.toFixed(3)};--m:url(/${f})"><span class="logo-m"></span><span class="logo-n">${esc(c.name)}</span></a>`;
+    return `<a class="logo" href="${u(`/work/${c.key}/`)}" tabindex="-1" style="--w:${(h * a).toFixed(3)};--h:${h.toFixed(3)};--m:url(/${f})"><span class="logo-m"></span><span class="logo-n">${esc(clientName(c))}</span></a>`;
   };
   const you = `<a class="logo logo--you" href="#contact" tabindex="-1">${esc(t('yourLogo'))}</a>`;
   const half = Math.ceil(CLIENTS.length / 2);
@@ -465,7 +518,7 @@ function home(D, ctx) {
       <div class="t-row"><span class="t-num">${pad(i + 1)}</span><h3 class="t-title">${esc(w.title)}</h3><span class="t-plus" aria-hidden="true"></span></div>
       <div class="t-run" aria-hidden="true"><div class="t-run-t">${Array(4).fill(`<span>${esc(w.title)}</span><i>✦</i>`).join('')}</div><div class="t-run-t">${Array(4).fill(`<span>${esc(w.title)}</span><i>✦</i>`).join('')}</div></div>
       <div class="t-body"><p>${esc(w.body)}</p><div class="t-items">${w.items.map((x) => `<span>${esc(x)}</span>`).join('')}</div>
-        <p class="t-proof">${tr.proof.length ? `${esc(t('seenIn'))} ${proof}${tr.also ? ` ${esc(t('and'))} <a href="${tr.also}" data-track="3d_cta_click" data-from="territory">${esc(t('theDesk'))}</a>` : ''}` : esc(t('experimental'))}</p></div>
+        <p class="t-proof">${tr.proof.length ? `${esc(t('seenIn'))} ${proof}${tr.labs ? `, <a href="${u('/labs/')}">${esc(t('m_labs'))}</a>` : ''}${tr.also ? ` ${esc(t('and'))} <a href="${tr.also}" data-track="3d_cta_click" data-from="territory">${esc(t('theDesk'))}</a>` : ''}` : esc(t('experimental'))}</p></div>
     </li>`;
   }).join('');
 
@@ -489,16 +542,7 @@ function home(D, ctx) {
   const heroFacts = [t('fact_sites', { n: clientSites.length }), t('fact_godplan'), t('fact_stack')];
   const rotate = t('rotate');
 
-  const ld = {
-    '@context': 'https://schema.org', '@type': 'Person', name: 'Navy Gibran', url: `${ORIGIN}${u('/')}`, image: `${ORIGIN}/${heroPhoto || (exists('site/portrait.webp') ? 'site/portrait.webp' : 'og.png')}`, jobTitle: t('jobTitle'),
-    description: t('ldDesc'),
-    alumniOf: { '@type': 'CollegeOrUniversity', name: 'Universitas Multimedia Nusantara' },
-    worksFor: { '@type': 'Organization', name: 'PT. Gajah Terbang Kreatif' },
-    address: { '@type': 'PostalAddress', addressCountry: 'ID' },
-    knowsAbout: ['Go', 'Next.js', 'React', 'TypeScript', 'Node.js', 'PostgreSQL', 'MySQL', 'Docker', 'Tailwind CSS', 'WordPress', 'WooCommerce', 'PHP', 'Solidity'],
-    knowsLanguage: ['id', 'en', 'zh'],
-    sameAs: D.SITE.links.filter((l) => /linkedin|github|x\.com/.test(l.href)).map((l) => l.href),
-  };
+  const ld = { '@context': 'https://schema.org', ...personLd(D, heroPhoto) };
 
   // (the story lives at /full/: the home itself is the simple page, which carries the intro and the gate; see simplePage)
   return head({
@@ -551,7 +595,7 @@ ${header('home', '/full/')}
       <ul class="index-list" data-stagger>${index}</ul>
       <a class="btn arc-more" href="${u('/work/')}" data-magnet data-reveal>${roll(t('archiveBtn'))} ${arrowR}</a>
     </div>
-    <div class="ix-preview" aria-hidden="true"><img alt=""></div>
+    <div class="ix-preview" aria-hidden="true"><img alt="" src="${BLANK}"></div>
   </section>
 
   <div class="cream" data-scene="cream">
@@ -563,7 +607,7 @@ ${header('home', '/full/')}
       </div>
       ${row(CLIENTS.slice(0, half), 1)}
       ${row(CLIENTS.slice(half), -1)}
-      <ul class="sr">${CLIENTS.map((c) => `<li>${esc(c.name)}</li>`).join('')}</ul>
+      <ul class="sr">${CLIENTS.map((c) => `<li>${esc(clientName(c))}</li>`).join('')}</ul>
     </section>
 
     <section class="diff wrap" id="difference" aria-labelledby="diff-h" data-sec="${esc(t('diff'))}">
@@ -616,7 +660,7 @@ ${header('home', '/full/')}
 
   <section class="teaser" id="desk" aria-labelledby="desk-h" data-teaser data-scene="teaser" data-hide-tab data-sec="${esc(t('deskSec'))}">
     <div class="teaser-pin">
-      <div class="teaser-frame">${img(deskShot, t('teaserAlt'), { cls: 'teaser-img', sizes: '100vw' })}${exists('site/desk-loop.mp4') ? `<video class="teaser-video" muted loop playsinline preload="none"aria-hidden="true" tabindex="-1" data-webm="${exists('site/desk-loop.webm') ? '/site/desk-loop.webm' : ''}" data-mp4="/site/desk-loop.mp4"></video>` : ''}${turnN > 1 ? `<canvas class="teaser-turn" width="1280" height="720" data-n="${turnN}" aria-hidden="true"></canvas>` : ''}</div>
+      <div class="teaser-frame">${img(deskShot, t('teaserAlt'), { cls: 'teaser-img', sizes: '100vw' })}${exists('site/desk-loop.mp4') ? `<video class="teaser-video" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1" data-webm="${exists('site/desk-loop.webm') ? '/site/desk-loop.webm' : ''}" data-mp4="/site/desk-loop.mp4"></video>` : ''}${turnN > 1 ? `<canvas class="teaser-turn" width="1280" height="720" data-n="${turnN}" aria-hidden="true"></canvas>` : ''}</div>
       <div class="teaser-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       <p class="teaser-top" aria-hidden="true"><span class="cap">${esc(t('thisIs'))}</span> <em>${esc(t('theDeskEm'))}</em></p>
       <div class="teaser-in wrap">
@@ -675,7 +719,7 @@ function storySection(p) {
         <div class="story-col" data-reveal><span class="lbl">${esc(t('approach'))}</span><p>${esc(s.approach)}</p></div>
       </div>
       <ol class="notes story-notes" data-stagger>${s.decisions.map((d, k) => `<li style="--i:${k}"><span class="n">${pad(k + 1)}</span><h3>${esc(d.title)}</h3><p>${esc(d.body)}</p></li>`).join('')}</ol>
-      <p class="story-next" data-reveal><em>${esc(s.next)}</em></p>
+      ${s.next ? `<p class="story-next" data-reveal><em>${esc(s.next)}</em></p>` : ''}
     </section>`;
 }
 
@@ -747,7 +791,7 @@ function projectPage(D, ctx, p) {
   const live = redesign ? `<a class="btn btn-fill" ${pAttrs(redesign)} data-magnet>${roll(t('seeUpgrade', { t: redesign.title }))} ${arrowR}</a>` : p.url && !p.now ? `<a class="btn btn-fill" href="${esc(p.url)}" target="_blank" rel="noopener" data-track="project_live" data-project="${p.key}" data-magnet>${roll(t('visit', { h: host(p.url) }))} ${arrow}</a>` : '';
   const firstBtn = first ? `<a class="btn" ${pAttrs(first)} data-magnet>${roll(t('seeFirst'))} ${arrowR}</a>` : '';
   const similar = `<a class="btn btn-ghost" href="${esc(wa(D.SITE.whatsapp, t('waSimilar', { t: p.title })))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-magnet>${roll(t('similar'))} ${arrow}</a>`;
-  const status = p.now ? t('nowIs', { t: p.now.name }) : p.date === 'live' ? (p.year ? t('liveBuilt', { y: p.year }) : t('live')) : p.date === 'previous design' ? t('firstVersion') : cap1(p.date);
+  const status = p.now ? t('nowIs', { t: p.now.name }) : p.date === 'live' ? (p.year ? t('liveBuilt', { y: p.year }) : t('live')) : p.date === 'previous design' ? t('firstVersion') : cap1(tp(p, 'date'));
   const tag = world ? world.tagline : tp(p, 'industry');
   // a business that has moved on under another name: said in words, with a link to where it is today (no picture)
   const now = p.now ? `<aside class="p-now" data-reveal>${kick(t('today'))}<p>${esc(t('nowNote', { t: p.title, n: '\u0001' })).replace('\u0001', `<a href="${esc(p.now.url)}" target="_blank" rel="noopener">${esc(p.now.name)} ${arrow}</a>`)}</p></aside>` : '';
@@ -796,15 +840,16 @@ function projectPage(D, ctx, p) {
   </section>`;
   const pathname = `/work/${p.key}/`;
 
-  const ld = { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: desc, url: `${ORIGIN}${u(pathname)}`, inLanguage: L.html, creator: { '@type': 'Person', name: 'Navy Gibran', url: `${ORIGIN}${u('/')}` }, keywords: p.stack.split(' · ').join(', '), ...(p.url && !p.now ? { sameAs: p.url } : {}), ...(m.cover ? { image: `${ORIGIN}/${m.cover}` } : {}) };
+  const ld = { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: desc, url: `${ORIGIN}${u(pathname)}`, inLanguage: L.html, creator: { '@id': PERSON_ID }, ...(p.year ? { dateCreated: String(p.year) } : {}), keywords: p.stack.split(' · ').join(', '), ...(p.url && !p.now ? { sameAs: p.url } : {}), ...(m.cover ? { image: `${ORIGIN}/${m.cover}` } : {}) };
   // where the page sits, for search results: the portfolio, then this project
   const crumbs = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Navy Gibran', item: `${ORIGIN}${u('/')}` },
-    { '@type': 'ListItem', position: 2, name: p.title, item: `${ORIGIN}${u(pathname)}` },
+    { '@type': 'ListItem', position: 2, name: t('m_work'), item: `${ORIGIN}${u('/work/')}` },
+    { '@type': 'ListItem', position: 3, name: p.title, item: `${ORIGIN}${u(pathname)}` },
   ] };
   return head({
-    title: `${p.title} | Navy Gibran`,
-    description: desc.length > 158 ? desc.slice(0, 155).replace(/\s+\S*$/, '') + '...' : desc,
+    title: `${p.title}${LANG === 'zh' ? '：' : ': '}${tp(p, 'industry')} | Navy Gibran`,
+    description: metaCut(desc),
     pathname, css: ctx.css,
     image: exists(`site/og/${p.key}.jpg`) ? `${ORIGIN}/site/og/${p.key}.jpg` : undefined, imageAlt: t('ogProjectAlt', { t: p.title }), theme: tint(p).bg,
     extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n<script type="application/ld+json">${JSON.stringify(crumbs)}</script>\n`,
@@ -847,7 +892,7 @@ ${header('work', pathname)}
   <nav class="p-next wrap" aria-label="${esc(t('nextLbl'))}" data-scene="pnext">
     <a ${pAttrs(next)} data-cursor="${esc(t('cursorNext'))}" style="--nbg:${tint(next).bg}"${projectMedia(D, next).cover ? ` data-preview="/${projectMedia(D, next).cover}"` : ''}><span class="lbl">${esc(t('nextLbl'))}</span><span class="p-next-t">${esc(next.title)} ${arrowR}</span><span class="ind">${esc(tp(next, 'industry'))}</span></a>
   </nav>
-  <div class="ix-preview" aria-hidden="true"><img alt=""></div>
+  <div class="ix-preview" aria-hidden="true"><img alt="" src="${BLANK}"></div>
 </main>
 ${footer(D)}
 ` + tail(ctx.js);
@@ -880,6 +925,7 @@ ${header('work', '/work/')}
     <span class="p-kick" data-reveal>${kick(t('archive'))}</span>
     <h1 class="p-title cap" id="arc-h" data-split>${splitPair(t('allThe'), t('workEm'))}</h1>
     <p class="p-lead arc-lead" data-reveal>${esc(t('archiveLead', { n: list.length }))}</p>
+    <p class="arc-hub" data-reveal><a href="${u('/work/client-websites/')}">${esc(t('arcHub', { n: D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length }))} ${arrowR}</a></p>
     <div class="arc-filters" role="group" aria-label="${esc(t('showByKind'))}" data-reveal>${pills}<button type="button" class="pill-q" data-palette aria-label="${esc(t('searchAria'))}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span>${esc(t('search'))}</span><kbd data-kbd>Ctrl K</kbd></button></div>
     <p class="sr" role="status" id="arc-status"></p>
     <ol class="arc-grid" data-stagger>${cards}</ol>
@@ -911,12 +957,16 @@ function cvPage(D, ctx) {
   const P = (k) => D.PROJECTS.find((p) => p.key === k);
   const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design');
   const pathAll = C().path || CONTENT.en.path, layers = C().stack || CONTENT.en.stack;
-  const edu = pathAll[pathAll.length - 1], exp = pathAll.slice(0, -1);
+  // the rows are the same in every language; the English ones say which are schooling (`edu`), the rest is experience
+  const isEdu = (r, i) => !!(r.edu ?? CONTENT.en.path[i]?.edu);
+  const edu = pathAll.filter(isEdu), exp = pathAll.filter((r, i) => !isEdu(r, i));
   const pdf = D.SITE.links.find((l) => l.label === 'Résumé')?.href;
   const links = D.SITE.links.filter((l) => l.label !== 'Résumé');
   const facts = t('facts').map((f) => fill(f, { n: clientSites.length }));
-  const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => `<li><a ${pAttrs(p, 'cv')}><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(stackOf(p))}</span><p>${esc(featuredText(p.key).line)}</p></li>`).join('');
-  const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${t('cv_title')} | Navy Gibran`, url: `${ORIGIN}${u('/cv/')}`, inLanguage: L.html, mainEntity: { '@type': 'Person', name: 'Navy Gibran', jobTitle: t('jobTitle'), email: D.SITE.email ? `mailto:${D.SITE.email}` : undefined, url: `${ORIGIN}${u('/')}`, alumniOf: 'Universitas Multimedia Nusantara', worksFor: 'PT. Gajah Terbang Kreatif', knowsLanguage: ['id', 'en', 'zh'] } };
+  // a selected project as a recruiter reads it: the role, then the first thing built (the page's address shows when printed)
+  const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => { const did = tp(p, 'did') || p.did || [], role = tp(p, 'role') || p.role;
+    return `<li><a ${pAttrs(p, 'cv')} data-print="navygibran.dev${u(`/work/${p.key}/`)}"><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(stackOf(p))}</span>${role ? `<span class="cv-prole">${esc(role)}</span>` : ''}<p>${esc(did[0] || featuredText(p.key).line)}</p></li>`; }).join('');
+  const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${t('cv_title')} | Navy Gibran`, url: `${ORIGIN}${u('/cv/')}`, inLanguage: L.html, mainEntity: { '@id': PERSON_ID, ...personLd(D) } };
   return head({ title: `${t('cv_title')} | Navy Gibran`, description: t('cv_desc'), pathname: '/cv/', css: ctx.css, imageAlt: t('ogDefaultAlt'), extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` }) + `
 <body class="cv-page">
 ${header('cv', '/cv/')}
@@ -936,7 +986,7 @@ ${header('cv', '/cv/')}
       <h2 class="lbl">${esc(t('cv_exp'))}</h2>
       <ol class="cv-list">${exp.map((r) => `<li><span class="cv-when">${esc(r.when)}</span><div><h3>${esc(r.role)}</h3><span class="cv-org">${esc(r.org)}</span><p>${esc(r.body)}</p></div></li>`).join('')}</ol>
       <h2 class="lbl">${esc(t('cv_edu'))}</h2>
-      <ol class="cv-list"><li><span class="cv-when">${esc(edu.when)}</span><div><h3>${esc(edu.role)}</h3><span class="cv-org">${esc(edu.org)}</span><p>${esc(edu.body)}</p></div></li></ol>
+      <ol class="cv-list">${edu.map((r) => `<li><span class="cv-when">${esc(r.when)}</span><div><h3>${esc(r.role)}</h3><span class="cv-org">${esc(r.org)}</span><p>${esc(r.body)}</p></div></li>`).join('')}</ol>
       <h2 class="lbl">${esc(t('cv_sel'))}</h2>
       <ul class="cv-sel">${sel}</ul>
     </section>
@@ -962,7 +1012,7 @@ ${header('', '/')}
   ${kick('404')}
   <h1 class="p-title cap" data-split>${splitPair(t('nothing'), t('hereEm'))}</h1>
   <p class="p-lead" data-reveal>${esc(t('nfLine'))}</p>
-  <div class="p-actions" data-reveal><a class="btn btn-fill" href="${u('/')}" data-magnet>${roll(t('backPortfolio'))} ${arrowR}</a><a class="btn" href="/3d/" data-magnet>${roll(t('searchDesk'))} ${arrow}</a></div>
+  <div class="p-actions" data-reveal><a class="btn btn-fill" href="${u('/')}" data-magnet>${roll(t('backPortfolio'))} ${arrowR}</a><a class="btn" href="${u('/work/')}" data-magnet>${roll(t('f_all'))} ${arrowR}</a><a class="btn btn-ghost" href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="404" data-magnet>${roll(t('chat'))} ${arrow}</a></div>
   <section class="more nf-more" aria-labelledby="nf-more-h">
     <div class="more-head" data-reveal>${kick(t('startHere'))}<h2 class="sr" id="nf-more-h">${esc(t('startHere'))}</h2></div>
     <ul class="more-list" data-stagger>${['godplan-erp', 'winfaith', 'flora-indonesia'].map((k) => D.PROJECTS.find((x) => x.key === k)).filter(Boolean).map((x, k) => moreCard(D, x, k, 'notfound')).join('')}</ul>
@@ -1013,21 +1063,21 @@ function typeset(html) {
 function introHtml(D) {
   const posters = ['godplan-erp', 'godjah-studio', 'winfaith', 'flora-indonesia', 'fls-group-indonesia', 'dams-garage'].filter((k) => exists(`site/intro/${k}.webp`));
   const deskShot = exists('site/desk-wide-800.webp') ? 'site/desk-wide-800.webp' : exists('site/desk-wide.webp') ? 'site/desk-wide.webp' : 'og.png';
-  return `<div class="intro" id="intro" aria-hidden="true">
-  <div class="intro-posters">${posters.map((k, i) => `<figure style="--i:${i}"><img src="/site/intro/${k}.webp" alt="" width="240" height="320">${MARK()}</figure>`).join('')}</div>
-  <div class="intro-in">${MARK('intro-mark')}<div class="intro-word"><div class="iw-o"><span>Navy</span><span>Gibran</span></div><div class="iw-f"><span>Navy</span><span>Gibran</span></div></div><div class="intro-sub">${esc(t('role'))}</div></div>
-  <div class="intro-gate" hidden>
+  return `<div class="intro" id="intro">
+  <div class="intro-posters" aria-hidden="true">${posters.map((k, i) => `<figure style="--i:${i}"><img src="/site/intro/${k}.webp" alt="" width="240" height="320">${MARK()}</figure>`).join('')}</div>
+  <div class="intro-in" aria-hidden="true">${MARK('intro-mark')}<div class="intro-word"><div class="iw-o"><span>Navy</span><span>Gibran</span></div><div class="iw-f"><span>Navy</span><span>Gibran</span></div></div><div class="intro-sub">${esc(t('role'))}</div></div>
+  <div class="intro-gate" role="dialog" aria-modal="true" aria-labelledby="intro-gate-t" hidden>
     <span class="kick">${esc(t('gateKick'))}</span>
-    <h2 class="intro-gate-t">${esc(t('gateTitle'))}</h2>
+    <h2 class="intro-gate-t" id="intro-gate-t">${esc(t('gateTitle'))}</h2>
     <div class="intro-doors">
       <button class="intro-door" type="button" data-view="simple"><span class="door-pic door-pic--simple" aria-hidden="true"><i class="door-face">${exists('site/portrait.webp') ? '<img src="/site/portrait.webp" alt="" width="640" height="800" loading="lazy" decoding="async">' : ''}</i><i class="door-line door-line--1"></i><i class="door-line door-line--2"></i><i class="door-line door-line--3"></i><i class="door-rows"><b></b><b></b><b></b></i></span><b class="door-t">${esc(t('gateSimple'))}</b><small class="door-s">${esc(t('gateSimpleSub'))}</small></button>
       <a class="intro-door" href="${u('/full/')}" data-view="full"><span class="door-pic door-pic--full" aria-hidden="true"><img src="/${deskShot}" alt="" width="800" height="450" loading="lazy" decoding="async"><i class="door-cap"><b>Navy</b><b>Gibran</b></i></span><b class="door-t">${esc(t('gateFull'))}</b><small class="door-s">${esc(t('gateFullSub'))}</small></a>
     </div>
     <p class="intro-gate-hint">${esc(t('gateHint'))} <a href="/3d/" data-track="3d_cta_click" data-from="gate">${esc(t('gate3d'))} ${arrow}</a></p>
   </div>
-  <span class="intro-foot lbl">${esc(t('introFoot', { y: D.SITE.year }))}</span>
+  <span class="intro-foot lbl" aria-hidden="true">${esc(t('introFoot', { y: D.SITE.year }))}</span>
   <button class="intro-skip" type="button" tabindex="-1">${esc(t('skipIntro'))}</button>
-  <span class="intro-count">00</span>
+  <span class="intro-count" aria-hidden="true">00</span>
 </div>`;
 }
 
@@ -1035,12 +1085,24 @@ function introHtml(D) {
 // who look and then call; the intro and the gate play over it, and "Full" leads to the story at /full/
 function simplePage(D, ctx) {
   const Cn = C();
-  const clients = CLIENTS.map((c) => ({ key: c.key, name: c.name, word: c.word || null }));
+  const clients = CLIENTS.map((c) => ({ key: c.key, name: clientName(c), word: c.word || null }));
   const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia,
     services: (Cn.territories || CONTENT.en.territories).map((x, i) => ({ title: x.title, body: x.body, items: x.items || [], also: TERRITORIES[i]?.also || '', proof: (TERRITORIES[i]?.proof || []).map((k) => D.PROJECTS.find((q) => q.key === k)).filter(Boolean).map((q) => ({ key: q.key, title: q.title })) })),
     process: Cn.process || CONTENT.en.process });
-  const preload = ['site/desk-wide-800.webp', 'site/portrait.webp'].filter(exists).map((f) => `<link rel="preload" as="image" href="/${f}" fetchpriority="high">`).join('\n');
-  return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
+  const set = (list) => list.filter(([f]) => exists(f)).map(([f, w]) => `/${f} ${w}w`).join(', ');
+  const bannerSet = set([['site/desk-wide-800.webp', 800], ['site/desk-wide.webp', 1920]]);
+  const faceSet = set([['site/portrait-240.webp', 240], ['site/portrait-360.webp', 360], ['site/portrait.webp', 640]]);
+  const preload = [
+    bannerSet && `<link rel="preload" as="image" href="/site/desk-wide-800.webp" imagesrcset="${bannerSet}" imagesizes="(min-width: 800px) 760px, 100vw" fetchpriority="high">`,
+    // (the portrait only by its srcset once the small copies exist; before that, the one file the <img> asks for)
+    faceSet.includes('portrait-240') ? `<link rel="preload" as="image" href="/site/portrait.webp" imagesrcset="${faceSet}" imagesizes="(max-width: 480px) 100px, 116px">` : exists('site/portrait.webp') ? '<link rel="preload" as="image" href="/site/portrait.webp">' : '',
+  ].filter(Boolean).join('\n');
+  const graph = { '@context': 'https://schema.org', '@graph': [
+    { '@type': 'WebSite', '@id': `${ORIGIN}/#website`, url: `${ORIGIN}/`, name: 'Navy Gibran', inLanguage: LANG_ORDER.map((l) => LANGS[l].html), publisher: { '@id': PERSON_ID } },
+    { '@type': 'ProfilePage', '@id': `${ORIGIN}${u('/')}#page`, url: `${ORIGIN}${u('/')}`, name: t('t_home'), description: t('d_simple'), inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, mainEntity: { '@id': PERSON_ID } },
+    personLd(D),
+  ] };
+  return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' + ldScript(graph) + '\n' }) + `
 <body class="home home-profile">
 ${introHtml(D)}
 ${header('simple', '/', D)}
@@ -1052,7 +1114,7 @@ ${footer(D, true)}
 // ---------- everything, per language: { 'index.html', 'work/<key>/index.html', 'labs/index.html', 'en/index.html', ...,
 // '404.html' (the default language), 'sitemap.xml', 'robots.txt' }
 export async function renderSite() {
-  const D = await loadData();
+  const D0 = await loadData(), D = D0;
   // big screens are zoomed as a whole (the page's head script sets zoom and --k, from 1600px wide up); zoom multiplies viewport
   // units too, so every vh and vw is divided by --k here, and the held scenes stay exactly one screen tall
   const css = read('site/site.css').replace(/(?<![\w.#-])(\d*\.?\d+)(svh|dvh|lvh|vh|vw|vmin|vmax)\b/g, 'calc($1$2 / var(--k, 1))');
@@ -1064,13 +1126,16 @@ export async function renderSite() {
   const out = {};
   for (const lang of LANG_ORDER) {
     setLang(lang);
+    // (the projects under the names this language gives them: only a few have one, the hub's "Client Websites" first)
+    const DL = { ...D0, PROJECTS: D0.PROJECTS.map((p) => (PROJECTS_T[lang]?.[p.key]?.title ? { ...p, title: PROJECTS_T[lang][p.key].title } : p)) };
+    const D = DL;
     const ctx = { css: cssAll, js: jsSrc };
     ctx.js = ctx.js.replace('__DESK_TARGETS__', JSON.stringify(targets)).replace('__PROJECTS__', JSON.stringify(D.PROJECTS.map((p) => p.key)))
-      .replace('__INDEX__', JSON.stringify({ p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [l.label, l.href]) }).replace(/</g, '\\u003c'))
+      .replace('__INDEX__', JSON.stringify({ p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]) }).replace(/</g, '\\u003c'))
       .replace('__PREFIX__', JSON.stringify(PFX)).replace('__LANG__', JSON.stringify(lang)).replace('__JS_T__', JSON.stringify(t('js')).replace(/</g, '\\u003c'));
-    const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a></li>`).join('');
+    const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
     // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
-    const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(l.label)}</a></li>`).join('');
+    const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
     const fillAll = (html) => typeset(html.replace('__MENU_LINKS__', menuLinks).replace('__ELSE_LINKS__', elseLinks).replace(/__N_PROJECTS__/g, counted(D).length).replace(/__N_CLIENTS__/g, nClients).replace(/__YEAR__/g, esc(D.SITE.copyright || D.SITE.year)));
     const dir = PFX ? PFX.slice(1) + '/' : '';
     out[`${dir}index.html`] = fillAll(simplePage(D, ctx));
@@ -1082,12 +1147,11 @@ export async function renderSite() {
     if (lang === DEFAULT_LANG) out['404.html'] = fillAll(notFound(D, ctx));
   }
   setLang(DEFAULT_LANG);
-  const today = new Date().toISOString().slice(0, 10);
   const paths = ['/', '/full/', '/work/', '/labs/', '/cv/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
   const alt = (pth) => LANG_ORDER.map((l) => `<xhtml:link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pth}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${pth}"/>`;
   const urls = [];
-  for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><lastmod>${today}</lastmod><priority>${pth === '/' ? '1.0' : pth === '/full/' ? '0.9' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}</url>`);
-  urls.push(`  <url><loc>${ORIGIN}/3d/</loc><lastmod>${today}</lastmod><priority>0.8</priority></url>`);
+  for (const pth of paths) for (const l of LANG_ORDER) urls.push(`  <url><loc>${ORIGIN}${LANGS[l].prefix}${pth}</loc><priority>${pth === '/' ? '1.0' : pth === '/full/' ? '0.9' : pth === '/work/' || pth === '/labs/' ? '0.8' : '0.6'}</priority>${alt(pth)}</url>`);
+  urls.push(`  <url><loc>${ORIGIN}/3d/</loc><priority>0.8</priority></url>`);
   out['sitemap.xml'] = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
   out['robots.txt'] = `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`;
   // no dashes in anything the site shows (Navy's rule)

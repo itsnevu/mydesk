@@ -5,12 +5,12 @@
 
 export const PROJECTS_T = {
   id: {
-    'godplan-erp': { industry: 'HR & tenaga kerja', role: 'Arsitektur dan pengembangan full-stack',
+    'godplan-erp': { date: 'sejak Juli 2025', industry: 'HR & tenaga kerja', role: 'Arsitektur dan pengembangan full-stack',
       description: 'Satu sistem untuk bagian-bagian menjalankan perusahaan yang biasanya tercecer di empat aplikasi dan satu spreadsheet: karyawan, absensi dan cuti, penggajian, tugas dan CRM. Arsitektur dan pengembangan full-stack di PT. Gajah Terbang Kreatif, dibangun untuk ponsel juga.',
       did: ['Arsitekturnya: layanan Go di atas PostgreSQL, front end Next.js dan TypeScript, dirilis dengan Docker', 'Autentikasi dan modul karyawan, dengan jumlah karyawan yang ditarik ke dashboard', 'Dashboard: jumlah karyawan, absensi hari ini, tugas tertunda dan penggajian bulanan dalam satu layar', 'Kesehatan sistem (status database, penyimpanan, backup) ditampilkan di antarmuka, bukan terkubur di server', 'Dibangun untuk ponsel juga'],
       modules: ['Dashboard', 'Karyawan', 'Absensi & cuti', 'Penggajian', 'Tugas', 'CRM', 'Kesehatan sistem'] },
-    'client-websites': { industry: '10+ industri', description: 'Dua puluh tiga website live untuk bisnis Indonesia: tujuh belas situs WordPress, empat toko WooCommerce dan dua aplikasi custom, dengan SvelteKit dan Next.js. Tidak ada satu pun yang mockup: semuanya tercantum di bawah, masing-masing dengan halamannya sendiri.' },
-    jakasn: { industry: 'Pemerintahan (GovTech)', role: 'Full-stack developer intern',
+    'client-websites': { title: 'Website Klien', industry: '10+ industri', description: 'Dua puluh tiga website live untuk bisnis Indonesia: tujuh belas situs WordPress, empat toko WooCommerce dan dua aplikasi custom, dengan SvelteKit dan Next.js. Tidak ada satu pun yang mockup: semuanya tercantum di bawah, masing-masing dengan halamannya sendiri.' },
+    jakasn: { date: 'Januari sampai Juni 2025', industry: 'Pemerintahan (GovTech)', role: 'Full-stack developer intern',
       description: 'Platform jurnal untuk Pusbangpeg ASN BKN yang mengintegrasikan Open Journal Systems dengan antarmuka yang didesain ulang, demi aksesibilitas dan identitas institusi. Front end dengan HTML, CSS dan JavaScript; integrasi back end dengan PHP dan MySQL. Proyek magang pertama saya, sebagai full-stack developer intern.',
       did: ['Open Journal Systems diintegrasikan di balik antarmuka yang didesain ulang', 'Front end dengan HTML, CSS dan JavaScript, disesuaikan dengan identitas dan aksesibilitas institusi', 'Integrasi back end dengan PHP dan MySQL', 'Pekerjaan lintas sistem BKN: OJS, JAKASN dan BKNPEDIA'],
       noShot: { tag: 'Maaf, tidak ada gambar', line: 'Proyek magang pertama saya, dibangun sebelum saya terbiasa menyimpan tangkapan layar karya sendiri. Tidak ada satu gambar pun yang tersisa; platformnya tetap ada.' } },
@@ -46,12 +46,12 @@ export const PROJECTS_T = {
     'rathera-beauty-studio': { industry: 'Kuku, bulu mata & waxing', description: 'Situs untuk Rathera Beauty Studio, studio kuku, bulu mata dan waxing di Ciputat: tiga layanannya, testimoni klien, lokasi studio di peta dan booking lewat WhatsApp, semuanya dalam satu halaman, di WordPress dan Elementor.', did: ['Satu halaman dalam tiga bagian, About, Service dan Location, masing-masing jadi tautan di menu', 'Tiga layanannya: kuku dan pedicure, lashes, waxing', 'Testimoni klien, dan enam alasan memilih studio ini', 'Lokasi studio di peta yang tertanam, dengan tautan untuk membukanya di Google Maps', 'Booking lewat WhatsApp: tiga langkah menuju janji temu, dan WhatsApp di header, footer serta tombol mengambang'] },
   },
   zh: {
-    'godplan-erp': { industry: '人力资源与人员管理', role: '架构与全栈开发',
+    'godplan-erp': { date: '2025 年 7 月至今', industry: '人力资源与人员管理', role: '架构与全栈开发',
       description: '一套系统，装下公司运营中通常散落在四个工具加一张表格里的那些事：员工、考勤与请假、薪资、任务和 CRM。在 PT. Gajah Terbang Kreatif 完成架构与全栈开发，手机端同样可用。',
       did: ['架构：PostgreSQL 之上的 Go 服务，Next.js 和 TypeScript 前端，用 Docker 发布', '认证和员工模块，员工总数直接汇总到仪表盘', '仪表盘：员工总数、今日考勤、待办任务和当月薪资，一屏看完', '系统健康（数据库状态、存储、备份）直接显示在界面里，而不是埋在服务器上', '手机端同样可用'],
       modules: ['仪表盘', '员工', '考勤与请假', '薪资', '任务', 'CRM', '系统健康'] },
-    'client-websites': { industry: '10 余个行业', description: '为印尼企业做的二十三个上线网站：十七个 WordPress 站、四个 WooCommerce 商店和两个定制应用（SvelteKit 和 Next.js）。没有一个是样稿：全部列在下方，各有自己的页面。' },
-    jakasn: { industry: '政府（GovTech）', role: '全栈开发实习生',
+    'client-websites': { title: '客户网站', industry: '10 余个行业', description: '为印尼企业做的二十三个上线网站：十七个 WordPress 站、四个 WooCommerce 商店和两个定制应用（SvelteKit 和 Next.js）。没有一个是样稿：全部列在下方，各有自己的页面。' },
+    jakasn: { date: '2025 年 1 月至 6 月', industry: '政府（GovTech）', role: '全栈开发实习生',
       description: '为 Pusbangpeg ASN BKN 做的期刊平台，把 Open Journal Systems 集成在重新设计的界面之后，兼顾无障碍和机构形象。前端用 HTML、CSS 和 JavaScript；后端集成用 PHP 和 MySQL。我的第一个实习项目，身份是全栈开发实习生。',
       did: ['把 Open Journal Systems 集成在重新设计的界面之后', '用 HTML、CSS 和 JavaScript 做前端，贴合机构形象与无障碍要求', '用 PHP 和 MySQL 做后端集成', '参与 BKN 各系统的工作：OJS、JAKASN 和 BKNPEDIA'],
       noShot: { tag: '抱歉，没有图片', line: '我的第一个实习项目，做它的时候我还没养成给自己的作品截图的习惯。一张图都没留下；平台还在。' } },
@@ -135,16 +135,15 @@ export const WORLDS_T = {
 export const STORY = {
   en: {
     'godplan-erp': {
-      problem: 'A company of some dozens of people ran its payroll, attendance, leave, tasks and client contacts across separate tools and spreadsheets. Each month the numbers had to be reconciled by hand, and nobody could see headcount, attendance and payroll on one screen.',
-      approach: 'Before the first screen I mapped how the company actually ran: who records attendance, who approves leave, when payroll closes, where the client list lived. The modules follow that flow, so each one owns its data and the dashboard reads from all of them.',
+      problem: 'The parts of running a company that usually sprawl across four tools and a spreadsheet (employees, attendance and leave, payroll, tasks and client contacts), brought into one system, with headcount, attendance and payroll on one screen.',
+      approach: 'The modules follow the way a company runs: employees, attendance and leave, payroll, tasks and CRM each own their data, and the dashboard reads from all of them.',
       decisions: [
         { title: 'Go for the services', body: 'One compiled binary per service, typed end to end, cheap to run and simple to deploy in Docker. Workforce data is relational and rule-heavy; a strict language keeps the rules honest.' },
         { title: 'PostgreSQL as the single source', body: 'Employees, attendance, leave and payroll are one connected set of records. A relational database with constraints keeps a payroll line from pointing at a person who does not exist.' },
-        { title: 'Next.js and TypeScript for the interface', body: 'The same types the API speaks, on the front end. Server rendering for the dashboard, so the first screen is ready without a loading state.' },
+        { title: 'Next.js and TypeScript for the interface', body: 'Types on the front end as well, so the screens and the API agree on the shape of every record.' },
         { title: 'System health in the interface', body: 'Database state, storage and backups are shown where the administrator already is, instead of a server nobody logs into.' },
-        { title: 'Built for the phone', body: 'Attendance is recorded on the floor, not at a desk. Every module works at phone width from the start.' },
+        { title: 'Built for the phone', body: 'Every module works at phone width from the start.' },
       ],
-      next: 'What I would do next: reports that export straight to the accountant, and role-based views so a team lead sees only their people.',
     },
     winfaith: {
       problem: 'A plastic injection moulding manufacturer (components for footwear, bags and more) needed a site that reads as an industrial product, with a catalogue that stays in step with what the factory actually makes.',
@@ -152,35 +151,32 @@ export const STORY = {
       decisions: [
         { title: 'SvelteKit instead of a CMS', body: 'The content is structured data, not pages. A framework that renders fast and ships little JavaScript fits a catalogue better than a theme does.' },
         { title: 'The catalogue from the API', body: 'One source of truth for products, owned by the company. The site reads it; it never holds a copy that can go stale.' },
-        { title: 'GSAP and Three.js, with restraint', body: 'Motion where it explains (a part turning, a section arriving), never as decoration. Everything still works with motion off.' },
+        { title: 'GSAP and Three.js, with restraint', body: 'Motion where it explains, never as decoration.' },
         { title: 'Tailwind for the interface', body: 'A tight set of utilities keeps the industrial look consistent across every page.' },
       ],
-      next: 'What I would do next: a quotation flow that sends a parts list straight to the sales team.',
     },
     'godjah-studio': {
       problem: 'PT. Gajah Terbang Kreatif already had the WordPress site I built first. When the company wanted to present itself as a studio with three brands, and asked for 3D and interactive design, a theme was no longer the right tool.',
       approach: 'Rebuild from scratch in Next.js, at the same address: one studio, three brands (Godjah for photo and video, Godtive for social media, Godweb for websites), an entrance led by motion, and a four-step way to start a project so a visitor always knows what happens next.',
       decisions: [
         { title: 'Next.js, not WordPress again', body: 'The interactions the company wanted live in components, not in page templates. A React framework with server rendering keeps the site fast and the motion precise.' },
-        { title: 'One studio, three doors', body: 'Each brand gets its own colour and section, but the navigation, the type and the rhythm stay one, so it reads as one company.' },
+        { title: 'One studio, three doors', body: 'Each brand has its own place on the site, under one navigation, one type and one rhythm, so it reads as one company.' },
         { title: 'Motion with a reason', body: 'The entrance sets the tone once; after that, motion only marks a change of place or state.' },
-        { title: 'Four steps to start', body: 'Brief, scope, build, launch: the path a client takes, written as the site\'s own call to action.' },
+        { title: 'Four steps to start', body: 'A four-step way to start a project, written as the site\'s own call to action, so a visitor always knows what happens next.' },
       ],
-      next: 'What I would do next: case pages for the studio\'s own client work, fed by a small CMS the team edits.',
     },
   },
   id: {
     'godplan-erp': {
-      problem: 'Sebuah perusahaan dengan puluhan karyawan menjalankan penggajian, absensi, cuti, tugas dan kontak klien di alat dan spreadsheet yang terpisah. Setiap bulan angkanya harus dicocokkan dengan tangan, dan tidak ada yang bisa melihat jumlah karyawan, absensi dan penggajian dalam satu layar.',
-      approach: 'Sebelum layar pertama, saya memetakan cara perusahaan benar-benar berjalan: siapa mencatat absensi, siapa menyetujui cuti, kapan penggajian ditutup, di mana daftar klien disimpan. Modul-modulnya mengikuti alur itu, sehingga masing-masing memiliki datanya sendiri dan dashboard membaca dari semuanya.',
+      problem: 'Bagian-bagian menjalankan perusahaan yang biasanya tersebar di empat alat dan satu spreadsheet (karyawan, absensi dan cuti, penggajian, tugas, dan kontak klien), disatukan dalam satu sistem, dengan jumlah karyawan, absensi, dan penggajian dalam satu layar.',
+      approach: 'Modul-modulnya mengikuti cara perusahaan berjalan: karyawan, absensi dan cuti, penggajian, tugas, dan CRM masing-masing memiliki datanya sendiri, dan dashboard membaca dari semuanya.',
       decisions: [
         { title: 'Go untuk layanannya', body: 'Satu binary terkompilasi per layanan, bertipe dari ujung ke ujung, murah dijalankan dan mudah dirilis dengan Docker. Data tenaga kerja bersifat relasional dan penuh aturan; bahasa yang ketat menjaga aturannya tetap jujur.' },
         { title: 'PostgreSQL sebagai satu sumber kebenaran', body: 'Karyawan, absensi, cuti dan penggajian adalah satu kumpulan catatan yang saling terhubung. Database relasional dengan constraint mencegah baris gaji menunjuk ke orang yang tidak ada.' },
-        { title: 'Next.js dan TypeScript untuk antarmukanya', body: 'Tipe yang sama dengan yang dipakai API, di front end. Server rendering untuk dashboard, supaya layar pertama siap tanpa status loading.' },
+        { title: 'Next.js dan TypeScript untuk antarmukanya', body: 'Bertipe juga di front end, sehingga layar dan API sepakat tentang bentuk setiap catatan.' },
         { title: 'Kesehatan sistem di antarmuka', body: 'Status database, penyimpanan dan backup ditampilkan di tempat admin sudah berada, bukan di server yang tak pernah dibuka siapa pun.' },
-        { title: 'Dibangun untuk ponsel', body: 'Absensi dicatat di lapangan, bukan di meja. Setiap modul bekerja di lebar ponsel sejak awal.' },
+        { title: 'Dibangun untuk ponsel', body: 'Setiap modul bekerja di lebar ponsel sejak awal.' },
       ],
-      next: 'Yang akan saya kerjakan berikutnya: laporan yang langsung bisa diekspor ke akuntan, dan tampilan berbasis peran supaya kepala tim hanya melihat orangnya sendiri.',
     },
     winfaith: {
       problem: 'Pabrik injection moulding plastik (komponen untuk alas kaki, tas dan lainnya) membutuhkan situs yang terasa seperti produk industri, dengan katalog yang selalu sejalan dengan apa yang benar-benar dibuat pabrik.',
@@ -188,35 +184,32 @@ export const STORY = {
       decisions: [
         { title: 'SvelteKit, bukan CMS', body: 'Kontennya adalah data terstruktur, bukan halaman. Framework yang merender cepat dan mengirim sedikit JavaScript lebih cocok untuk katalog daripada tema.' },
         { title: 'Katalog dari API', body: 'Satu sumber kebenaran untuk produk, milik perusahaan. Situs membacanya; situs tidak pernah menyimpan salinan yang bisa basi.' },
-        { title: 'GSAP dan Three.js, secukupnya', body: 'Motion ketika ia menjelaskan (sebuah part yang berputar, sebuah section yang datang), tidak pernah sekadar hiasan. Semuanya tetap berfungsi dengan motion dimatikan.' },
+        { title: 'GSAP dan Three.js, secukupnya', body: 'Motion ketika ia menjelaskan, tidak pernah sekadar hiasan.' },
         { title: 'Tailwind untuk antarmukanya', body: 'Sekumpulan utility yang rapat menjaga tampilan industrinya konsisten di setiap halaman.' },
       ],
-      next: 'Yang akan saya kerjakan berikutnya: alur penawaran yang mengirim daftar komponen langsung ke tim penjualan.',
     },
     'godjah-studio': {
       problem: 'PT. Gajah Terbang Kreatif sudah punya situs WordPress yang saya bangun lebih dulu. Ketika perusahaan ingin tampil sebagai studio dengan tiga brand, dan meminta 3D serta desain interaktif, tema bukan lagi alat yang tepat.',
       approach: 'Dibangun ulang dari nol dengan Next.js, di alamat yang sama: satu studio, tiga brand (Godjah untuk foto dan video, Godtive untuk media sosial, Godweb untuk website), pembukaan yang digerakkan motion, dan empat langkah untuk memulai proyek supaya pengunjung selalu tahu apa yang terjadi berikutnya.',
       decisions: [
         { title: 'Next.js, bukan WordPress lagi', body: 'Interaksi yang diinginkan perusahaan hidup di komponen, bukan di template halaman. Framework React dengan server rendering menjaga situs tetap cepat dan motion-nya presisi.' },
-        { title: 'Satu studio, tiga pintu', body: 'Setiap brand punya warna dan section sendiri, tetapi navigasi, tipografi dan ritmenya tetap satu, sehingga terbaca sebagai satu perusahaan.' },
+        { title: 'Satu studio, tiga pintu', body: 'Setiap brand punya tempatnya sendiri di situs, di bawah satu navigasi, satu tipografi dan satu ritme, sehingga terbaca sebagai satu perusahaan.' },
         { title: 'Motion yang punya alasan', body: 'Pembukaan menentukan nadanya sekali; setelah itu, motion hanya menandai perpindahan tempat atau keadaan.' },
-        { title: 'Empat langkah untuk memulai', body: 'Brief, ruang lingkup, pembangunan, peluncuran: jalur yang ditempuh klien, ditulis sebagai ajakan bertindak situs itu sendiri.' },
+        { title: 'Empat langkah untuk memulai', body: 'Empat langkah untuk memulai proyek, ditulis sebagai ajakan bertindak situs itu sendiri, supaya pengunjung selalu tahu apa yang terjadi berikutnya.' },
       ],
-      next: 'Yang akan saya kerjakan berikutnya: halaman studi kasus untuk karya klien studio itu sendiri, diisi dari CMS kecil yang bisa diedit tim.',
     },
   },
   zh: {
     'godplan-erp': {
-      problem: '一家几十人的公司，薪资、考勤、请假、任务和客户联系人分散在不同的工具和表格里。每个月都要手工对数，没有人能在一个屏幕上同时看到员工总数、考勤和薪资。',
-      approach: '在画第一个界面之前，我先梳理了公司真正的运转方式：谁记考勤，谁批请假，薪资什么时候结算，客户名单放在哪里。模块沿着这条流程来划分，各自拥有自己的数据，仪表盘再从所有模块读取。',
+      problem: '经营一家公司时通常分散在四个工具和一张表格里的部分（员工、考勤与请假、薪资、任务和客户联系人），合进一个系统，并在一个屏幕上看到员工总数、考勤和薪资。',
+      approach: '模块按公司的运转方式划分：员工、考勤与请假、薪资、任务和 CRM 各自拥有自己的数据，仪表盘再从所有模块读取。',
       decisions: [
         { title: '服务层用 Go', body: '每个服务一个编译后的二进制文件，端到端类型约束，运行成本低，用 Docker 部署简单。人力数据是关系型且规则很多的，一门严格的语言能让规则保持诚实。' },
         { title: 'PostgreSQL 作为唯一数据源', body: '员工、考勤、请假和薪资是一组彼此关联的记录。带约束的关系型数据库能防止一条薪资记录指向一个不存在的人。' },
-        { title: '界面用 Next.js 和 TypeScript', body: 'API 用什么类型，前端就用什么类型。仪表盘做服务端渲染，第一屏无需加载状态即可就绪。' },
+        { title: '界面用 Next.js 和 TypeScript', body: '前端同样有类型约束，界面和 API 对每条记录的结构保持一致。' },
         { title: '系统健康放进界面', body: '数据库状态、存储和备份显示在管理员本来就在的地方，而不是一台没人登录的服务器上。' },
-        { title: '为手机而建', body: '考勤是在现场记录的，不是在办公桌前。每个模块从一开始就能在手机宽度下使用。' },
+        { title: '为手机而建', body: '每个模块从一开始就能在手机宽度下使用。' },
       ],
-      next: '接下来我会做的：可以直接导出给会计的报表，以及按角色划分的视图，让组长只看到自己的人。',
     },
     winfaith: {
       problem: '一家塑料注塑厂（鞋类、箱包等配件）需要一个读起来像工业产品的网站，产品目录要和工厂实际生产的东西保持同步。',
@@ -224,21 +217,19 @@ export const STORY = {
       decisions: [
         { title: '用 SvelteKit 而不是 CMS', body: '内容是结构化数据，不是页面。一个渲染快、发出的 JavaScript 少的框架，比主题更适合做目录。' },
         { title: '目录来自 API', body: '产品只有一个数据源，归公司所有。网站只读取它，从不保存一份可能过期的副本。' },
-        { title: 'GSAP 和 Three.js，点到为止', body: '动效只在它能解释什么的时候出现（一个零件在转动，一个区块到位），从不当装饰。关闭动效后一切照常工作。' },
+        { title: 'GSAP 和 Three.js，点到为止', body: '动效只在它能解释什么的时候出现，从不当装饰。' },
         { title: '界面用 Tailwind', body: '一小套紧凑的工具类，让工业感在每个页面上保持一致。' },
       ],
-      next: '接下来我会做的：一条报价流程，把零件清单直接送到销售团队手上。',
     },
     'godjah-studio': {
       problem: 'PT. Gajah Terbang Kreatif 已经有了我先前做的 WordPress 网站。当公司想以拥有三个品牌的工作室身份示人，并提出要 3D 和交互设计时，主题就不再是合适的工具了。',
       approach: '用 Next.js 从零重建，地址不变：一个工作室，三个品牌（Godjah 做照片和视频，Godtive 做社交媒体，Godweb 做网站），一段由动效引领的开场，以及四步启动项目的流程，让访客始终知道下一步会发生什么。',
       decisions: [
         { title: '用 Next.js，不再用 WordPress', body: '公司想要的交互存在于组件里，而不是页面模板里。带服务端渲染的 React 框架让网站保持快速，动效保持精确。' },
-        { title: '一个工作室，三扇门', body: '每个品牌有自己的颜色和区块，但导航、字体和节奏保持统一，读起来仍是同一家公司。' },
+        { title: '一个工作室，三扇门', body: '每个品牌在网站上有自己的位置，但导航、字体和节奏保持统一，读起来仍是同一家公司。' },
         { title: '有理由的动效', body: '开场只定一次基调；之后，动效只用来标记位置或状态的变化。' },
-        { title: '四步开始', body: '简报、范围、构建、上线：客户要走的路，被写成了网站自己的行动号召。' },
+        { title: '四步开始', body: '四步启动项目的流程，被写成网站自己的行动号召，让访客始终知道下一步会发生什么。' },
       ],
-      next: '接下来我会做的：为工作室自己的客户案例做案例页，由团队可以编辑的小型 CMS 驱动。',
     },
   },
 };

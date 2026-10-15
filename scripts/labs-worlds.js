@@ -177,7 +177,7 @@ const WORLDS_UI = {
     intro: 'Serangkaian 3D web interactive design: masing-masing satu produk yang diceritakan sebagai dunia 3D yang bergerak mengikuti scroll, dengan aplikasi sungguhan di baliknya yang menjalankan logika aslinya di dalam browser, jadi Anda bisa memainkan setiap peran tanpa perlu mendaftar apa pun. Semua brand di sini adalah konsep, kecuali Pyris Pact, yang sudah menjadi produk live.',
     kinds: { defi: 'DeFi & pasar', privacy: 'Privasi & ZK', infra: 'Wallet & infrastruktur', real: 'Aset dunia nyata' },
     stack: { 'an in-browser EVM sandbox': 'sandbox EVM di dalam browser' } },
-  zh: { kick: '实验室',
+  zh: { kick: '实验室', title: '3D 网页交互设计',
     intro: '一系列 3D 网页交互设计：每一个都把一款产品讲成一个随滚动展开的 3D 世界，背后是一个真正能用的应用，在浏览器里运行它真实的逻辑，所以每一个角色你都可以亲自扮演，什么都不用注册。除了已上线的 Pyris Pact，其余品牌都是概念。',
     kinds: { defi: 'DeFi 与市场', privacy: '隐私与 ZK', infra: '钱包与基础设施', real: '现实世界资产' },
     stack: { 'an in-browser EVM sandbox': '浏览器内的 EVM 沙盒' } },
@@ -186,8 +186,8 @@ const WORLDS_UI = {
 /** The section's words in a language: { kick, intro, stack, kinds } ('en', or a language without words, gives the English exports). */
 export function worldsUiFor(lang = 'en') {
   const x = WORLDS_UI[lang];
-  if (!x) return { kick: 'Labs', intro: WORLDS_INTRO, stack: WORLDS_STACK, kinds: WORLD_KINDS };
-  return { kick: x.kick ?? 'Labs', intro: x.intro ?? WORLDS_INTRO, stack: WORLDS_STACK.map((s) => x.stack?.[s] ?? s), kinds: WORLD_KINDS.map(([k, label]) => [k, x.kinds?.[k] ?? label]) };
+  if (!x) return { kick: 'Labs', title: '3D web interactive design', intro: WORLDS_INTRO, stack: WORLDS_STACK, kinds: WORLD_KINDS };
+  return { kick: x.kick ?? 'Labs', title: x.title ?? '3D web interactive design', intro: x.intro ?? WORLDS_INTRO, stack: WORLDS_STACK.map((s) => x.stack?.[s] ?? s), kinds: WORLD_KINDS.map(([k, label]) => [k, x.kinds?.[k] ?? label]) };
 }
 
 /** The worlds in a language: WORLDS in the same order, with tagline, category and body translated where a translation exists
@@ -280,6 +280,7 @@ export function worldsSection({ t, u = (p) => p, splitPair = (a, b) => `${esc(a)
     <div class="worlds-stack" data-reveal><span style="border:0;padding:0;letter-spacing:0.16em;color:var(--faint)">${esc(t('lw_stack'))}</span>${S.stack.map((x) => `<span>${esc(x)}</span>`).join('')}</div>
     <div class="arc-filters" role="group" aria-label="${esc(t('lw_filter'))}" data-reveal>${pills}</div>
     <p class="sr" role="status"></p>
-    <ol class="arc-grid worlds-grid" data-stagger>${cards}</ol>
+    <h2 class="sr" id="worlds-list-h">${esc(S.title)}</h2>
+    <ol class="arc-grid worlds-grid" aria-labelledby="worlds-list-h" data-stagger>${cards}</ol>
   </section>`;
 }

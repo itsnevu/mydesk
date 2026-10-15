@@ -93,7 +93,7 @@
     root.style.removeProperty('--curtain'); root.classList.remove('curtain-tint');
     curtain.style.background = bg || ''; curtain.classList.toggle('tint', !!bg);
     curtain.classList.remove('out'); curtain.classList.add('in');
-    setTimeout(() => { location.href = href; }, 640);
+    setTimeout(() => { location.href = href; }, 450);
   };
 
   // in the desk's sheet, Esc with nothing of the page's own open (the menu, the palette, a lightbox) hands the key on: the sheet closes
@@ -146,7 +146,7 @@
       history.replaceState(null, '', id === 'top' ? location.pathname : url.hash);
       return;
     }
-    if (url.pathname.startsWith('/3d')) { e.preventDefault(); leaveTo(url.href, '#0a0806', 'The 3D desk', false); return; }   // (its own loader takes over)
+    if (url.pathname.startsWith('/3d')) { e.preventDefault(); leaveTo(url.href, '#0a0806', jt('deskName'), false); return; }   // (its own loader takes over)
     if (url.pathname !== location.pathname) { e.preventDefault(); leaveTo(url.href, a.dataset.bg, a.dataset.name, true, a.dataset.project ? a.querySelector('.case-big > img, .more-pic img, .arc-pic img, .ix-thumb img') : null); }
   });
 
@@ -154,6 +154,10 @@
   const intro = document.getElementById('intro');
   if (intro && root.classList.contains('intro-on')) {
     locked = true;
+    // (the page behind waits: nothing in it takes the focus or the screen reader's attention until the intro has gone)
+    const behind = [...document.body.children].filter((el) => el !== intro && el.tagName !== 'SCRIPT');
+    behind.forEach((el) => { el.inert = true; });
+    const release = () => behind.forEach((el) => { el.inert = false; });
     const count = intro.querySelector('.intro-count');
     const t0 = performance.now(), MIN = 2750, MAX = 4300;
     let fontsReady = false, done = false;
@@ -161,7 +165,7 @@
     const finish = () => {
       if (done) return; done = true;
       count.textContent = '100';
-      root.classList.add('intro-out');
+      root.classList.add('intro-out'); release();
       try { sessionStorage.setItem('nv-intro', '1'); } catch {}
       setTimeout(() => { root.classList.remove('intro-on', 'intro-out', 'intro-choose'); intro.remove(); locked = false; dirty = true; }, 1500);
     };
@@ -726,7 +730,7 @@
     const pal = document.createElement('dialog');
     pal.className = 'pal'; pal.setAttribute('aria-label', jt('palAria'));
     pal.innerHTML = `<div class="pal-bar">${ico}<input class="pal-in" type="search" role="combobox" aria-label="${jt('palInput')}" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" placeholder="${jt('palPh')}" autocomplete="off" spellcheck="false"><button class="pal-esc" type="button" aria-label="Close">esc</button></div>`
-      + `<ul class="pal-list" id="pal-list" role="listbox" aria-label="Results"></ul>`
+      + `<ul class="pal-list" id="pal-list" role="listbox" aria-label="${jt('palResults')}"></ul>`
       + `<div class="pal-foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> choose</span><span><kbd>↵</kbd> go</span><span><kbd>esc</kbd> close</span></div>`;
     document.body.append(pal);
     const input = pal.querySelector('.pal-in'), list = pal.querySelector('.pal-list');
@@ -746,7 +750,7 @@
       let g = '', html = '';
       shown.forEach((it, i) => {
         if (it.g !== g && !q) { g = it.g; html += `<li class="pal-g" role="presentation">${g}</li>`; }
-        html += `<li class="pal-o" role="option" id="pal-${i}" data-i="${i}" aria-selected="${i === sel}">${it.n ? `<span class="pal-n">${it.n}</span>` : ''}<span class="pal-t">${mark(it.t, words[0] || '')}${it.ext ? ' ↗' : ''}</span><span class="pal-d">${mark(it.here ? 'You are here' : it.d || '', '')}</span></li>`;
+        html += `<li class="pal-o" role="option" id="pal-${i}" data-i="${i}" aria-selected="${i === sel}">${it.n ? `<span class="pal-n">${it.n}</span>` : ''}<span class="pal-t">${mark(it.t, words[0] || '')}${it.ext ? ' ↗' : ''}</span><span class="pal-d">${mark(it.here ? jt('youAreHere') : it.d || '', '')}</span></li>`;
       });
       list.innerHTML = html;
       input.setAttribute('aria-activedescendant', `pal-${sel}`);
@@ -769,7 +773,7 @@
         if (url.hash) history.replaceState(null, '', url.hash);
         return;
       }
-      if (url.pathname.startsWith('/3d')) { leaveTo(url.href, '#0a0806', 'The 3D desk', false); return; }
+      if (url.pathname.startsWith('/3d')) { leaveTo(url.href, '#0a0806', jt('deskName'), false); return; }
       leaveTo(url.href, it.bg, it.t);
     };
     const open = () => {
@@ -806,7 +810,7 @@
   if (zooms.length && typeof HTMLDialogElement === 'function') {
     const ico = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>`;
     const lb = document.createElement('dialog');
-    lb.className = 'lb'; lb.setAttribute('aria-label', 'Screenshots');
+    lb.className = 'lb'; lb.setAttribute('aria-label', jt('screenshots'));
     lb.innerHTML = `<figure class="lb-fig"><img class="lb-img" alt=""><figcaption class="lb-cap"><span class="lb-n"></span><span class="lb-t"></span></figcaption></figure>`
       + `<button class="lb-x" type="button" aria-label="${jt('close')}">${ico('M6 6l12 12M18 6L6 18')}</button>`
       + `<button class="lb-p" type="button" aria-label="${jt('prevShot')}">${ico('M15 5l-7 7 7 7')}</button>`
@@ -863,9 +867,9 @@
   // ---------- the motion switch at the foot of the page: remembered in this browser, applied on the next load
   document.querySelectorAll('.motion').forEach((b) => {
     const off = root.classList.contains('motion-off');
-    b.setAttribute('aria-pressed', String(off));
+    b.removeAttribute('aria-pressed');
     b.innerHTML = `${jt('motion')} <b>${off ? jt('motionOff') : jt('motionOn')}</b>`;
-    b.title = off ? 'Turn the animations back on' : 'Turn the animations off';
+    b.title = off ? jt('motionTurnOn') : jt('motionTurnOff');
     b.addEventListener('click', () => {
       try { if (off) localStorage.removeItem('nv-motion'); else localStorage.setItem('nv-motion', 'off'); } catch {}
       track('motion_toggle', { motion: off ? 'on' : 'off' });
@@ -879,12 +883,12 @@
     if (e.altKey || e.ctrlKey || e.metaKey || e.key.length !== 1) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '') || document.activeElement?.isContentEditable) return;
     typed = (typed + e.key.toLowerCase()).slice(-4);
-    if (typed === 'desk') { typed = ''; track('3d_cta_click', { from: 'typed' }); leaveTo('/3d/', '#0a0806', 'The 3D desk', false); }
+    if (typed === 'desk') { typed = ''; track('3d_cta_click', { from: 'typed' }); leaveTo('/3d/', '#0a0806', jt('deskName'), false); }
   });
 
   // ---------- while the tab is in the background, it says so
   const baseTitle = document.title;
-  document.addEventListener('visibilitychange', () => { document.title = document.hidden ? 'Still here | Navy Gibran' : baseTitle; });
+  document.addEventListener('visibilitychange', () => { document.title = document.hidden ? jt('stillHere') : baseTitle; });
 
   // ---------- the pointer ring (mouse only): trails the cursor, grows over links, says what a project link does
   if (fine && !reduce) {
@@ -941,6 +945,7 @@
       g.addEventListener('pointerenter', () => light(g.dataset.mod)); g.addEventListener('pointerleave', () => light(null));
       g.addEventListener('focus', () => light(g.dataset.mod)); g.addEventListener('blur', () => light(null));
       g.addEventListener('click', () => light(g.classList.contains('on') ? null : g.dataset.mod));
+      g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); light(g.classList.contains('on') ? null : g.dataset.mod); } });
     });
   }
 
