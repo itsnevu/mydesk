@@ -83,6 +83,10 @@ function imgSize(rel) {
   return out;
 }
 const exists = (rel) => fs.existsSync(path.join(root, 'public', rel));
+// a share card's version, so a redrawn card (og.py bakes the counts in) gets a new address for Facebook, LinkedIn and WhatsApp,
+// which keep a picture by its address
+const verCache = new Map();
+function fileVer(rel) { const file = path.join(root, 'public', rel); let st; try { st = fs.statSync(file); } catch { return ''; } const k = `${file}|${st.mtimeMs}|${st.size}`; if (!verCache.has(k)) verCache.set(k, createHash('sha1').update(fs.readFileSync(file)).digest('hex').slice(0, 8)); return verCache.get(k); }
 const firstOf = (...rels) => rels.find(exists) || null;
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -302,9 +306,12 @@ function roll(text, em = '') {
 
 // `pathname` is the page's path without the language prefix ('/', '/work/', '/work/<key>/'): the canonical and the alternates
 // are built from it. The default language's pages forward to a remembered choice (the switch sets it) before anything paints.
-function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false, nfSwap = false }) {
+function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false, nfSwap = false, labels = [] }) {
   const url = `${ORIGIN}${PFX}${pathname}`;
   if (LANG !== DEFAULT_LANG && image.startsWith(ORIGIN + '/') && image.endsWith('.jpg')) { const rel = image.slice(ORIGIN.length + 1).replace(/\.jpg$/, `-${LANG}.jpg`); if (exists(rel)) image = `${ORIGIN}/${rel}`; }
+  if (image.startsWith(ORIGIN + '/') && !image.includes('?')) { const v = fileVer(image.slice(ORIGIN.length + 1)); if (v) image += `?v=${v}`; }
+  const imgAlt = esc(imageAlt || t('ogDefaultAlt'));
+  const twLabels = labels.filter(([l, d]) => l && d).slice(0, 2).map(([l, d], i) => `<meta name="twitter:label${i + 1}" content="${esc(l)}">\n<meta name="twitter:data${i + 1}" content="${esc(d)}">\n`).join('');
   eagerSeen = 0;
   // the home (the simple page) remembers which reading the visitor chose at the gate: "full" sends them to the story before anything
   // paints, in the language they remembered too (this runs before the language forward, so the two never race), never when the
@@ -338,14 +345,15 @@ ${noindex ? '' : `<link rel="canonical" href="${url}">\n${alts}\n`}<meta name="r
 <meta property="og:image" content="${image}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="${esc(imageAlt || t('ogDefaultAlt'))}">
+<meta property="og:image:alt" content="${imgAlt}">
 <meta property="og:locale" content="${L.og}">
 ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alternate" content="${LANGS[l].og}">`).join('\n')}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${image}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="twitter:image:alt" content="${imgAlt}">
+${twLabels}<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -954,6 +962,7 @@ function projectPage(D, ctx, p) {
     description: metaDesc,
     pathname, css: ctx.css,
     image: exists(`site/og/${p.key}.jpg`) ? `${ORIGIN}/site/og/${p.key}.jpg` : undefined, imageAlt: t('ogProjectAlt', { t: p.title }), theme: tint(p).bg,
+    labels: [[t('stackLbl'), stackOf(p)], [p.date === 'live' ? t('statusLbl') : t('when'), status]],
     extra: `${ldScript(ld)}\n${ldScript(crumbs)}\n`,
   }) + `
 <body class="project" data-project="${p.key}" data-prev="${u(`/work/${prev.key}/`)}" data-prev-bg="${tint(prev).bg}" data-prev-name="${esc(prev.title)}" data-next="${u(`/work/${next.key}/`)}" data-next-bg="${tint(next).bg}" data-next-name="${esc(next.title)}" style="--acc:${tint(p).acc};--bgc:${tint(p).bg}">
