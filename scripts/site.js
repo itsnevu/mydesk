@@ -44,7 +44,7 @@ const tp = (p, f) => PROJECTS_T[LANG]?.[p.key]?.[f] ?? p[f];
 // the words among the tool names (a project's stack line, the featured meta, the toolbox), in the page's language: tool names
 // stay, the few words between them are said again (Navy: "waktu bahasa china ya china semua")
 export const TERM_T = {   // (exported for scripts/smoke-site.js: a translated term must not leak in English onto /id/ or /zh/)
-  id: { 'custom build': 'build custom', 'Modern UI': 'UI modern', 'Custom UI': 'UI custom', 'Custom CSS': 'CSS custom', 'Creative theme': 'tema kreatif',
+  id: { 'custom build': 'aplikasi custom', 'REST APIs': 'REST API', 'Smart contracts': 'Smart contract', 'Modern UI': 'UI modern', 'Custom UI': 'UI custom', 'Custom CSS': 'CSS custom', 'Creative theme': 'tema kreatif',
     Payments: 'Pembayaran', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
   zh: { 'custom build': '定制开发', 'Modern UI': '现代界面', 'Custom UI': '定制界面', 'Custom CSS': '定制 CSS', 'Creative theme': '创意主题',
     Payments: '支付', Motion: '动效', 'REST APIs': 'REST API', 'Custom themes': '定制主题', 'Smart contracts': '智能合约', 'Wallet integration': '钱包集成', 'dApp frontends': 'dApp 前端' },
@@ -181,7 +181,7 @@ function personLd(D, image) {
     ...(deg ? { hasCredential: { '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name: deg.role, recognizedBy: UMN } } : {}),
     worksFor: { '@type': 'Organization', name: 'PT. Gajah Terbang Kreatif', url: 'https://gajahterbangkreatif.id/' },
     address: { '@type': 'PostalAddress', addressCountry: 'ID' },
-    knowsAbout: STACK.flat(), knowsLanguage: ['id', 'en', 'zh'],
+    knowsAbout: STACK.flat().map(term), knowsLanguage: ['id', 'en', 'zh'],
     sameAs: D.SITE.links.filter((l) => /linkedin|github|x\.com/.test(l.href)).map((l) => l.href),
   };
 }
@@ -351,7 +351,7 @@ ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alt
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preload" href="/site/fonts/barlow-condensed-700-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/fonts/instrument-serif-400-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="/site/fonts/newsreader-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/site/fonts/newsreader-400-static-latin.woff2" as="font" type="font/woff2" crossorigin>
 ${ADOBE_KIT ? `<link rel="stylesheet" href="https://use.typekit.net/${esc(ADOBE_KIT)}.css">\n` : ''}<script>(function(d){${viewFwd}${forward}d.classList.replace('no-js','js');try{if(window.top!==window.self)d.classList.add('in-desk')}catch(e){}try{var k=Math.max(1,Math.min(innerWidth/1600,innerHeight/900));if(k>1.02&&CSS.supports('zoom','1.5')){d.style.setProperty('--k',k.toFixed(4));d.style.zoom=k.toFixed(4)}}catch(e){}try{if(localStorage.getItem('nv-motion')==='off')d.classList.add('motion-off')}catch(e){}try{var s=sessionStorage,c=s.getItem('nv-curtain');if(c){d.classList.add('curtain-on');if(c!=='1'){d.style.setProperty('--curtain',c);d.classList.add('curtain-tint')}s.removeItem('nv-curtain')}${intro ? "if(!c&&!s.getItem('nv-intro')&&!d.classList.contains('in-desk')&&!d.classList.contains('motion-off')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro-on')" : ''}}catch(e){}})(document.documentElement)</script>
 ${cssLinks(css)}
 ${BASE_JS ? `<link rel="preload" as="script" href="${asset(minJs(BASE_JS), 'js')}">` : ''}
