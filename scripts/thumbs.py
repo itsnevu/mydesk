@@ -2,7 +2,7 @@
 #   python scripts/thumbs.py
 # For every screenshot in public/shots and public/shots/gallery and every desk render in public/site (desk-*.webp) wider than
 # 900 px, writes <name>-800.webp beside it, 800 px wide. A copy newer than its original is left alone. Phone screenshots
-# (<name>-m.webp) are narrow already and are skipped. Needs Pillow.
+# (<name>-m.webp) get a 320 px copy instead (the block after the wide pass). Needs Pillow.
 import glob, os
 from PIL import Image
 
@@ -14,7 +14,7 @@ files = sorted(glob.glob(os.path.join(PUB, 'shots', '*.webp')) + glob.glob(os.pa
 made = kept = 0
 for f in files:
     name = os.path.basename(f)
-    if name.endswith(f'-{W}.webp') or name.endswith('-m.webp'):
+    if name.endswith(f'-{W}.webp') or name.endswith('-m.webp') or name.endswith('-m-320.webp'):
         continue
     out = f[:-5] + f'-{W}.webp'
     if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(f):
@@ -28,6 +28,23 @@ for f in files:
     made += 1
     print(f"{os.path.relpath(out, PUB)}  {os.path.getsize(f) // 1024} kB -> {os.path.getsize(out) // 1024} kB")
 print(f'thumbs: {made} written, {kept} already current')
+
+# Phone screenshots (<name>-m.webp, 585 x 1266) are drawn at most 220 px wide (a project page's hero, .phone in site/site.css; 66 to
+# 98 px on a phone): <name>-m-320.webp beside each one wider than 400 px, offered by projectPage through srcset.
+PW = 320
+pm = pk = 0
+for f in sorted(glob.glob(os.path.join(PUB, 'shots', '*-m.webp')) + glob.glob(os.path.join(PUB, 'shots', 'gallery', '*-m.webp'))):
+    out = f[:-5] + f'-{PW}.webp'
+    if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(f):
+        pk += 1
+        continue
+    im = Image.open(f)
+    if im.width <= 400:
+        continue
+    im.convert('RGB').resize((PW, round(im.height * PW / im.width)), Image.LANCZOS).save(out, 'WEBP', quality=80, method=6)
+    pm += 1
+    print(f"{os.path.relpath(out, PUB)}  {os.path.getsize(f) // 1024} kB -> {os.path.getsize(out) // 1024} kB")
+print(f'phone copies: {pm} written, {pk} already current')
 
 # The profile home draws its logos only as masks (their alpha), at most about 40 px tall: public/site/logos/<name>-mask.webp keeps
 # the alpha alone, fit inside 384 x 120 (three times what it draws and more), written only when that is smaller than the original.

@@ -247,11 +247,12 @@ const MARK = (cls = '') => `<svg class="nv-mark${cls ? ` ${cls}` : ''}" viewBox=
 const circleGo = `<span class="go" aria-hidden="true">${arrowR}</span>`;
 
 let eagerSeen = 0;   // (eager pictures on the page being rendered; head() starts each page at 0)
-function img(rel, alt, { cls = '', sizes = '100vw', eager = false } = {}) {
+function img(rel, alt, { cls = '', sizes = '100vw', eager = false, copyW = 800 } = {}) {
   const d = imgSize(rel), c = [cls, eager ? '' : 'lz'].filter(Boolean).join(' ');
-  // (a smaller copy, when scripts/thumbs.py has made one, is offered beside the original: a phone takes the 800 px one)
-  const small = rel.replace(/\.webp$/, '-800.webp');
-  const set = d && small !== rel && exists(small) ? ` srcset="/${small} 800w, /${rel} ${d.w}w"` : '';
+  // (a smaller copy, when scripts/thumbs.py has made one, is offered beside the original: 800 px for the wide shots, 320 px for
+  // the phone shots)
+  const small = rel.replace(/\.webp$/, `-${copyW}.webp`);
+  const set = d && small !== rel && exists(small) ? ` srcset="/${small} ${copyW}w, /${rel} ${d.w}w"` : '';
   return `<img src="/${rel}"${set} alt="${esc(alt)}"${d ? ` width="${d.w}" height="${d.h}"` : ''}${c ? ` class="${c}"` : ''} sizes="${sizes}" ${eager ? (eagerSeen++ === 0 ? 'fetchpriority="high"' : '') : 'loading="lazy"'} decoding="async">`.replace(/" +decoding/, '" decoding');
 }
 
@@ -921,6 +922,12 @@ function projectPage(D, ctx, p) {
       ${m.shots.slice(1).map((s, k) => `<figure class="shot g-${k % 3}" data-reveal="clip">${img(s, t('screenshotN', { t: p.title, n: k + 2 }), { sizes: k % 3 ? '(min-width: 900px) 62vw, 100vw' : '(min-width: 1100px) 1300px, 100vw' })}</figure>`).join('')}
     </section>` : '';
   const desc = strip(tp(p, 'description'));
+  // a description too thin for a search result or a share preview borrows the first line of what Navy did on the project
+  // (already on the page, in this language), only when the result still fits metaCut's limit whole
+  const did0 = didList && didList[0] ? String(didList[0]).replace(/\s+/g, ' ').trim() : '';
+  const descN = desc.replace(/\s+/g, ' ').trim();
+  const thinPlus = did0 && /[.!?。！？]$/.test(descN) && descN.length < (LANG === 'zh' ? 45 : 100) ? (LANG === 'zh' ? `${descN}${did0}。` : `${descN} ${cap1(did0)}.`) : '';
+  const metaDesc = thinPlus && metaCut(thinPlus) === thinPlus ? thinPlus : metaCut(desc);
   // (a project that is now something else says so in its "Today" note: the opening paragraph leaves that sentence to it)
   const lead = p.now ? desc.split(/(?<=[.。])\s*/).filter((x) => x && !/^RameinAja (is now|kini|现已)/.test(x)).join(LANG === 'zh' ? '' : ' ') : desc;
   const related = relatedOf(list, p);
@@ -943,7 +950,7 @@ function projectPage(D, ctx, p) {
   ] };
   return head({
     title: `${p.title}${LANG === 'zh' ? '：' : ': '}${tp(p, 'industry')} | Navy Gibran`,
-    description: metaCut(desc),
+    description: metaDesc,
     pathname, css: ctx.css,
     image: exists(`site/og/${p.key}.jpg`) ? `${ORIGIN}/site/og/${p.key}.jpg` : undefined, imageAlt: t('ogProjectAlt', { t: p.title }), theme: tint(p).bg,
     extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n<script type="application/ld+json">${JSON.stringify(crumbs)}</script>\n`,
@@ -972,7 +979,7 @@ ${header('work', pathname)}
       ${now}${pair}
     </header>
     <div class="p-hero wrap" data-scene="phero">
-      ${m.cover ? `<figure class="shot shot-main" data-reveal="clip">${img(m.cover, t('screenshot', { t: p.title }), { eager: true, sizes: '(min-width: 1100px) 1100px, 100vw' })}${m.phone ? `<div class="phone">${img(m.phone, t('onPhone', { t: p.title }), { eager: true, sizes: '240px' })}</div>` : ''}</figure>` : `<div class="shot shot-main" data-reveal="clip">${plate(p, true)}</div>`}
+      ${m.cover ? `<figure class="shot shot-main" data-reveal="clip">${img(m.cover, t('screenshot', { t: p.title }), { eager: true, sizes: '(min-width: 1100px) 1100px, 100vw' })}${m.phone ? `<div class="phone">${img(m.phone, t('onPhone', { t: p.title }), { eager: true, copyW: 320, sizes: '(min-width: 694px) 220px, 104px' })}</div>` : ''}</figure>` : `<div class="shot shot-main" data-reveal="clip">${plate(p, true)}</div>`}
     </div>
     </div>
     ${did}
