@@ -6,7 +6,10 @@
 //  - every internal link, src, srcset candidate and data-* picture points at a rendered page or a file in public/, and a link
 //    with a #fragment to another page finds that id there;
 //  - every JSON-LD block parses; <html lang> matches the language of the path; every hreflang alternate exists;
-//  - each English page has its Indonesian and Chinese twin; every <img> has an alt (empty is fine for decoration).
+//  - each English page has its Indonesian and Chinese twin; every <img> has an alt (empty is fine for decoration);
+//  - one <h1> per page; a <title> and a meta description (at most 170 characters) on every page, each unique within its
+//    language; a canonical link (not on the noindex 404) and an og:image; rel="noopener" on every target="_blank" link;
+//    every url() in the stylesheets points at a rendered file or one in public/.
 // Exported as checkSite(root) -> { pages, links, anchors, problems: [..], notes: [..] }; `node scripts/smoke-site.js` runs it alone.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -22,11 +25,10 @@ const attrs = (tag) => { const o = {}; for (const m of tag.matchAll(/\s([a-zA-Z_
 const tagsOf = (h) => [...strip(h).matchAll(/<([a-zA-Z][\w-]*)(\s[^>]*)?>/g)].map((m) => ({ name: m[1].toLowerCase(), a: attrs(m[2] || '') }));
 const near = (s, i) => s.slice(Math.max(0, i - 40), i + 40).replace(/\s+/g, ' ').trim();
 
-export async function checkSite(root) {
-  const { renderSite } = await import(pathToFileURL(path.join(root, 'scripts', 'site.js')).href);
-  const pages = await renderSite();
+export async function checkSite(root, given = null) {   // (given: an already rendered page map, for testing the check itself)
+  const pages = given || await (await import(pathToFileURL(path.join(root, 'scripts', 'site.js')).href)).renderSite();
   const html = Object.entries(pages).filter(([k]) => k.endsWith('.html'));
-  const problems = [], notes = [];
+  const problems = [], notes = [], titles = {}, descs = {}, cssOf = [];
   let links = 0, anchors = 0;
   const idsOf = new Map(html.map(([k, h]) => [k, new Set(tagsOf(h).map((t) => t.a.id).filter(Boolean))]));
   const pub = (p) => { try { return fs.statSync(path.join(root, 'public', decodeURIComponent(p))).isFile(); } catch { return false; } };
@@ -92,6 +94,27 @@ export async function checkSite(root) {
     for (const m of h.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
       try { JSON.parse(m[1]); } catch (e) { problems.push(`${where}: a JSON-LD block does not parse (${e.message})`); }
     }
+    // the head and the outline: one h1, a title and a description (unique within the language, checked below), a canonical
+    // (not on the noindex 404), an og:image, and a new tab never without rel="noopener"
+    const body = strip(h);
+    const h1 = (body.match(/<h1[\s>]/g) || []).length; if (h1 !== 1) problems.push(`${where}: ${h1} <h1> on the page, expected 1`);
+    const lang = (LANGS.find(([pre]) => pre && key.startsWith(pre)) || LANGS[0])[1];
+    const title = (h.match(/<title>([^<]*)<\/title>/) || [])[1], desc = (h.match(/<meta name="description" content="([^"]*)"/) || [])[1];
+    if (!title) problems.push(`${where}: no <title>`); else (titles[lang + '\u0000' + title] = titles[lang + '\u0000' + title] || []).push(where);
+    if (!desc) problems.push(`${where}: no meta description`); else {
+      (descs[lang + '\u0000' + desc] = descs[lang + '\u0000' + desc] || []).push(where);
+      if (desc.length > 170) problems.push(`${where}: the meta description is ${desc.length} characters (search results cut it near 160)`);
+    }
+    if (key !== '404.html' && !/<link rel="canonical"/.test(h)) problems.push(`${where}: no canonical link`);
+    if (!/<meta property="og:image"/.test(h)) problems.push(`${where}: no og:image (a shared link would show no picture)`);
+    for (const m of body.matchAll(/<a\s[^>]*target="_blank"[^>]*>/g)) if (!/rel="[^"]*noopener/.test(m[0])) problems.push(`${where}: a new-tab link without rel="noopener": ${m[0].slice(0, 90)}`);
+    for (const m of h.matchAll(/<style>([\s\S]*?)<\/style>/g)) cssOf.push([`${where} <style>`, m[1]]);
+  }
+  for (const [k, w] of Object.entries(titles)) if (w.length > 1) problems.push(`the same <title> "${k.split('\u0000')[1].slice(0, 70)}" on ${w.length} pages: ${w.slice(0, 4).join(' ')}`);
+  for (const [k, w] of Object.entries(descs)) if (w.length > 1) problems.push(`the same meta description "${k.split('\u0000')[1].slice(0, 60)}" on ${w.length} pages: ${w.slice(0, 4).join(' ')}`);
+  // every url() in the stylesheets (the shared /s/ files and any inline <style>) points at a rendered file or one in public/
+  for (const [where, c] of [...Object.entries(pages).filter(([k]) => k.endsWith('.css')).map(([k, v]) => [`/${k}`, v]), ...cssOf]) {
+    for (const m of c.matchAll(/url\(\s*['"]?(\/[^'")\s]+)['"]?\s*\)/g)) { links++; if (!land(m[1])) problems.push(`${where}: url(${m[1]}) points at nothing`); }
   }
   // every English page has its two twins
   for (const [key] of html) {
