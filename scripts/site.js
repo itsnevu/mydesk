@@ -1114,7 +1114,7 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: clientName(c), word: c.word || null }));
-  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf, roll,
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia, stackOf, roll, faq: { title: Cn.faqTitle || '', items: Cn.faq || [] },
     services: (Cn.territories || CONTENT.en.territories).map((x, i) => ({ title: x.title, body: x.body, items: x.items || [], also: TERRITORIES[i]?.also || '', proof: (TERRITORIES[i]?.proof || []).map((k) => D.PROJECTS.find((q) => q.key === k)).filter(Boolean).map((q) => ({ key: q.key, title: q.title })) })),
     process: Cn.process || CONTENT.en.process });
   const set = (list) => list.filter(([f]) => exists(f)).map(([f, w]) => `/${f} ${w}w`).join(', ');

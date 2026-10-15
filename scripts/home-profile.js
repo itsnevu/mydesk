@@ -130,7 +130,7 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', roll = (x) => esc(x), now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, stackOf = (p) => p.stack || '', roll = (x) => esc(x), faq = null, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   const chip = (t) => { const s = TOOL_MARK[t], inner = `${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}`; return CHIP_LINK[t] ? `<a class="pf-chip pf-chip--a" href="${u(`/work/${CHIP_LINK[t]}/`)}" data-track="project_open" data-project="${CHIP_LINK[t]}" data-from="profile-chip">${inner}</a>` : `<span class="pf-chip">${inner}</span>`; };
   const dur = (m) => {
@@ -218,6 +218,14 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     </li>`).join('')}</ol>
   </section>
   ${hatch}` : '';
+  // before you write: the questions a business owner asks first (i18n CONTENT faq), the first one open
+  const faqItems = (faq && faq.items) || [];
+  const faqSec = faqItems.length ? `
+  <section class="pf-sec pf-faq" aria-labelledby="pf-faq">
+    ${sec(faq.title, faqItems.length, '', 'pf-faq')}
+    <div class="pf-faq-l">${faqItems.map(([q, a], i) => `<details class="pf-q"${i === 0 ? ' open' : ''}><summary>${esc(q)}${I.chev}</summary><p>${esc(String(a).replace('{n}', clientSites))}</p></details>`).join('')}</div>
+  </section>
+  ${hatch}` : '';
   // how it works: the four steps (i18n CONTENT.process), a line through them
   const proc = steps.length ? `
   <section class="pf-sec pf-proc" aria-labelledby="pf-proc">
@@ -259,7 +267,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   const bio = (W.hl || []).reduce((h, ph) => h.replace(esc(ph), `<mark class="pf-hl">${esc(ph)}</mark>`), esc(W.bio));
   const ringText = `${W.ring} · ${W.ring} · `;
-  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ['pf-contact', W.rail.contact]]
+  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ...(faqItems.length ? [['pf-faq', faq.title]] : []), ['pf-contact', W.rail.contact]]
     .map(([id, label], i) => `<li><a href="#${id}" data-rail="${id}"><b>${pad(i)}</b><span>${esc(label)}</span></a></li>`).join('');
   return `<main id="main" tabindex="-1">
 <div class="pf">
@@ -315,7 +323,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </section>
   ${hatch}
   ${stack}
-  ${hatch}${proc}
+  ${hatch}${proc}${faqSec}
   <section class="pf-cta" id="pf-contact" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
@@ -480,6 +488,16 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-proc-l::before { content: ""; position: absolute; left: 14px; right: 14px; top: 14px; height: 1px; background: linear-gradient(90deg, var(--accent), var(--line-2) 45%, var(--line)); }
 .pf-proc-l li { position: relative; display: grid; align-content: start; gap: 6px; }
 .pf-proc-n { display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 6px; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 1px var(--line-2); font: 700 10.5px var(--cond); letter-spacing: 0.06em; color: var(--accent-2); }
+/* before you write: the questions as a folding list */
+.pf-faq-l { display: grid; }
+.pf-q { border-top: 1px solid var(--line); } .pf-q:first-child { border-top: 0; }
+.pf-q summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 48px; padding: 14px 0; cursor: pointer; list-style: none; font: 700 clamp(16px, 1.5vw, 18px)/1.3 var(--cond); letter-spacing: 0.01em; text-transform: uppercase; color: var(--ink); transition: color 0.3s; }
+.pf-q summary::-webkit-details-marker { display: none; }
+.pf-q summary svg { flex: none; width: 16px; height: 16px; color: var(--dim); transition: transform 0.4s var(--ease), color 0.3s; }
+.pf-q[open] summary svg { transform: rotate(180deg); color: var(--accent-2); }
+.pf-q summary:hover, .pf-q summary:focus-visible { color: var(--accent-2); }
+.pf-q p { max-width: 40em; margin: -2px 0 18px; font-size: 16px; line-height: 1.6; color: var(--dim); text-wrap: pretty; }
+.pf-hx .pf-q[open] p { animation: pf-rise 0.5s var(--ease); }
 .pf-proc-l li:first-child .pf-proc-n { background: var(--accent); box-shadow: none; color: #140f09; }
 .pf-proc-l b { font: 700 16px/1.2 var(--cond); text-transform: uppercase; letter-spacing: 0.02em; }
 .pf-proc-l p { font-size: 14.5px; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
@@ -528,7 +546,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-hx .pf-h h2 sup { transition-delay: 0.25s; }
 .pf-hx .pf-h:not(.in) h2 em { transform: translateY(0.45em); opacity: 0; } .pf-hx .pf-h:not(.in) h2 sup { opacity: 0; }
 /* the targets of the rail land under the pinned tabs */
-#pf-me, #pf-reel, #pf-exp, #pf-svc, #pf-pj, #pf-cl, #pf-st, #pf-proc, #pf-contact { scroll-margin-top: calc(var(--head-h) + 70px); }
+#pf-me, #pf-reel, #pf-exp, #pf-svc, #pf-pj, #pf-cl, #pf-st, #pf-proc, #pf-faq, #pf-contact { scroll-margin-top: calc(var(--head-h) + 70px); }
 /* the chapter rail: the sections as numbers in the left margin, the one in view lit, its name on hover (a wide screen with a mouse) */
 .pf-rail { display: none; }
 @media (min-width: 1360px) and (hover: hover) {
