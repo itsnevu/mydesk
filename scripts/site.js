@@ -1124,10 +1124,10 @@ function simplePage(D, ctx) {
   ].filter(Boolean).join('\n');
   const graph = { '@context': 'https://schema.org', '@graph': [
     { '@type': 'WebSite', '@id': `${ORIGIN}/#website`, url: `${ORIGIN}/`, name: 'Navy Gibran', inLanguage: LANG_ORDER.map((l) => LANGS[l].html), publisher: { '@id': PERSON_ID } },
-    { '@type': 'ProfilePage', '@id': `${ORIGIN}${u('/')}#page`, url: `${ORIGIN}${u('/')}`, name: t('t_home'), description: t('d_simple'), inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, mainEntity: { '@id': PERSON_ID } },
+    { '@type': 'ProfilePage', '@id': `${ORIGIN}${u('/')}#page`, url: `${ORIGIN}${u('/')}`, name: t('t_home'), description: t('d_simple', { n: D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length }), inLanguage: L.html, isPartOf: { '@id': `${ORIGIN}/#website` }, mainEntity: { '@id': PERSON_ID } },
     personLd(D),
   ] };
-  return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' + ldScript(graph) + '\n' }) + `
+  return head({ title: t('t_home'), description: t('d_simple', { n: D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length }), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' + ldScript(graph) + '\n' }) + `
 <body class="home home-profile">
 ${introHtml(D)}
 ${header('simple', '/', D)}
