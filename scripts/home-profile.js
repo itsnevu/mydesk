@@ -554,7 +554,7 @@ html:has(.pf-tabs--pin) { scroll-padding-top: calc(var(--head-h) + 70px); }
 .pf-rail { display: none; }
 @media (min-width: 1360px) and (hover: hover) {
   .pf-rail { display: block; position: fixed; left: 26px; top: 50%; z-index: 25; translate: 0 -50%; }
-  .pf-rail ol { display: grid; gap: 2px; }
+  .pf-rail ol { display: grid; gap: 2px; padding: 8px 12px; margin-left: -12px; border-radius: 12px; background: rgba(14, 12, 9, 0.88); box-shadow: 0 0 0 1px var(--line); }   /* (a backdrop over the dither field) */
   .pf-rail a { display: flex; align-items: center; gap: 10px; height: 26px; font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); text-shadow: 0 0 6px var(--bg), 0 0 14px var(--bg); transition: color 0.3s; }
   .pf-rail b { width: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .pf-rail a::after { content: ""; order: 1; width: 12px; height: 1px; background: currentColor; opacity: 0.5; transition: width 0.5s var(--ease), background 0.3s, opacity 0.3s; }
@@ -591,6 +591,8 @@ html:has(.pf-tabs--pin) { scroll-padding-top: calc(var(--head-h) + 70px); }
 @keyframes pf-marq { to { transform: translate3d(-50%, 0, 0); } }
 .pf-logos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
 .pf-logo { display: grid; place-items: center; height: 68px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease); }
+/* a section's logo and tool masks load when it comes near (the page script marks it is-near; CSS images are never lazy otherwise) */
+.js .pf-sec:not(.is-near) :is(.pf-m, .pf-av--m, .pf-logo-m, .pf-marq-i) { -webkit-mask-image: none; mask-image: none; background-color: transparent; }
 /* the logo in one colour: the mask is the client's own silhouette, the hidden <img> only gives it its width */
 .pf-logo-m { display: block; max-width: 100%; height: 30px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
 .pf-logo-m img { display: block; height: 30px; width: auto; max-width: 100%; visibility: hidden; }
@@ -637,7 +639,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 .pf-stage-row { display: flex; align-items: baseline; gap: 10px; font: 700 12.5px var(--cond); letter-spacing: 0.2em; text-transform: uppercase; }
 .pf-stage-name { color: var(--acc); transition: color 0.6s; }
 .pf-stage-open { display: none; align-items: center; gap: 5px; color: rgba(241, 234, 219, 0.75); letter-spacing: 0.14em; font-weight: 600; } .pf-stage-open .ar { width: 0.8em; height: 0.8em; }
-.pf-reel.is-swap .pf-stage-text { animation: pf-rise 0.8s var(--ease); }
+.pf-reel.is-swap .pf-stage-text, .pf-reel.is-swap .pf-stage-top { animation: pf-rise 0.8s var(--ease); }
 @keyframes pf-rise { from { opacity: 0; transform: translateY(10px); } }
 .pf-stage-go { position: absolute; right: 18px; bottom: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border: 1px solid rgba(241, 234, 219, 0.45); border-radius: 999px; background: rgba(9, 8, 10, 0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); opacity: 0; transform: translateY(6px); transition: opacity 0.4s, transform 0.5s var(--ease), background 0.3s, border-color 0.3s, color 0.3s; }
 .pf-stage-go .ar { width: 0.8em; height: 0.8em; }
@@ -675,6 +677,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-sec--cl { position: relative; } .pf-note--cl { right: -230px; top: 50%; translate: 0 -50%; }
   .pf-note { text-shadow: 0 0 10px var(--bg), 0 0 22px var(--bg); position: absolute; width: 190px; font: italic 400 20px/1.3 var(--serif); color: var(--accent-2); opacity: 0; transform: translateY(14px) rotate(-2deg); transition: opacity 1s var(--ease), transform 1.2s var(--ease); }
   .pf-note.in { opacity: 0.9; transform: rotate(-2deg); }
+  .pf-note { border-radius: 14px; background: rgba(14, 12, 9, 0.9); box-shadow: 0 0 16px 10px rgba(14, 12, 9, 0.9); }   /* (a soft dark cloud over the dither field, so the note reads) */
   .pf-sec--pj { position: relative; } .pf-note--2 { right: -230px; top: 50%; translate: 0 -50%; }   /* (the projects count sits beside the projects, Navy's ask) */
   .pf-note--1 { left: -230px; top: 560px; text-align: right; } .pf-note--3 { left: -230px; bottom: 120px; text-align: right; }
 }
@@ -697,7 +700,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 }
 @media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { grid-column: auto; } .pf-feat:nth-child(3) > a { grid-template-columns: none; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
 @media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
-@media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
+@media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text, .pf-reel.is-swap .pf-stage-top { animation: none; } .pf-stage-bar { display: none; } }
 /* on a phone: the small uppercase labels get a floor, and "View all" / the expand button a 44 px tall touch area with the same look */
 @media (max-width: 640px) {
   .pf-meta, .pf-svc-p a, .pf-reel-hint, .pf-reel-pause, .pf-num span, .pf-stage-top, .pf-banner-go { font-size: 12.5px; }
@@ -705,7 +708,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-all { min-height: 44px; margin: -8px 0; }
 }
 @media (pointer: coarse) { .pf-banner-go, .pf-reel-pause { height: 44px; min-width: 44px; justify-content: center; } }
-.motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
+.motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text, .motion-off .pf-reel.is-swap .pf-stage-top { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
 
 export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
@@ -785,6 +788,13 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     tabs.querySelectorAll('a').forEach(function (a) { a.addEventListener('pointerenter', function () { go(a); }); a.addEventListener('focus', function () { go(a); }); a.addEventListener('blur', function () { go(cur); }); });
     tabs.addEventListener('pointerleave', function () { go(cur); }); addEventListener('resize', function () { go(cur); });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { go(cur); });
+  })();
+  // a section's logo and tool masks are fetched when it comes within about a screen (CSS holds them until is-near)
+  (function () {
+    var secs = document.querySelectorAll('.pf-sec');
+    if (!('IntersectionObserver' in window)) { secs.forEach(function (s) { s.classList.add('is-near'); }); return; }
+    var near = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-near'); near.unobserve(e.target); } }); }, { rootMargin: '900px 0px' });
+    secs.forEach(function (s) { near.observe(s); });
   })();
   // the headings rise as their section arrives, the bio's phrases draw their stroke
   if (!reduce && 'IntersectionObserver' in window) {
@@ -883,6 +893,8 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   // cell at 30 fps, reduced motion gets one still frame, and without WebGL2 the CSS dots stay.
   // (a phone or tablet gets the static dots: there the column covers the field, and a WebGL loop would only cost battery)
   if (!window.requestAnimationFrame || typeof nvDither !== 'function' || !fine || innerWidth <= 800) return;
+  // (made after load, when the browser is idle, not in start-up's own task; the CSS dots hold until it arrives)
+  var bootField = function () {
   var field = nvDither({ waveColor: '#8c8c8c', backgroundColor: '#0e0c09', pixelSize: fine ? 2 : 3, dpr: fine ? 1.5 : 1, fps: fine ? 30 : 24, mouse: fine && !reduce, mouseRadius: 0.3, trail: 0.5, clickRipple: fine && !reduce, intro: !reduce, animate: !reduce });
   if (!field) return;
   document.body.prepend(field.canvas); document.body.classList.add('has-field'); requestAnimationFrame(function () { field.canvas.classList.add('on'); }); field.start();
@@ -894,4 +906,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     ['pointermove', 'pointerdown', 'wheel', 'scroll', 'keydown', 'touchstart'].forEach(function (ev) { addEventListener(ev, stir, { passive: true }); });
     nap();
   }
+  };
+  var fieldLater = function () { (window.requestIdleCallback || function (f) { setTimeout(f, 600); })(bootField, { timeout: 2500 }); };
+  if (document.readyState === 'complete') fieldLater(); else addEventListener('load', fieldLater, { once: true });
 })();`;
