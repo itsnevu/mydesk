@@ -37,7 +37,7 @@ export class Experience {
     this.controls.enabled = false;
     this.found = new Set();
     try { const saved = JSON.parse(sessionStorage.getItem(STORE_KEY) || '[]'); for (const id of saved) if (DISCOVERY_ORDER.includes(id)) this.found.add(id); } catch {}
-    this.hovered = null;
+    this.hovered = null; this.kbHover = false;   // (kbHover: the hover came from the keyboard, a place focused in a world's list)
     this.pointer = { x: 0, y: 0, ndcX: 0, ndcY: 0, moved: false, down: null };
     this.focus = null;          // { id, stage } on the desk
     this.flight = null;
@@ -254,7 +254,7 @@ export class Experience {
 
   updateHover() {
     if (!this.pointer.moved) return;
-    this.pointer.moved = false;
+    this.pointer.moved = false; this.kbHover = false;   // (a moved pointer takes the hover back from the keyboard)
     if (this.pointer.down || !this.canHover()) { this.setHovered(null); return; }
     const ray = rayFromCamera(this.camera, this.pointer.ndcX, this.pointer.ndcY);
     const candidates = state.is(S.GATE) ? this.world.gatePickables : this.sceneName === 'project' ? this.worldPicks() : this.world.pickables;
@@ -322,7 +322,10 @@ export class Experience {
     // an anchor off screen, behind the camera or far from the pointer (a big object seen up close, a curtain, a wall) names itself
     // where the pointer is instead: the title has to be next to what you are pointing at
     const px = this.pointer.x, py = this.pointer.y;
-    if (nd[2] > 1 || x < 0 || x > innerWidth || y < 0 || y > innerHeight || Math.hypot(x - px, y - py) > 320) { x = px; y = py - 22; }
+    const off = nd[2] > 1 || x < 0 || x > innerWidth || y < 0 || y > innerHeight;
+    // (a place picked from the keyboard list is named over its own pin, wherever the pointer rests; off screen it goes unnamed)
+    if (this.kbHover) { if (off) { ui.hud.keyTip(0, 0, null); return; } }
+    else if (off || Math.hypot(x - px, y - py) > 320) { x = px; y = py - 22; }
     ui.hud.keyTip(x, y, key, text);
   }
 
@@ -623,6 +626,7 @@ export class Experience {
     this.applyWorldLighting(d);
     V3.copy(this.camera.position, d.camera.position); V3.copy(this.camera.target, d.camera.target); this.controls.sync();
     state.go(S.PROJECT, { project: project.key });
+    this.showPlaces(d);
     // a key focused on the desk before going in is let go now; the trigger itself is released on the way back out, so the return lines up
     const fk = this.focus?.id; if (fk && fk !== this.enteredVia) this.releaseTrigger(fk);
     this.focus = null; this.hotspot = null; this.hotspotView = null; this.panelAnchor = null; this.labelAnchor = null; this._entering = false;
@@ -664,6 +668,17 @@ export class Experience {
     this.vpAnchor = hc ? hc.panel.map((v, k) => v + (hc.right[k] * 118 - hc.up[k] * 165) * px) : [d.origin[0] + 14, 6.0, 13.5];
     ui.viewProject.show(d.project, () => this.openDetail(d.project));
   }
+  /** A world's places as buttons (app/ui worldPlaces), in data.js order: focusing one lights its pin and names it as pointing does; pressing it opens it as a click does. */
+  showPlaces(d) {
+    const order = Object.keys(d.def.hotspots || {});
+    const list = d.hotspots.filter((h) => h.title).sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id)); // (a copy: d.hotspots' own order paces the pins' intro)
+    const here = () => this.world3 === d && state.is(S.PROJECT) && !this.flight;
+    ui.worldPlaces.show(list, {
+      onFocus: (id) => { const h = here() && d.hotspots.find((x) => x.id === id); if (!h) return; this.kbHover = true; this.setHovered(h.mesh); },
+      onBlur: () => { if (!this.kbHover) return; this.kbHover = false; this.setHovered(null); },
+      onPick: (id) => { if (!here()) return; if (this.kbHover) { this.kbHover = false; this.setHovered(null); } this.inspect(id); },
+    });
+  }
   closeHotspot() {
     this.hotspot = null; this.hotspotView = null; this.panelAnchor = null; ui.panel.hide(); this.maybeShowViewProject();
     const d = this.world3; this.flyTo(d.view, { duration: 0.9, onComplete: () => { this.settle('project'); this.showWorldLabel(d); } }); this.updateHints();
@@ -678,7 +693,7 @@ export class Experience {
     }
     this.releaseTrigger(this.enteredVia); this.lastWorld = ni; this.enteredVia = wdef.trigger; // the way back out is through the new world's key
     const d = this.getDiorama(next); d.root.visible = true;
-    this.setHovered(null); ui.panel.hide(); ui.viewProject.hide(); ui.hud.kbdHints(null); ui.hud.sceneLabel(null); this.hotspot = null; this.hotspotView = null; this.panelAnchor = null; this.vpAnchor = null;
+    this.setHovered(null); ui.panel.hide(); ui.viewProject.hide(); ui.worldPlaces.hide(); this.kbHover = false; ui.hud.kbdHints(null); ui.hud.sceneLabel(null); this.hotspot = null; this.hotspotView = null; this.panelAnchor = null; this.vpAnchor = null;
     audio.whoosh(); state.go(S.PROJECT, { project: next.key });
     d.wake.wake = 0.3; d.wake.target = 1;
     const wrap = i + dir < 0 || i + dir >= PORTALS.length; const lift = wrap ? 26 : 12, dur = wrap ? 2.4 : 1.9;
@@ -686,13 +701,13 @@ export class Experience {
     tween.delayed(0.9, () => { this.world3 = d; this.applyWorldLighting(d); setRoute(`project-${next.key}`); });
     // from the settled view every switch has a clear straight line; from a place inspected inside a world, or a view turned or zoomed into it, the arc is what clears the About workshop's walls
     const offView = V3.dist(this.camera.position, from.view.position) > 0.5;
-    this.flyTo(d.view, { duration: dur, ease: Ease.power2InOut, lift, keepLift: offView, onComplete: () => { for (const o of this.dioramas.values()) o.root.visible = o === d; this.settle('project'); this.showWorldLabel(d); this.maybeShowViewProject(); this.updateHints(); } });
+    this.flyTo(d.view, { duration: dur, ease: Ease.power2InOut, lift, keepLift: offView, onComplete: () => { for (const o of this.dioramas.values()) o.root.visible = o === d; this.settle('project'); this.showWorldLabel(d); this.maybeShowViewProject(); this.showPlaces(d); this.updateHints(); } });
   }
   leaveWorld(after) {
     if (!state.go(S.SWITCHING)) return;
     const project = this.world3.project; const wi = WORLDS.findIndex((w) => w.project === project.key);
     const triggerId = this.enteredVia || WORLDS[wi]?.trigger; const frame = triggerId ? this.triggerFrame(triggerId) : null;
-    this.setHovered(null); ui.panel.hide(); ui.viewProject.hide(); ui.detail.hide(); ui.hud.keyTip(0, 0, null); ui.hud.kbdHints(null); ui.hud.sceneLabel(null);
+    this.setHovered(null); ui.panel.hide(); ui.viewProject.hide(); ui.worldPlaces.hide(); ui.detail.hide(); ui.hud.keyTip(0, 0, null); ui.hud.kbdHints(null); ui.hud.sceneLabel(null);
     this.controls.enabled = false; audio.whoosh();
     const d = this.world3; d.outroAt = this.time; // the miniature on the key has no pins: they bow out before the swap
     this.flyTo(d.camera, { duration: 0.9, ease: Ease.power2In, onComplete: () => {
@@ -709,6 +724,7 @@ export class Experience {
     } });
   }
   exitWorldToDesk(after) {
+    ui.worldPlaces.hide();
     this.sceneName = 'desk'; this.world3 = null; this.hotspot = null; this.hotspotView = null; this.panelAnchor = null; this.labelAnchor = null; this.vpAnchor = null;
     if (this.enteredVia) this.releaseTrigger(this.enteredVia);
     for (const o of this.dioramas.values()) o.root.visible = false; this.world.root.visible = true;
@@ -875,7 +891,11 @@ export class Experience {
     if (k === 'm' || k === 'M') { audio.toggle(); ui.hud.sound(audio.state); this.pressKey('space'); return; }
     if (k === ' ') { if (state.is(S.DESK, S.FOCUS, S.OVERVIEW)) this.activate('space'); else { audio.toggle(); ui.hud.sound(audio.state); } return; }
     if (state.is(S.DETAIL)) { const i = PROJECTS.indexOf(ui.detail.current), n = PROJECTS.length; const p = k === 'ArrowLeft' ? PROJECTS[(i - 1 + n) % n] : k === 'ArrowRight' ? PROJECTS[(i + 1) % n] : null; if (p) { ui.detail.show(p); setRoute(`project-${p.key}`); } return; }
-    if (state.is(S.PROJECT)) { if (k === 'ArrowLeft') this.switchWorld(-1); if (k === 'ArrowRight') this.switchWorld(1); if (k === 'Enter' && this.explored.get(this.world3.project.key)?.size >= 2) this.openDetail(this.world3.project); return; }
+    if (state.is(S.PROJECT)) {
+      // Tab with nothing focused starts at the world's places (the hint says so); from any focused control Tab stays the browser's
+      if (k === 'Tab' && !e.shiftKey && (!document.activeElement || document.activeElement === document.body) && ui.worldPlaces.focusFirst()) { e.preventDefault(); return; }
+      if (k === 'ArrowLeft') this.switchWorld(-1); if (k === 'ArrowRight') this.switchWorld(1); if (k === 'Enter' && this.explored.get(this.world3.project.key)?.size >= 2) this.openDetail(this.world3.project); return;
+    }
     if (state.is(S.DESK, S.FOCUS, S.OVERVIEW)) {
       // F1–F3 (or 1–3) are the three work districts on the keyboard
       if (['F1', '1'].includes(k)) this.activate('signal'); if (['F2', '2'].includes(k)) this.activate('market'); if (['F3', '3'].includes(k)) this.activate('lab');
@@ -897,7 +917,7 @@ export class Experience {
       case S.DESK: ui.hud.kbdHints([['click', 'what glows'], ['drag / ← →', 'look around']]); break;
       case S.FOCUS: ui.hud.kbdHints([['ESC', 'back'], ['DRAG / ← →', 'look']]); break;
       case S.OVERVIEW: ui.hud.kbdHints([['ESC', 'back'], ['DRAG / ← →', 'orbit']]); break;
-      case S.PROJECT: ui.hud.kbdHints([['CLICK', 'inspect'], ['←', 'prev world'], ['→', 'next world'], ['ESC', 'desk']]); break;
+      case S.PROJECT: ui.hud.kbdHints([['CLICK', 'inspect'], ['TAB', 'places'], ['←', 'prev world'], ['→', 'next world'], ['ESC', 'desk']]); break;
       default: ui.hud.kbdHints(null);
     }
   }

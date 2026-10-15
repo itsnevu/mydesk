@@ -519,6 +519,21 @@ export const viewProject = {
   hide() { const b = $('view-project'); if (document.activeElement === b) b.blur(); b.classList.remove('visible'); setShown(b, false); },
 };
 
+// ---------- a world's places as buttons: the pins live in the canvas, so the keyboard and screen readers get the same places here
+// (styles.css keeps the list unseen until one of them has the focus; the handlers come from app/experience showPlaces)
+const placesEl = $('world-places'); let placesH = {};
+if (placesEl) {
+  setShown(placesEl, false);
+  placesEl.addEventListener('focusin', (e) => { const b = e.target.closest('[data-id]'); if (b) placesH.onFocus?.(b.dataset.id); });
+  placesEl.addEventListener('focusout', (e) => { if (!placesEl.contains(e.relatedTarget)) placesH.onBlur?.(); });
+  placesEl.addEventListener('click', (e) => { const b = e.target.closest('[data-id]'); if (b) placesH.onPick?.(b.dataset.id); });
+}
+export const worldPlaces = {
+  show(list, handlers = {}) { if (!placesEl) return; placesH = handlers; placesEl.innerHTML = list.map((h) => `<button type="button" data-id="${esc(h.id)}">${esc(h.title)}</button>`).join(''); setShown(placesEl, list.length > 0); },
+  hide() { if (!placesEl) return; if (placesEl.contains(document.activeElement)) document.activeElement.blur(); placesEl.innerHTML = ''; setShown(placesEl, false); },
+  focusFirst() { const b = placesEl && !placesEl.inert ? placesEl.querySelector('button') : null; if (!b) return false; b.focus(); return document.activeElement === b; },
+};
+
 export const reward = {
   show() { $('reward').classList.add('visible'); setTimeout(() => $('reward').classList.remove('visible'), 3600); },
 };
