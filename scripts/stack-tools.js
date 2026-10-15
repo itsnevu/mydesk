@@ -367,7 +367,7 @@ export const STACK_CSS = `
 .pf-gh-k { display: inline-flex; align-items: center; gap: 8px; font: 600 12px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); }
 .pf-gh-k .pf-m { width: 15px; height: 15px; color: var(--dim); }
 .pf-gh-k--sub { display: flex; margin: 16px 0 8px; padding-top: 14px; border-top: 1px solid var(--line); }
-.pf-gh-meta { display: inline-flex; align-items: center; gap: 5px; font: 600 11px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); transition: color 0.3s; }
+.pf-gh-meta { position: relative; display: inline-flex; align-items: center; gap: 5px; font: 600 12px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); transition: color 0.3s; }
 .pf-gh-meta .ar { width: 10px; height: 10px; } .pf-gh-meta:hover { color: var(--accent-2); }
 .pf-gh-bar { display: flex; gap: 2px; height: 10px; overflow: hidden; border-radius: 6px; background: rgba(241, 234, 219, 0.06); }
 .pf-gh-bar i { flex: 0 0 var(--w); min-width: 3px; background: color-mix(in srgb, var(--c) 86%, #0e0c09); transform-origin: left; transition: transform 1s var(--ease), filter 0.3s; transition-delay: calc(var(--k) * 90ms); }
@@ -377,14 +377,14 @@ export const STACK_CSS = `
 .pf-gh-leg li > * { display: flex; align-items: baseline; gap: 7px; width: 100%; padding: 5px 6px; margin: 0 -6px; border: 0; border-radius: 6px; background: none; color: var(--dim); font: 500 13px var(--cond); letter-spacing: 0.06em; text-align: left; }
 .pf-gh-leg button { cursor: pointer; transition: background 0.3s, color 0.3s; }
 .pf-gh-leg button:hover, .pf-gh-leg button:focus-visible { background: rgba(241, 234, 219, 0.06); color: var(--ink); }
-.pf-gh-leg b { font-weight: 600; color: var(--ink); } .pf-gh-leg small { margin-left: auto; font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+.pf-gh-leg b { font-weight: 600; color: var(--ink); } .pf-gh-leg small { margin-left: auto; font-size: 12px; color: var(--faint); white-space: nowrap; }
 .pf-gh-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: color-mix(in srgb, var(--c) 86%, #0e0c09); transform: translateY(-1px); }
 .pf-gh-top6 { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 22px; }
 .pf-gh-top6 button { display: grid; grid-template-columns: 16px auto 1fr auto; align-items: center; gap: 9px; width: 100%; padding: 6px 6px; margin: 0 -6px; border: 0; border-radius: 6px; background: none; color: var(--dim); font: 500 13px var(--cond); letter-spacing: 0.06em; text-align: left; cursor: pointer; transition: background 0.3s, color 0.3s; }
 .pf-gh-top6 button:hover, .pf-gh-top6 button:focus-visible { background: rgba(241, 234, 219, 0.06); color: var(--ink); }
 .pf-gh-top6 .pf-m { width: 14px; height: 14px; }
 .pf-gh-mono { font: 700 8.5px/1 var(--cond); letter-spacing: 0.02em; color: var(--dim); text-align: center; } .pf-gh-top6 b { font-weight: 600; color: var(--ink); white-space: nowrap; }
-.pf-gh-top6 small { font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+.pf-gh-top6 small { font-size: 12px; color: var(--faint); white-space: nowrap; }
 .pf-gh-tb { position: relative; height: 4px; border-radius: 2px; background: rgba(241, 234, 219, 0.07); overflow: hidden; }
 .pf-gh-tb i { position: absolute; inset: 0 auto 0 0; width: calc(var(--v) * 100%); border-radius: inherit; background: var(--accent); transform-origin: left; transition: transform 1s var(--ease); transition-delay: calc(300ms + var(--k) * 80ms); }
 .pf-gh-note { margin: 12px 0 0; font: italic 400 14px/1.4 var(--text); color: var(--faint); }
@@ -477,6 +477,7 @@ html.dlg-open { overflow: hidden; }
 /* (on a phone the names wrap: the meter and the dot follow the last word instead of standing at the far edge) */
 @media (max-width: 560px) { .st-col li:has(.st-tool) { font-size: 19px; } .st-tool { display: block; } .st-tool .tool-i { display: inline-block; vertical-align: -0.12em; margin-right: 0.35em; } .st-tool .tool-i--txt { display: inline-grid; vertical-align: middle; margin: -0.2em 6px 0 0; } .st-tool .tool-i--wide { width: 1.5em; height: 1em; margin: 0 0.3em 0 0; vertical-align: -0.12em; } .st-tool span { display: inline; } .st-tool .pf-u { display: inline-flex; margin-left: 0.4em; vertical-align: 0.05em; } .st-tool.is-now::after { display: inline-block; margin-left: 0.35em; vertical-align: 0.35em; transform: none; } }
 @media (max-width: 400px) { .st-col li:has(.st-tool) { font-size: 17.5px; } }
+@media (hover: none), (pointer: coarse) { .pf-gh-meta::after { content: ""; position: absolute; inset: -14px -6px; } .stack .st-col ul { gap: 8px; } .st-tool { padding-block: 7px; margin-block: -7px; } }
 @media (prefers-reduced-motion: reduce) { .tl-dlg[open] .pf-tdx:not([hidden]) { animation: none; } }
 .motion-off .tl-dlg[open] .pf-tdx:not([hidden]) { animation: none; }
 `;

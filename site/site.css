@@ -1513,15 +1513,17 @@ html[lang="zh-Hans"] .arch-svg .am text, html[lang="zh-Hans"] .arch-svg .an .at 
 .cv-sel li { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .cv-sel b { font: 700 18px/1.1 var(--cond); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink); }
 .cv-sel a { --ul: var(--line-2); }
-.cv-stack { font: 600 11px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
+.cv-stack { font: 600 12px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
 .cv-sel p { font-size: 15px; line-height: 1.5; color: var(--dim); }
-.cv-prole { font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
+.cv-prole { font: 600 12px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
 .cv-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px; overflow-wrap: anywhere; }
 .cv-links a { --ul: var(--line-2); }
+@media screen { .cv-links a { text-decoration-line: underline; text-decoration-color: var(--line-2); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: color 0.25s, text-decoration-color 0.25s; } .cv-links a:hover, .cv-links a:focus-visible { color: var(--accent-2); text-decoration-color: var(--accent); } }
+@media (hover: none), (pointer: coarse) { .cv-links { gap: 0; } .cv-links a { display: inline-block; padding: 8px 0; } .cv-print, .cv-tools a { position: relative; } .cv-print::after, .cv-tools a::after { content: ""; position: absolute; inset: -14px -8px; } }
 .cv-skill-key { margin: -4px 0 6px; font: italic 400 14px/1.4 var(--text); color: var(--faint); }
 .cv-skill b { font-weight: 600; color: var(--ink); }
 .cv-skill { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.5; color: var(--dim); }
-.cv-layer { font: 600 11px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+.cv-layer { font: 600 12px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
 .cv-langs { font-size: 15px; line-height: 1.55; color: var(--dim); }
 @media (max-width: 900px) { .cv-grid { grid-template-columns: 1fr; } .cv-list li { grid-template-columns: 1fr; gap: 6px; } }
 @media print {
