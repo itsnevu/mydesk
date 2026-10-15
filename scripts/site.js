@@ -304,6 +304,9 @@ function roll(text, em = '') {
   return `<span class="roll"><span class="sr">${esc(text)}${em ? ' ' + esc(em) : ''}</span><span class="ra" aria-hidden="true">${row()}</span><span class="rb" aria-hidden="true">${row()}</span></span>`;
 }
 
+// the condensed 600 face of the buttons, kicks, labels and crumbs, fetched early on the home, the 404, /labs/, /work/ and every project page
+const PRELOAD_COND600 = '<link rel="preload" href="/site/fonts/barlow-condensed-600-latin.woff2" as="font" type="font/woff2" crossorigin>';
+
 // `pathname` is the page's path without the language prefix ('/', '/work/', '/work/<key>/'): the canonical and the alternates
 // are built from it. The default language's pages forward to a remembered choice (the switch sets it) before anything paints.
 function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false, nfSwap = false, labels = [] }) {
@@ -963,7 +966,7 @@ function projectPage(D, ctx, p) {
     pathname, css: ctx.css,
     image: exists(`site/og/${p.key}.jpg`) ? `${ORIGIN}/site/og/${p.key}.jpg` : undefined, imageAlt: t('ogProjectAlt', { t: p.title }), theme: tint(p).bg,
     labels: [[t('stackLbl'), stackOf(p)], [p.date === 'live' ? t('statusLbl') : t('when'), status]],
-    extra: `${ldScript(ld)}\n${ldScript(crumbs)}\n`,
+    extra: `${PRELOAD_COND600}\n${ldScript(ld)}\n${ldScript(crumbs)}\n`,
   }) + `
 <body class="project" data-project="${p.key}" data-prev="${u(`/work/${prev.key}/`)}" data-prev-bg="${tint(prev).bg}" data-prev-name="${esc(prev.title)}" data-next="${u(`/work/${next.key}/`)}" data-next-bg="${tint(next).bg}" data-next-name="${esc(next.title)}" style="--acc:${tint(p).acc};--bgc:${tint(p).bg}">
 ${header('work', pathname)}
@@ -1033,7 +1036,7 @@ function archivePage(D, ctx) {
   return head({
     title: t('t_work'), description: t('d_work', { n: list.length }), pathname: '/work/', css: ctx.css,
     image: exists('site/og/work.jpg') ? `${ORIGIN}/site/og/work.jpg` : undefined, imageAlt: t('ogWorkAlt'),
-    extra: `${ldScript(ld)}\n`,
+    extra: `${PRELOAD_COND600}\n${ldScript(ld)}\n`,
   }) + `
 <body class="archive">
 ${header('work', '/work/')}
@@ -1076,7 +1079,7 @@ function labsPage(D, ctx) {
       { '@type': 'ListItem', position: 2, name: M.menu.label, item: pageUrl },
     ] },
   ] };
-  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, image: exists('site/og/labs.jpg') ? `${ORIGIN}/site/og/labs.jpg` : undefined, imageAlt: M.imageAlt, extra: `${ldScript(ld)}\n` }) + `
+  return head({ title: M.title, description: M.pageDescription, pathname: '/labs/', css: ctx.css + LABS_CSS + WORLDS_CSS, image: exists('site/og/labs.jpg') ? `${ORIGIN}/site/og/labs.jpg` : undefined, imageAlt: M.imageAlt, extra: `${PRELOAD_COND600}\n${ldScript(ld)}\n` }) + `
 <body class="archive labs-page">
 ${header('labs', '/labs/')}
 <main id="main" tabindex="-1">
@@ -1150,7 +1153,7 @@ ${footer(D)}
 }
 
 function notFound(D, ctx) {
-  return head({ title: `${t('nf')} | Navy Gibran`, description: t('nfDesc'), pathname: '/404', css: ctx.css, noindex: true, nfSwap: LANG === DEFAULT_LANG }) + `
+  return head({ title: `${t('nf')} | Navy Gibran`, description: t('nfDesc'), pathname: '/404', css: ctx.css, noindex: true, nfSwap: LANG === DEFAULT_LANG, extra: `${PRELOAD_COND600}\n` }) + `
 <body class="nf">
 ${header('', '/')}
 <main id="main" class="wrap nf-in" tabindex="-1">
@@ -1244,6 +1247,7 @@ function simplePage(D, ctx) {
     bannerSet && `<link rel="preload" as="image" href="/site/desk-wide-800.webp" imagesrcset="${bannerSet}" imagesizes="(min-width: 800px) 760px, 100vw" fetchpriority="high">`,
     // (the portrait only by its srcset once the small copies exist; before that, the one file the <img> asks for)
     faceSet.includes('portrait-240') ? `<link rel="preload" as="image" href="/site/portrait.webp" imagesrcset="${faceSet}" imagesizes="${faceSizes}">` : exists('site/portrait.webp') ? '<link rel="preload" as="image" href="/site/portrait.webp">' : '',
+    PRELOAD_COND600,
   ].filter(Boolean).join('\n');
   const graph = { '@context': 'https://schema.org', '@graph': [
     { '@type': 'WebSite', '@id': `${ORIGIN}/#website`, url: `${ORIGIN}/`, name: 'Navy Gibran', inLanguage: LANG_ORDER.map((l) => LANGS[l].html), publisher: { '@id': PERSON_ID } },
