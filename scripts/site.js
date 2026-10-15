@@ -857,7 +857,7 @@ function projectPage(D, ctx, p) {
       <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
       <h2 class="p-wa-t" id="pwa-h">${esc(t('pwaTitle', { t: p.title }))}</h2>
       <p class="p-wa-l">${esc(t('pwaLine'))}</p>
-      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, t('waSimilar', { t: p.title })))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-from="project-band" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="project-band">${esc(D.SITE.email)}</button>` : ''}</div>
+      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, t('waSimilar', { t: p.title })))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-from="project-band" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" aria-label="${esc(t('copyEmail'))} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="project-band">${esc(D.SITE.email)}</button>` : ''}</div>
     </div>
   </section>`;
   const pathname = `/work/${p.key}/`;

@@ -32,9 +32,9 @@ export const WORDS = {
     bio: 'Full-stack developer dari Indonesia. Saya membangun sistem ERP dengan Go dan Next.js, serta website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Dua puluh tiga situs klien online hari ini.',
     live: 'situs live', tabs: { home: 'Beranda', work: 'Karya', labs: 'Labs', cv: 'CV', desk: 'Desk 3D' },
     exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack',
-    viewAll: 'Lihat semua', more: 'Tampilkan lebih', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
+    viewAll: 'Lihat semua', more: 'Tampilkan lebih banyak', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
     status: { live: 'Live', first: 'Versi pertama', done: 'Selesai' }, year: { 'godplan-erp': '2025', jakasn: '2025' },
-    dur: { y: 'th', m: 'bl', d: 'hari' }, present: 'sekarang',
+    dur: { y: 'tahun', m: 'bulan', d: 'hari' }, present: 'sekarang',
     thanks: 'Terima kasih sudah mempercayakan brand Anda kepada saya.',
     notes: ['Dari mengangkat TV ke lantai atas sampai membangun ERP.', 'Dua puluh enam proyek. Dua puluh tiga di antaranya online hari ini.', 'Satu pesan cukup untuk mulai.'],
     ctaTitle: 'Ceritakan usaha Anda.', ctaLine: 'Website, toko online, atau sistem. Satu pesan cukup untuk mulai, dan saya sendiri yang membalas.',
@@ -43,7 +43,7 @@ export const WORDS = {
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
-    pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs',
+    pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs', copyMail: 'Salin email', aboutRow: 'Selengkapnya tentang {o}',
     services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
     ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
     rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
@@ -57,7 +57,7 @@ WORDS.en = {
   live: 'live sites', tabs: { home: 'Home', work: 'Work', labs: 'Labs', cv: 'CV', desk: '3D desk' },
   exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack',
   viewAll: 'View all', more: 'Show more', less: 'Show less', open_: 'Open', close_: 'Close',
-  status: { live: 'Live', first: 'First version', done: 'Done' }, dur: { y: 'y', m: 'm', d: 'days' }, present: 'present',
+  status: { live: 'Live', first: 'First version', done: 'Done' }, dur: { y: 'yr', m: 'mo', d: 'days' }, present: 'present',
   thanks: 'Thank you for trusting me with your brand.',
   notes: ['From carrying TVs upstairs to building an ERP.', 'Twenty-six projects. Twenty-three of them are live today.', 'One message is enough to start.'],
   ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
@@ -65,7 +65,7 @@ WORDS.en = {
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
-  pause: 'Pause', play: 'Play', tabsLabel: 'Site',
+  pause: 'Pause', play: 'Play', tabsLabel: 'Site', copyMail: 'Copy email', aboutRow: 'More about {o}',
   services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
   ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
   rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
@@ -86,7 +86,7 @@ WORDS.zh = {
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
-  pause: '暂停', play: '播放', tabsLabel: '网站导航',
+  pause: '暂停', play: '播放', tabsLabel: '网站导航', copyMail: '复制邮箱', aboutRow: '关于 {o} 的更多',
   services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
   ring: '接受自由职业与全职工作', enter3d: '进入 3D 书桌', expandAll: '全部展开', collapseAll: '全部收起',
   rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
@@ -142,7 +142,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const rowPath = (r, m, i) => `<li class="pf-row pf-exp${m.from && m.to === null ? ' pf-row--now' : ''}" style="--i:${i}">
       ${m.from && m.to === null ? '<i class="pf-pulse" aria-hidden="true"></i>' : ''}${avatar(m)}
       <div class="pf-body">
-        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="false" aria-label="${esc(W.open_)}: ${esc(r.org)}">${I.chev}</button></div>
+        <div class="pf-top"><b>${esc(r.org)}</b><button type="button" class="pf-tg" aria-expanded="false" aria-label="${esc(W.aboutRow.replace('{o}', r.org))}">${I.chev}</button></div>
         <span class="pf-role">${esc(r.role)}</span>
         <span class="pf-meta"><span>${esc(r.when)}</span>${dur(m) ? `<i>·</i><span>${esc(dur(m))}</span>` : ''}</span>
         <div class="pf-chips">${m.chips.map(chip).join('')}</div>
@@ -227,7 +227,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   <section class="pf-sec pf-reel" id="pf-reel" aria-label="${esc(W.reel)}" style="--h:${w0.hue}">
     ${sec(W.reel, n, `<a class="pf-all" href="${u('/labs/')}">${esc(W.viewAll)} ${I.out}</a>`)}
     <p class="pf-reel-line">${esc(W.reelLine.replace('{n}', n))}</p>
-    <a class="pf-stage" href="${labsAt(w0)}" data-track="lab_open" data-lab="${esc(w0.key)}" data-channel="profile-stage">
+    <a class="pf-stage" href="${labsAt(w0)}" data-alt="${esc(W.reelAlt)}" data-track="lab_open" data-lab="${esc(w0.key)}" data-channel="profile-stage">
       <span class="pf-stage-pics"><img class="pf-stage-pic is-on" src="/site/labs/${w0.key}.webp"${small(w0) ? ` srcset="${small(w0)} 800w, /site/labs/${w0.key}.webp 1280w" sizes="(min-width: 800px) 720px, 100vw"` : ''} width="1280" height="720" alt="${esc(W.reelAlt.replace('{n}', w0.name))}" loading="lazy" decoding="async"></span>
       <span class="pf-stage-marks" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span class="pf-stage-top"><span class="pf-stage-n">${pad(1)} / ${pad(n)}</span><b class="pf-stage-cat">${esc(w0.category)}</b></span>
@@ -238,7 +238,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <ul class="pf-strip" aria-label="${esc(W.reel)}">${shots.map(thumb).join('')}</ul>
     <div class="pf-reel-row">
       <a class="btn btn-fill" href="${u('/labs/')}" data-track="lab_open" data-channel="profile-reel-btn" data-magnet>${esc(W.reelAll.replace('{n}', n))} ${I.out}</a>
-      <button type="button" class="pf-reel-pause" aria-pressed="false" data-pause="${esc(W.pause)}" data-play="${esc(W.play)}">${I.pause}${I.play}<span>${esc(W.pause)}</span></button>
+      <button type="button" class="pf-reel-pause" data-pause="${esc(W.pause)}" data-play="${esc(W.play)}">${I.pause}${I.play}<span>${esc(W.pause)}</span></button>
       <span class="pf-reel-hint"><span class="if-hover">${esc(W.reelHint)}</span><span class="if-touch">${esc(W.reelHintTouch)}</span></span>
     </div>
   </section>
@@ -253,7 +253,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 <div class="pf">
   <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
   <section class="pf-card" id="pf-me" aria-label="Navy Gibran">
-    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}<a class="pf-banner-go" href="/3d/" data-track="3d_cta_click" data-from="profile-banner">${I.cube}<span>${esc(W.enter3d)}</span>${I.right}</a></div>
+    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}<a class="pf-banner-go" href="/3d/" aria-label="${esc(W.enter3d)}" data-track="3d_cta_click" data-from="profile-banner">${I.cube}<span>${esc(W.enter3d)}</span>${I.right}</a></div>
     <div class="pf-card-in">
       <div class="pf-id">
         <div class="pf-face-w"><figure class="pf-face">${exists('site/portrait-240.webp') ? `<img src="/site/portrait.webp" srcset="/site/portrait-240.webp 240w, ${exists('site/portrait-360.webp') ? '/site/portrait-360.webp 360w, ' : ''}/site/portrait.webp 640w" sizes="(max-width: 480px) 100px, 116px" alt="${esc(W.altPortrait)}" width="640" height="800" fetchpriority="high" decoding="async">` : img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure><svg class="pf-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="pf-ring-p" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#pf-ring-p" textLength="536" lengthAdjust="spacing">${esc(ringText)}</textPath></text></svg></div>
@@ -281,7 +281,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </nav>
   ${hatch}${reel}
   <section class="pf-sec" aria-labelledby="pf-exp">
-    ${sec(W.exp, expRows.length, `<button type="button" class="pf-all pf-xall" aria-pressed="false" data-open="${esc(W.expandAll)}" data-close="${esc(W.collapseAll)}">${esc(W.expandAll)}</button>`, 'pf-exp')}
+    ${sec(W.exp, expRows.length, `<button type="button" class="pf-all pf-xall" data-open="${esc(W.expandAll)}" data-close="${esc(W.collapseAll)}">${esc(W.expandAll)}</button>`, 'pf-exp')}
     <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
     <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
     <ol class="pf-list pf-tl" data-stagger>${edu}</ol>
@@ -312,7 +312,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <p>${esc(W.ctaLine)}</p>
       <div class="pf-cta-row">
         <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${esc(W.chat)} ${I.out}</a>
-        ${D.SITE.email ? `<button class="btn pf-cta-mail" type="button" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="profile-cta" data-magnet>${exists('site/tools/gmail.svg') ? mark('gmail') : ''}<span>${esc(D.SITE.email)}</span></button>` : ''}
+        ${D.SITE.email ? `<button class="btn pf-cta-mail" type="button" aria-label="${esc(W.copyMail)} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="profile-cta" data-magnet>${exists('site/tools/gmail.svg') ? mark('gmail') : ''}<span>${esc(D.SITE.email)}</span></button>` : ''}
         <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${esc(W.see3d)} ${I.right}</a>
       </div>
     </div>
@@ -486,7 +486,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-pulse::after { animation-delay: 1.5s; }
 @keyframes pf-ping { 0% { transform: scale(0.9); opacity: 0.75; } 100% { transform: scale(1.6); opacity: 0; } }
 /* the floating WhatsApp button: in once the hero's button has gone by, out again when the closing banner arrives */
-.pf-fab { position: fixed; right: 20px; bottom: 20px; z-index: 40; display: inline-flex; align-items: center; gap: 9px; height: 52px; padding: 0 22px 0 18px; border-radius: 999px; background: var(--ink); color: #140f09; font: 700 13px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.75); opacity: 0; transform: translateY(18px) scale(0.92); pointer-events: none; transition: opacity 0.4s, transform 0.6s var(--ease), background 0.3s; }
+.pf-fab { position: fixed; right: 20px; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 40; display: inline-flex; align-items: center; gap: 9px; height: 52px; padding: 0 22px 0 18px; border-radius: 999px; background: var(--ink); color: #140f09; font: 700 13px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; box-shadow: 0 18px 40px -14px rgba(0, 0, 0, 0.75); opacity: 0; transform: translateY(18px) scale(0.92); pointer-events: none; transition: opacity 0.4s, transform 0.6s var(--ease), background 0.3s; }
 .pf-fab .pf-m { width: 20px; height: 20px; color: #1f9e4f; }
 .pf-fab.on { opacity: 1; transform: none; pointer-events: auto; }
 .pf-fab:hover, .pf-fab:focus-visible { background: var(--accent-2); }
@@ -533,12 +533,14 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 /* the clients on cream: one light room in the dark column */
 .pf-sec--cream { background: var(--cream); color: var(--cream-ink); border-color: var(--cream-line); }
 .pf-sec--cream .pf-h h2 em { color: var(--cream-ink); } .pf-sec--cream .pf-h sup, .pf-sec--cream .pf-all { color: var(--cream-dim); } .pf-sec--cream .pf-all:hover { color: var(--cream-ink); }
-.pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); } .pf-sec--cream /* a mark names itself on hover: it lifts, its client's name slides in under it */
+.pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); }
+/* a mark names itself on hover: it lifts, its client's name slides in under it */
 .pf-logo:not(.pf-logo--w)::after { content: attr(title); position: absolute; left: 6px; right: 6px; bottom: 7px; font: 700 9px/1 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--cream-ink); opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.45s var(--ease); }
 .pf-logo .pf-logo-m { transition: transform 0.5s var(--ease); }
 .pf-logo:not(.pf-logo--w):hover::after, .pf-logo:not(.pf-logo--w):focus-visible::after { opacity: 0.7; transform: none; }
+@media (hover: none) { .pf-logo:not(.pf-logo--w)::after { opacity: 0.7; transform: none; } .pf-logo:not(.pf-logo--w) .pf-logo-m { transform: translateY(-7px) scale(0.9); } }   /* (a touch screen never hovers: the names stay) */
 .pf-logo:not(.pf-logo--w):hover .pf-logo-m, .pf-logo:not(.pf-logo--w):focus-visible .pf-logo-m { transform: translateY(-7px) scale(0.9); }
-.pf-logo:hover { border-color: var(--cream-ink); color: var(--cream-ink); background: rgba(23, 18, 12, 0.04); }
+.pf-sec--cream .pf-logo:hover { border-color: var(--cream-ink); color: var(--cream-ink); background: rgba(23, 18, 12, 0.04); }   /* (on the cream a mark darkens; it must not take the dark page's light hover) */
 .pf-sec--cream .pf-note--cl { color: var(--accent-2); }
 /* the marks sliding by, slowly, across the cream (paused under the pointer, still for reduced motion) */
 .pf-marq { --pad: clamp(18px, 3vw, 30px); margin: 0 calc(-1 * var(--pad)) 18px; padding: 14px 0; overflow: hidden; border-top: 1px solid var(--cream-line); border-bottom: 1px solid var(--cream-line); -webkit-mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
@@ -617,7 +619,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 .pf-reel-row .btn { height: 50px; padding: 0 24px; font-size: 13.5px; }
 .pf-reel-pause { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px; background: none; color: var(--dim); font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
 .pf-reel-pause:hover, .pf-reel-pause:focus-visible { border-color: var(--ink); color: var(--ink); }
-.pf-reel-pause svg { width: 13px; height: 13px; } .pf-reel-pause .pl, .pf-reel-pause[aria-pressed="true"] .pz { display: none; } .pf-reel-pause[aria-pressed="true"] .pl { display: block; }
+.pf-reel-pause svg { width: 13px; height: 13px; } .pf-reel-pause .pl, .pf-reel-pause.on .pz { display: none; } .pf-reel-pause.on .pl { display: block; }
 .pf-reel.is-paused .pf-stage-bar::after { animation-play-state: paused; }
 .pf-reel-hint { font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); }
 .pf-reel-hint .if-touch { display: none; }
@@ -642,7 +644,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-pj-st { display: none; }
   .pf-svc-g { grid-template-columns: 1fr; } .pf-svc-c.is-wide { grid-column: auto; }
   .pf-proc-l { grid-template-columns: 1fr 1fr; row-gap: 22px; } .pf-proc-l::before { display: none; } .pf-banner-go span { display: none; } .pf-banner-go { padding: 0 11px; } .pf-th { width: 72px; height: 45px; }
-  .pf-feats { grid-template-columns: 1fr 1fr; } .pf-feat:nth-child(3) { display: none; }
+  .pf-feats { grid-template-columns: 1fr 1fr; } .pf-feat:nth-child(3) { grid-column: 1 / -1; } .pf-feat:nth-child(3) > a { grid-template-columns: 1fr 1fr; align-items: center; }   /* (the third card across, picture beside its words, instead of hidden) */
   .pf-nums { gap: 8px; } .pf-num { padding: 12px; }
   .pf-stage { border-radius: 10px; } .pf-stage-top { left: 14px; right: 14px; top: 14px; } .pf-stage-text { left: 14px; right: 14px; bottom: 14px; gap: 5px; }
   .pf-stage-marks { inset: 9px; } .pf-stage-marks i { width: 11px; height: 11px; }
@@ -650,7 +652,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 12px; letter-spacing: 0.06em; } .pf-tabs a svg { width: 15px; height: 15px; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
-@media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: 14px; height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
+@media (max-width: 480px) { .pf-tabs a { flex-direction: column; gap: 4px; height: 58px; padding: 0 2px; } .pf-tabs a::after { left: 10px; right: 10px; } .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { grid-column: auto; } .pf-feat:nth-child(3) > a { grid-template-columns: none; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
 @media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-reel-pause { display: none; } .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
 .motion-off .pf-marq-t { animation: none; } .motion-off .pf-reel-pause { display: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
@@ -711,7 +713,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   var setOpen = function (row, on) { row.classList.toggle('open', on); var b = row.querySelector('.pf-tg'); if (b) b.setAttribute('aria-expanded', String(on)); };
   document.querySelectorAll('.pf-exp').forEach(function (row) { row.addEventListener('click', function (e) { if (e.target.closest('a') || (window.getSelection && String(getSelection()).length)) return; setOpen(row, !row.classList.contains('open')); }); });
   var xall = document.querySelector('.pf-xall');
-  if (xall) xall.addEventListener('click', function () { var on = xall.getAttribute('aria-pressed') !== 'true'; xall.setAttribute('aria-pressed', String(on)); xall.textContent = on ? xall.dataset.close : xall.dataset.open; (xall.closest('section') || document).querySelectorAll('.pf-exp').forEach(function (row) { setOpen(row, on); }); });
+  if (xall) xall.addEventListener('click', function () { var on = !xall.classList.contains('on'); xall.classList.toggle('on', on); xall.textContent = on ? xall.dataset.close : xall.dataset.open; (xall.closest('section') || document).querySelectorAll('.pf-exp').forEach(function (row) { setOpen(row, on); }); });
   // the tabs: one indicator that slides to the tab pointed at, and back to the page's own
   (function () {
     var tabs = document.querySelector('.pf-tabs'), ind = tabs && tabs.querySelector('.pf-tabs-ind'); if (!ind) return;
@@ -768,7 +770,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
       i = ((i % n) + n) % n; if (i === cur) return;
       var im = pic(i), go = function () {
         if (i === cur) return; cur = i;
-        Object.keys(imgs).forEach(function (k) { imgs[k].classList.toggle('is-on', +k === i); });
+        Object.keys(imgs).forEach(function (k) { imgs[k].classList.toggle('is-on', +k === i); imgs[k].alt = +k === i ? (stage.dataset.alt || '').replace('{n}', thumbs[i].dataset.name) : ''; });   // (only the picture shown has an alt)
         thumbs.forEach(function (t, k) { t.classList.toggle('is-on', k === i); if (k === i) t.setAttribute('aria-current', 'true'); else t.removeAttribute('aria-current'); });
         var t = thumbs[i];
         nEl.textContent = two(i) + ' / ' + two(n - 1); catEl.textContent = t.dataset.cat; tagEl.textContent = t.dataset.tag; nameEl.textContent = t.dataset.name;
@@ -804,7 +806,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     reel.addEventListener('focusin', function () { focused = true; hold(); });
     reel.addEventListener('focusout', function (e) { if (!reel.contains(e.relatedTarget)) { focused = false; hold(); } });
     var pz = reel.querySelector('.pf-reel-pause');
-    if (pz) pz.addEventListener('click', function () { paused = !paused; pz.setAttribute('aria-pressed', String(paused)); pz.querySelector('span').textContent = paused ? pz.dataset.play : pz.dataset.pause; hold(); });
+    if (pz) pz.addEventListener('click', function () { paused = !paused; pz.classList.toggle('on', paused); pz.querySelector('span').textContent = paused ? pz.dataset.play : pz.dataset.pause; hold(); });
     [stage, strip].forEach(function (el) { el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { clearTimeout(restT); over = true; hold(); } }); el.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { over = false; hold(); } }); });
     reel.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') rest(); });
     strip.addEventListener('scroll', function () { if (!auto && !fine) rest(); }, { passive: true });   // (the strip scrolled by hand, not by the reel itself)
