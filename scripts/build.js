@@ -2,7 +2,8 @@
 // Each module becomes a scoped function registered in a tiny module table; imports resolve in dependency order.
 // Geometry: every asset the code names as a string literal is packed to kwb2 (scripts/kwpack.js) and inlined as base64 in a
 // non-executing <script type="application/octet-stream" id="kwa-NAME">: the HTML parser skips it, and loadAsset() decodes it
-// only when asked, so worlds cost nothing until entered. JS and CSS get a light, verified comment/indent strip (scripts/jsmin.js).
+// only when asked, so worlds cost nothing until entered, and the worlds' blobs follow the bundle, so the desk boots without them.
+// JS and CSS get a light, verified comment/indent strip (scripts/jsmin.js).
 // public/** is copied into dist/ as is (lazy images such as shots/<key>.webp stay out of the HTML).
 // Two sites: the 3D desk is written to dist/3d/index.html, and the plain portfolio (scripts/site.js) to dist/index.html and
 // dist/work/<key>/index.html. vercel.json maps the desk's relative fetches (shots/, cat/, bgsound.m4a) back to the root copies.
@@ -79,10 +80,15 @@ bundle = header + bundle.replace(/<\/(script)/gi, '<\\/$1');
 const literals = new Set();
 if (tokens) { for (const t of tokens) if (/^(['"])[\w.-]+\1$|^`[\w.-]+`$/.test(t)) literals.add(t.slice(1, -1)); }
 else for (const m of full.matchAll(/(['"`])([\w.-]+)\1/g)) literals.add(m[2]);
-const assetsDir = path.join(root, 'assets'), inlined = [], skipped = []; let assetTags = '', jsonBytes = 0;
+// named but never loaded: 'gallery' is also a controls mode and a state name, and the corridor that would load it (app/gallery3d) is not bundled; the blob comes back by itself once that module is imported again
+const unloaded = order.includes('app/gallery3d') ? new Set() : new Set(['gallery']);
+// the nine worlds' blobs go after the bundle: they are decoded only once a world is entered, so the desk boots without waiting for them; data-late tells loadAsset() to wait for the parser if one is asked for while the page is still arriving
+const isLate = (name) => /^world_\d+$/.test(name);
+const assetsDir = path.join(root, 'assets'), inlined = [], skipped = [], unused = []; let bootTags = '', lateTags = '', jsonBytes = 0;
 if (fs.existsSync(assetsDir)) for (const f of fs.readdirSync(assetsDir).sort()) {
   if (!f.endsWith('.json')) continue;
   const name = f.slice(0, -5); if (!literals.has(name)) { skipped.push(name); continue; }
+  if (unloaded.has(name)) { unused.push(name); continue; }
   const raw = fs.readFileSync(path.join(assetsDir, f)); let bytes;
   try { bytes = pack(JSON.parse(raw), { name }); jsonBytes += raw.length; }
   catch (e) { // mid-export JSON: keep the last good pack rather than failing the build
@@ -90,7 +96,8 @@ if (fs.existsSync(assetsDir)) for (const f of fs.readdirSync(assetsDir).sort()) 
     if (!fs.existsSync(kwb)) { console.warn(`warning: assets/${f} unreadable (${e.message}) and no assets/${name}.kwb to fall back on; left out`); continue; }
     console.warn(`warning: assets/${f} unreadable (${e.message}); inlined the last good assets/${name}.kwb instead`); bytes = fs.readFileSync(kwb);
   }
-  assetTags += `<script type="application/octet-stream" id="kwa-${name}">${bytes.toString('base64')}</script>\n`;
+  const tag = `<script type="application/octet-stream" id="kwa-${name}"${isLate(name) ? ' data-late' : ''}>${bytes.toString('base64')}</script>\n`;
+  if (isLate(name)) lateTags += tag; else bootTags += tag;
   inlined.push(name);
 }
 let css = fs.readFileSync(path.join(root, 'src/styles.css'), 'utf8'); try { css = minifyCSS(css); } catch {}
@@ -98,7 +105,7 @@ let css = fs.readFileSync(path.join(root, 'src/styles.css'), 'utf8'); try { css 
 let out = html
   .replace(mapMatch[0], '')
   .replace(/<link rel="stylesheet" href="\.\/src\/styles\.css" \/>/, () => `<style>\n${css}\n</style>`)
-  .replace(/<script type="module" src="\.\/src\/main\.js"><\/script>/, () => `${assetTags}<script>\n${bundle}\n</script>`);
+  .replace(/<script type="module" src="\.\/src\/main\.js"><\/script>/, () => `${bootTags}<script>\n${bundle}\n</script>\n${lateTags}`);
 fs.mkdirSync(dist, { recursive: true });
 // public/** first, so nothing in it can overwrite the pages written below
 const pub = path.join(root, 'public'); let copied = 0;
@@ -121,5 +128,5 @@ if (!process.env.VERCEL) {
 const kb = (n) => (n / 1024).toFixed(1) + ' kB';
 console.log(`built dist/3d/index.html, the desk (${kb(out.length)}, gzip ${kb(zlib.gzipSync(out).length)}), ${order.length} modules, ${minNote}`);
 console.log(`built the portfolio: ${Object.keys(pages).length} files, home page ${kb(homeKB)} (gzip ${kb(zlib.gzipSync(pages['index.html']).length)})`);
-console.log(`assets: ${inlined.length} inlined as kwb2 (${kb(jsonBytes)} of JSON → ${kb(assetTags.length)} base64)${skipped.length ? `, not referenced so left out: ${skipped.join(', ')}` : ''}`);
+console.log(`assets: ${inlined.length} inlined as kwb2 (${kb(jsonBytes)} of JSON → ${kb(bootTags.length + lateTags.length)} base64), ${inlined.filter(isLate).length} of them after the bundle${skipped.length ? `, not referenced so left out: ${skipped.join(', ')}` : ''}${unused.length ? `; named but never loaded, left out: ${unused.join(', ')}` : ''}`);
 if (copied) console.log(`public: ${copied} file(s) copied into dist/`);

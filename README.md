@@ -241,8 +241,9 @@ Blender (`assets/keyboardweb.blend`) → `assets/*.json` → `assets/*.kwb` → 
 - **`dist/index.html`**: one self-contained file that works from `file://` too. The ES modules are bundled in dependency order into one inline
   script (each module a scoped function in a small module table) and the CSS is inlined. Every asset the code names as a string literal
   (`'world_02'`, `'desk_props'`…) is packed to kwb2 and inlined as base64 in a non-executing `<script type="application/octet-stream"
-  id="kwa-NAME">`, decoded only when first used, so unvisited worlds cost nothing at startup. Assets nobody names are left out (the log lists
-  them); a JSON caught mid-export falls back to its last good `.kwb`.
+  id="kwa-NAME">`, decoded only when first used, so unvisited worlds cost nothing at startup, and the worlds' blobs follow the bundle (marked
+  `data-late`), so the desk boots before they arrive. Assets nobody names are left out (the log lists them); a JSON caught mid-export falls
+  back to its last good `.kwb`.
 - **`dist/shots/`** (and anything else in `public/`), copied as is: the screenshots stay out of the HTML and load when a project page first opens.
 - **`dist/artifact.html`**: the same page as a body-only fragment, for hosts that wrap it in their own document (not written on Vercel).
 

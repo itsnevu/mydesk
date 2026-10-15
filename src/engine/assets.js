@@ -8,19 +8,25 @@ const cache = new Map();
 
 /**
  * Fetch an asset once. Bundled build: inlined as base64 kwb2 in <script type="application/octet-stream" id="kwa-NAME">
- * (decoded only when first asked for, so unvisited worlds cost nothing at startup) or legacy window.__KW_ASSETS.
+ * (decoded only when first asked for, so unvisited worlds cost nothing at startup) or legacy window.__KW_ASSETS. A world's
+ * tag comes after the bundle (data-late): asked for while the page is still loading, it waits for the parser to finish.
  * Dev: assets/NAME.kwb, falling back to assets/NAME.json.
  */
 export async function loadAsset(name) {
   if (cache.has(name)) return cache.get(name);
-  const inline = globalThis.__KW_ASSETS?.[name], tag = globalThis.document?.getElementById('kwa-' + name);
-  const json = () => fetch(`./assets/${name}.json`).then((r) => { if (!r.ok) throw new Error(`asset ${name}: ${r.status}`); return r.json(); });
-  const p = inline ? Promise.resolve(inline)
-    : tag ? Promise.resolve().then(() => decodeKwb(b64(tag.textContent.trim())))
-    : fetch(`./assets/${name}.kwb`).then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).then((b) => decodeKwb(new Uint8Array(b))).catch(json);
-  cache.set(name, p);
-  p.catch(() => cache.delete(name));
-  return p;
+  const doc = globalThis.document, find = () => doc?.getElementById('kwa-' + name), now = find();
+  // a world's blob follows the bundle (data-late, scripts/build.js): while the page is still arriving, one not read yet, or perhaps
+  // only partly read, waits for the parser to reach the end of the page (readystatechange to interactive comes before deferred scripts run)
+  const wait = doc?.readyState === 'loading' && (!now || now.hasAttribute('data-late'));
+  const ready = wait ? new Promise((r) => doc.addEventListener('readystatechange', r, { once: true })) : Promise.resolve();
+  const p = ready.then(() => {
+    const inline = globalThis.__KW_ASSETS?.[name], tag = wait ? find() : now;
+    if (inline) return inline;
+    if (tag) return decodeKwb(b64(tag.textContent.trim()));
+    const json = () => fetch(`./assets/${name}.json`).then((r) => { if (!r.ok) throw new Error(`asset ${name}: ${r.status}`); return r.json(); });
+    return fetch(`./assets/${name}.kwb`).then((r) => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }).then((b) => decodeKwb(new Uint8Array(b))).catch(json);
+  });
+  cache.set(name, p); p.catch(() => cache.delete(name)); return p;
 }
 
 function b64(str) { const bin = atob(str); const out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out; }
