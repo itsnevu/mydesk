@@ -189,7 +189,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   return `<main id="main" tabindex="-1">
 <div class="pf">
-  <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--2">${esc(W.notes[1])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
+  <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
   <section class="pf-card" aria-label="Navy Gibran">
     <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}</div>
     <div class="pf-card-in">
@@ -219,7 +219,8 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <ol class="pf-list" data-stagger>${edu}</ol>
   </section>
   ${hatch}
-  <section class="pf-sec" aria-labelledby="pf-pj">
+  <section class="pf-sec pf-sec--pj" aria-labelledby="pf-pj">
+    <span class="pf-note pf-note--2" aria-hidden="true">${esc(W.notes[1])}</span>
     ${sec(W.projects, counted.length, `<a class="pf-all" href="${u('/work/')}">${esc(W.viewAll)} ${I.out}</a>`)}
     <ol class="pf-list" data-stagger data-fold>${projects}</ol>
     ${more(W.more)}
@@ -402,14 +403,15 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-reel-hint .if-touch { display: none; }
 @media (hover: none), (pointer: coarse) { .pf-reel-hint .if-touch { display: inline; } .pf-stage-go { display: none; } .pf-stage-open { display: inline-flex; } .pf-stage-text { padding-right: 0; } .pf-stage-marks { opacity: 0.4; } }
 /* margin notes on a wide screen only: the italic in the gutters, in after the column settles */
-.pf-notes, .pf-note--cl { display: none; }
+.pf-notes, .pf-note--cl, .pf-note--2 { display: none; }
 @media (min-width: 1240px) {
-  .pf-notes, .pf-note--cl { display: block; }
+  .pf-notes, .pf-note--cl, .pf-note--2 { display: block; }
   /* (the thanks rides beside the client logos: inside their section, so it stays with them whatever the lists above unfold to) */
   .pf-sec--cl { position: relative; } .pf-note--cl { right: -230px; top: 50%; translate: 0 -50%; }
   .pf-note { position: absolute; width: 190px; font: italic 400 20px/1.3 var(--serif); color: var(--accent-2); opacity: 0; transform: translateY(14px) rotate(-2deg); transition: opacity 1s var(--ease), transform 1.2s var(--ease); }
   .pf-note.in { opacity: 0.9; transform: rotate(-2deg); }
-  .pf-note--1 { left: -230px; top: 560px; text-align: right; } .pf-note--2 { right: -230px; top: 1360px; } .pf-note--3 { left: -230px; bottom: 120px; text-align: right; }
+  .pf-sec--pj { position: relative; } .pf-note--2 { right: -230px; top: 50%; translate: 0 -50%; }   /* (the projects count sits beside the projects, Navy's ask) */
+  .pf-note--1 { left: -230px; top: 560px; text-align: right; } .pf-note--3 { left: -230px; bottom: 120px; text-align: right; }
 }
 @media (max-width: 800px) {
   .pf { padding-top: calc(var(--head-h) + 4px); }

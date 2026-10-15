@@ -149,8 +149,9 @@ const CLIENTS = [
   { key: 'rameinaja', name: 'RameinAja, now Reparty Indonesia', word: ['Ramein', 'Aja'] }, { key: 'little-aivy', name: 'Little Aivy' }, { key: 'airon', name: 'Airon' },
   { key: 'fls-group-indonesia', name: 'FLS Group Indonesia' }, { key: 'the-bedji-group', name: 'The Bedji Group' }, { key: 'godtive', name: 'Godtive' },
   { key: 'duta-mesh', name: 'CV. Duta Mesh' }, { key: 'kusen-tangsel', name: 'Kusen Tangsel, Gita Makmur Aluminium' }, { key: 'nudelisius', name: 'Nudelisius' },
-  // (Ur Branded Bae's mark is a pale gradient with white letters and Rathera's shows another studio's name: both by name instead)
-  { key: 'ur-branded-bae', name: 'Ur Branded Bae', word: ['Ur Branded', 'Bae'] }, { key: 'rathera-beauty-studio', name: 'Rathera Beauty Studio', word: ['Rathera', 'Beauty Studio'] },
+  // (Ur Branded Bae's mark: the white letters, ring and sparkles lifted off its gradient badge; Rathera's site carries another
+  // studio's logo, Yolaine Beauty Bar, so Rathera stays by name until Navy sends its own mark)
+  { key: 'ur-branded-bae', name: 'Ur Branded Bae' }, { key: 'rathera-beauty-studio', name: 'Rathera Beauty Studio', word: ['Rathera', 'Beauty Studio'] },
 ];
 
 // what I build, by kind of work ("territories"): the proof (project pages) is here, the words are in i18n.js, in the same order
