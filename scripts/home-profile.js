@@ -40,7 +40,9 @@ export const WORDS = {
     waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
-    featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat', stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
+    featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
+    ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
+    rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
     reelOpen: 'Buka di Labs', reelAll: 'Jelajahi {n} dunia', reelHint: 'Arahkan ke gambar kecil untuk ganti dunia', reelHintTouch: 'Ketuk gambar kecil untuk ganti dunia', reelAlt: 'Satu frame dari dunia 3D {n}',
   },
 };
@@ -58,7 +60,9 @@ WORDS.en = {
   chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
-  featured: 'Featured', localTime: 'Local time', fab: 'Chat', stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
+  featured: 'Featured', localTime: 'Local time', fab: 'Chat',
+  ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
+  rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
   reelOpen: 'Open in Labs', reelAll: 'Explore {n} worlds', reelHint: 'Point at a small frame to change the world', reelHintTouch: 'Tap a small frame to change the world', reelAlt: 'A frame of the 3D world {n}',
 };
 WORDS.zh = {
@@ -75,7 +79,9 @@ WORDS.zh = {
   chat: '用 WhatsApp 聊', see3d: '看 3D 版本', cvBtn: '下载简历', email: '邮箱',
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
-  featured: '精选', localTime: '当地时间', fab: '聊天', stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
+  featured: '精选', localTime: '当地时间', fab: '聊天',
+  ring: '接受自由职业与全职工作', enter3d: '进入 3D 书桌', expandAll: '全部展开', collapseAll: '全部收起',
+  rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
   reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
 };
 // the chips that are words rather than tool names, in the page's language (the tool names stay as they are written)
@@ -143,13 +149,15 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const counted = D.PROJECTS.filter((p) => p.key !== 'client-websites');
   const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
   const status = (p) => W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
+  const stat = (p) => status(p) === W.status.live ? `<span class="pf-live"><i aria-hidden="true"></i>${esc(status(p))}</span>` : `<span>${esc(status(p))}</span>`;
+  const stk = (p) => (p.stack || '').split(' · ').slice(0, 2).join(' · ');
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
       <span class="pf-th">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="64" height="40">` : I.folder}</span>
-      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i><span>${esc(status(p))}</span></span></span>
-      <span class="pf-go">${I.out}</span></a></li>`; };
+      <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span></span>
+      <span class="pf-pj-st">${esc(stk(p))}</span><span class="pf-go">${I.out}</span></a></li>`; };
   const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}">
       <span class="pf-feat-pic">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="640" height="400">` : I.folder}</span>
-      <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i><span>${esc(status(p))}</span></span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
+      <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
       <span class="pf-go">${I.out}</span></a></li>`; };
   const featured = counted.slice(0, 3).map(feat).join('');
   const projects = counted.slice(3).map(rowProject).join('');
@@ -181,7 +189,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     const small = (w) => exists(`site/labs/${w.key}-800.webp`) ? `/site/labs/${w.key}-800.webp` : '';
     const thumb = (w, i) => { const s = exists(`site/labs/${w.key}-360.webp`) ? `/site/labs/${w.key}-360.webp` : small(w) || `/site/labs/${w.key}.webp`; return `<li><a class="pf-thumb${i ? '' : ' is-on'}" href="${labsAt(w)}" data-i="${i}" data-key="${esc(w.key)}" data-big="/site/labs/${w.key}.webp" data-small="${small(w)}" data-cat="${esc(w.category)}" data-tag="${esc(w.tagline)}" data-name="${esc(w.name)}" data-h="${w.hue}" aria-label="${esc(w.name)}: ${esc(w.tagline)}"${i ? '' : ' aria-current="true"'} data-track="lab_open" data-lab="${esc(w.key)}" data-channel="profile-reel"><img src="${s}" alt="" width="360" height="203" loading="lazy" decoding="async"></a></li>`; };
     return `
-  <section class="pf-sec pf-reel" aria-label="${esc(W.reel)}" style="--h:${w0.hue}">
+  <section class="pf-sec pf-reel" id="pf-reel" aria-label="${esc(W.reel)}" style="--h:${w0.hue}">
     ${sec(W.reel, n, `<a class="pf-all" href="${u('/labs/')}">${esc(W.viewAll)} ${I.out}</a>`)}
     <p class="pf-reel-line">${esc(W.reelLine.replace('{n}', n))}</p>
     <a class="pf-stage" href="${labsAt(w0)}" data-track="lab_open" data-lab="${esc(w0.key)}" data-channel="profile-stage">
@@ -201,19 +209,23 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   ${hatch}`;
   })() : '';
 
+  const bio = (W.hl || []).reduce((h, ph) => h.replace(esc(ph), `<mark class="pf-hl">${esc(ph)}</mark>`), esc(W.bio));
+  const ringText = `${W.ring} · ${W.ring} · `;
+  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ['pf-contact', W.rail.contact]]
+    .map(([id, label], i) => `<li><a href="#${id}" data-rail="${id}"><b>${pad(i)}</b><span>${esc(label)}</span></a></li>`).join('');
   return `<main id="main" tabindex="-1">
 <div class="pf">
   <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
-  <section class="pf-card" aria-label="Navy Gibran">
-    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}</div>
+  <section class="pf-card" id="pf-me" aria-label="Navy Gibran">
+    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}<a class="pf-banner-go" href="/3d/" data-track="3d_cta_click" data-from="profile-banner">${I.cube}<span>${esc(W.enter3d)}</span>${I.right}</a></div>
     <div class="pf-card-in">
       <div class="pf-id">
-        <figure class="pf-face">${img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure>
+        <div class="pf-face-w"><figure class="pf-face">${img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure><svg class="pf-ring" viewBox="0 0 200 200" aria-hidden="true"><defs><path id="pf-ring-p" d="M100,100 m-86,0 a86,86 0 1,1 172,0 a86,86 0 1,1 -172,0"/></defs><text><textPath href="#pf-ring-p" textLength="536" lengthAdjust="spacing">${esc(ringText)}</textPath></text></svg></div>
         <div class="pf-hero-cta"><a class="btn btn-fill pf-hero-wa" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="profile-hero" data-magnet>${esc(W.chat)} ${I.out}</a>${exists('cv/Navy-Gibran-CV.pdf') ? `<a class="btn pf-hero-cv" href="/cv/Navy-Gibran-CV.pdf" download data-track="cv_download" data-from="profile-hero" data-magnet>${I.doc}<span>${esc(W.cvBtn)}</span></a>` : ''}</div>
       </div>
       <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
       <span class="pf-handle">${esc(W.handle)}</span>
-      <p class="pf-bio">${esc(W.bio)}</p>
+      <p class="pf-bio">${bio}</p>
       <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}<span class="pf-clock" data-clock title="${esc(W.localTime)}"></span></li><li>${I.link}${esc(W.site)}</li><li class="pf-open"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.open)}</li></ul>
       <div class="pf-nums" data-stagger>
         <a class="pf-num" href="${u('/work/client-websites/')}" style="--i:0"><b data-count="${clientSites}">${clientSites}</b><span>${esc(W.stats.live)}</span></a>
@@ -229,10 +241,11 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <a href="${u('/labs/')}">${I.flask}<span>${esc(W.tabs.labs)}</span></a>
     <a href="${u('/cv/')}">${I.doc}<span>${esc(W.tabs.cv)}</span></a>
     <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
+    <i class="pf-tabs-ind" aria-hidden="true"></i>
   </nav>
   ${hatch}${reel}
   <section class="pf-sec" aria-labelledby="pf-exp">
-    ${sec(W.exp, expRows.length, '', 'pf-exp')}
+    ${sec(W.exp, expRows.length, `<button type="button" class="pf-all pf-xall" aria-pressed="false" data-open="${esc(W.expandAll)}" data-close="${esc(W.collapseAll)}">${esc(W.expandAll)}</button>`, 'pf-exp')}
     <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
     <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
     <ol class="pf-list pf-tl" data-stagger>${edu}</ol>
@@ -255,17 +268,20 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   ${hatch}
   ${stack}
   ${hatch}
-  <section class="pf-cta" aria-label="${esc(W.ctaTitle)}" data-reveal>
+  <section class="pf-cta" id="pf-contact" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
+      <span class="pf-cta-status"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.ring)}</span>
       <h2>${esc(W.ctaTitle)}</h2>
       <p>${esc(W.ctaLine)}</p>
       <div class="pf-cta-row">
         <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${esc(W.chat)} ${I.out}</a>
+        ${D.SITE.email ? `<button class="btn pf-cta-mail" type="button" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="profile-cta" data-magnet>${exists('site/tools/gmail.svg') ? mark('gmail') : ''}<span>${esc(D.SITE.email)}</span></button>` : ''}
         <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${esc(W.see3d)} ${I.right}</a>
       </div>
     </div>
   </section>
+  <nav class="pf-rail" aria-label="${esc(W.railLabel)}"><ol>${rail}</ol></nav>
   <a class="pf-fab" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="profile-fab" aria-label="${esc(W.chat)}" tabindex="-1">${exists('site/tools/whatsapp.svg') ? mark('whatsapp') : ''}<span>${esc(W.fab)}</span></a>
 </div>
 </main>`;
@@ -309,7 +325,19 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-num b { font: 400 clamp(30px, 3.6vw, 40px)/1 var(--serif); color: var(--ink); font-variant-numeric: tabular-nums; }
 .pf-num span { font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; }
 .pf-num:hover { border-color: var(--line-2); color: var(--ink); transform: translateY(-3px); background: rgba(241, 234, 219, 0.05); }
-.pf-name { display: flex; align-items: center; gap: 10px; margin-top: 14px; font: 700 clamp(28px, 3.4vw, 40px)/1 var(--cond); text-transform: uppercase; letter-spacing: -0.01em; }
+/* the portrait's ring: "open to freelance & full-time" turning slowly round it (the LinkedIn "open to work" frame, in our type) */
+.pf-face-w { position: relative; z-index: 1; flex: none; }
+.pf-ring { position: absolute; inset: -16px; width: calc(100% + 32px); height: calc(100% + 32px); pointer-events: none; overflow: visible; animation: pf-spin 40s linear infinite; }
+.pf-ring text { font: 700 12.5px var(--cond); letter-spacing: 0.2em; text-transform: uppercase; fill: var(--accent-2); }
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+/* the banner is a door into the 3D desk */
+.pf-banner-go { position: absolute; right: 14px; top: 14px; z-index: 2; display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 1px solid rgba(241, 234, 219, 0.4); border-radius: 999px; background: rgba(9, 8, 10, 0.5); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.5s var(--ease); }
+.pf-banner-go svg { width: 15px; height: 15px; } .pf-banner-go .ar { width: 0.85em; height: 0.85em; transition: transform 0.4s var(--ease); }
+.pf-banner-go:hover, .pf-banner-go:focus-visible { background: var(--ink); border-color: var(--ink); color: #140f09; } .pf-banner-go:hover .ar { transform: translateX(3px); }
+/* the bio's two key phrases, marked with a stroke that draws in */
+.pf-hl { color: var(--ink); background: linear-gradient(transparent 62%, rgba(217, 160, 91, 0.32) 62%) no-repeat 0 0 / 100% 100%; }
+.pf-hx .pf-hl { background-size: 0% 100%; transition: background-size 1.1s var(--ease) 0.5s; } .pf-hx .pf-bio.in .pf-hl { background-size: 100% 100%; }
+.pf-name { display: flex; align-items: center; gap: 10px; margin-top: 24px; font: 700 clamp(28px, 3.4vw, 40px)/1 var(--cond); text-transform: uppercase; letter-spacing: -0.01em; }
 .pf-verified { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #140f09; } .pf-verified svg { width: 13px; height: 13px; }
 .pf-handle { display: block; margin-top: 6px; font: 600 13px var(--cond); letter-spacing: 0.14em; color: var(--faint); }
 .pf-bio { max-width: 40em; margin: 16px 0 0; font-size: 17px; line-height: 1.6; color: var(--dim); text-wrap: pretty; }
@@ -328,6 +356,9 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-tabs a { position: relative; flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: max-content; height: 50px; padding: 0 16px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; }
 .pf-tabs a svg { width: 16px; height: 16px; }
+/* one indicator that slides to the tab pointed at, back to the page's own on leaving (the script measures; without it, each tab's own line) */
+.pf-tabs-ind { position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: var(--accent); pointer-events: none; transition: transform 0.55s var(--ease), width 0.55s var(--ease); }
+.pf-tabs.has-ind a::after { display: none; }
 .pf-tabs a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease); }
 .pf-tabs a:hover, .pf-tabs a[aria-current] { color: var(--ink); } .pf-tabs a[aria-current]::after, .pf-tabs a:hover::after { transform: none; }
 .pf-hatch { height: 14px; background-color: var(--bg); background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 9px); background-size: 200% 100%; animation: pf-hatch 60s linear infinite; }
@@ -402,8 +433,34 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-feat .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 13.5px var(--text); color: var(--dim); }
 .pf-feat .pf-go { position: absolute; } .pf-feat { position: relative; } .pf-feat .pf-go { right: 12px; top: 12px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: rgba(9, 8, 10, 0.6); color: var(--ink); opacity: 0; transform: translateY(4px); }
 .pf-feat a:hover .pf-go { opacity: 1; transform: none; }
-.pf-pj { display: block; padding: 0; } .pf-pj[hidden] { display: none; }
-.pf-pj a { display: grid; grid-template-columns: 96px 1fr 24px; align-items: center; column-gap: 14px; padding: 12px 0; transition: padding 0.4s var(--ease), color 0.3s; }
+.pf-pj { display: block; padding: 0; }
+.pf-pj-st { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; font: 600 10.5px var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); transition: border-color 0.3s, color 0.3s; }
+.pf-pj-st:empty { visibility: hidden; padding: 0; border: 0; }
+.pf-pj a:hover .pf-pj-st { border-color: var(--line-2); color: var(--dim); }
+.pf-live { display: inline-flex; align-items: center; gap: 6px; color: #9fdcb3; }
+.pf-live i { width: 6px; height: 6px; border-radius: 50%; background: #7fd49c; box-shadow: 0 0 0 3px rgba(127, 212, 156, 0.16); }
+/* the experience opens with a click anywhere on the row, or all at once from the header */
+.pf-exp { cursor: pointer; } .pf-exp:hover .pf-top b { color: var(--accent-2); } .pf-top b { transition: color 0.3s; }
+.pf-xall { padding: 0; border: 0; background: none; cursor: pointer; }
+/* the headings rise as their section arrives (the script marks them; without it they simply stand) */
+.pf-hx .pf-h h2 em, .pf-hx .pf-h h2 sup { display: inline-block; transition: transform 0.9s var(--ease), opacity 0.9s var(--ease); }
+.pf-hx .pf-h h2 sup { transition-delay: 0.25s; }
+.pf-hx .pf-h:not(.in) h2 em { transform: translateY(0.45em); opacity: 0; } .pf-hx .pf-h:not(.in) h2 sup { opacity: 0; }
+/* the targets of the rail land under the pinned tabs */
+#pf-me, #pf-reel, #pf-exp, #pf-pj, #pf-cl, #pf-st, #pf-contact { scroll-margin-top: calc(var(--head-h) + 70px); }
+/* the chapter rail: the sections as numbers in the left margin, the one in view lit, its name on hover (a wide screen with a mouse) */
+.pf-rail { display: none; }
+@media (min-width: 1360px) and (hover: hover) {
+  .pf-rail { display: block; position: fixed; left: 26px; top: 50%; z-index: 25; translate: 0 -50%; }
+  .pf-rail ol { display: grid; gap: 2px; }
+  .pf-rail a { display: flex; align-items: center; gap: 10px; height: 26px; font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); transition: color 0.3s; }
+  .pf-rail b { width: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pf-rail a::after { content: ""; order: 1; width: 12px; height: 1px; background: currentColor; opacity: 0.5; transition: width 0.5s var(--ease), background 0.3s, opacity 0.3s; }
+  .pf-rail span { order: 2; max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width 0.5s var(--ease), opacity 0.3s; }
+  .pf-rail a:hover, .pf-rail a:focus-visible { color: var(--ink); } .pf-rail a:hover span, .pf-rail a:focus-visible span { max-width: 160px; opacity: 1; }
+  .pf-rail a.on { color: var(--ink); } .pf-rail a.on::after { width: 30px; background: var(--accent); opacity: 1; }
+} .pf-pj[hidden] { display: none; }
+.pf-pj a { display: grid; grid-template-columns: 96px 1fr auto 24px; align-items: center; column-gap: 14px; padding: 12px 0; transition: padding 0.4s var(--ease), color 0.3s; }
 .pf-pj a:hover { color: var(--accent-2); padding-left: 8px; }
 .pf-th { display: grid; place-items: center; width: 96px; height: 60px; overflow: hidden; border-radius: 6px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--dim); }
 .pf-th img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.15) brightness(0.95); } .pf-th svg { width: 20px; height: 20px; }
@@ -415,7 +472,12 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 /* the clients on cream: one light room in the dark column */
 .pf-sec--cream { background: var(--cream); color: var(--cream-ink); border-color: var(--cream-line); }
 .pf-sec--cream .pf-h h2 em { color: var(--cream-ink); } .pf-sec--cream .pf-h sup, .pf-sec--cream .pf-all { color: var(--cream-dim); } .pf-sec--cream .pf-all:hover { color: var(--cream-ink); }
-.pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); } .pf-sec--cream .pf-logo:hover { border-color: var(--cream-ink); color: var(--cream-ink); background: rgba(23, 18, 12, 0.04); }
+.pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); } .pf-sec--cream /* a mark names itself on hover: it lifts, its client's name slides in under it */
+.pf-logo:not(.pf-logo--w)::after { content: attr(title); position: absolute; left: 6px; right: 6px; bottom: 7px; font: 700 9px/1 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--cream-ink); opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.45s var(--ease); }
+.pf-logo .pf-logo-m { transition: transform 0.5s var(--ease); }
+.pf-logo:not(.pf-logo--w):hover::after, .pf-logo:not(.pf-logo--w):focus-visible::after { opacity: 0.7; transform: none; }
+.pf-logo:not(.pf-logo--w):hover .pf-logo-m, .pf-logo:not(.pf-logo--w):focus-visible .pf-logo-m { transform: translateY(-7px) scale(0.9); }
+.pf-logo:hover { border-color: var(--cream-ink); color: var(--cream-ink); background: rgba(23, 18, 12, 0.04); }
 .pf-sec--cream .pf-note--cl { color: var(--accent-2); }
 /* the marks sliding by, slowly, across the cream (paused under the pointer, still for reduced motion) */
 .pf-marq { --pad: clamp(18px, 3vw, 30px); margin: 0 calc(-1 * var(--pad)) 18px; padding: 14px 0; overflow: hidden; border-top: 1px solid var(--cream-line); border-bottom: 1px solid var(--cream-line); -webkit-mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
@@ -443,6 +505,10 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-cta h2 { font: 400 clamp(30px, 3.4vw, 44px)/1.05 var(--serif); }
 .pf-cta p { max-width: 30em; font-size: 17px; color: var(--dim); text-wrap: pretty; }
 .pf-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.pf-cta-status { display: inline-flex; align-items: center; gap: 10px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); }
+.pf-cta-mail { gap: 10px; border-color: rgba(241, 234, 219, 0.45); background: rgba(9, 8, 10, 0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--ink); text-transform: none; letter-spacing: 0.04em; font-size: 14px; cursor: pointer; }
+.pf-cta-mail:hover, .pf-cta-mail:focus-visible { background: var(--ink); border-color: var(--ink); color: #140f09; }
+body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-mail .pf-m { width: 17px; height: 17px; }
 /* ---------- the reel: the Labs worlds as one 16:9 stage (the frame fading to the next, a slow push in, the words rising, a thin
    clock along the bottom) over a strip of their frames that scrolls sideways; the colour of the words is the world's own hue */
 .pf-reel { --acc: hsl(var(--h, 40) 70% 72%); }
@@ -480,6 +546,8 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-strip li { flex: 0 0 auto; scroll-snap-align: center; }
 .pf-thumb { position: relative; display: block; width: 128px; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 7px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); opacity: 0.5; transform: scale(0.95); transition: opacity 0.35s, transform 0.5s var(--ease); }
 .pf-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pf-thumb::before { content: attr(data-name); position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 16px 8px 5px; background: linear-gradient(transparent, rgba(9, 8, 10, 0.85)); font: 700 9.5px/1 var(--cond); letter-spacing: 0.16em; color: var(--ink); opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.4s var(--ease); }
+.pf-thumb:hover::before, .pf-thumb:focus-visible::before, .pf-thumb.is-on::before { opacity: 1; transform: none; }
 .pf-thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--acc); opacity: 0; transition: opacity 0.3s; }
 .pf-thumb:hover, .pf-thumb:focus-visible { opacity: 0.92; transform: none; }
 .pf-thumb.is-on { opacity: 1; transform: none; } .pf-thumb.is-on::after { opacity: 1; }
@@ -506,7 +574,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
   .pf-marq-i { width: 88px; height: 26px; margin-right: 32px; } .pf-card, .pf-cta { border-radius: 0; }
   .pf-logos { grid-template-columns: repeat(3, 1fr); }
   .pf-st { grid-template-columns: 1fr; row-gap: 8px; } .pf-td { margin-top: -8px; }
-  .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-th { width: 72px; height: 45px; }
+  .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-pj-st { display: none; } .pf-banner-go span { display: none; } .pf-banner-go { padding: 0 11px; } .pf-th { width: 72px; height: 45px; }
   .pf-feats { grid-template-columns: 1fr 1fr; } .pf-feat:nth-child(3) { display: none; }
   .pf-nums { gap: 8px; } .pf-num { padding: 12px; }
   .pf-stage { border-radius: 10px; } .pf-stage-top { left: 14px; right: 14px; top: 14px; } .pf-stage-text { left: 14px; right: 14px; bottom: 14px; gap: 5px; }
@@ -515,8 +583,8 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
   .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 10.5px; letter-spacing: 0.08em; } .pf-tabs a svg { width: 14px; height: 14px; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
-@media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 10px 0 0; } .pf-fab { right: 14px; bottom: 14px; height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
-@media (prefers-reduced-motion: reduce) { .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
+@media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-hero-cta { justify-content: flex-start; margin: 24px 0 0; } .pf-fab { right: 14px; bottom: 14px; height: 48px; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
+@media (prefers-reduced-motion: reduce) { .pf-ring { animation: none; } .pf-pulse { display: none; } .pf-marq-t { animation: none; } .pf-tabs--pin { transition: none; } .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
 .motion-off .pf-marq-t { animation: none; } .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
@@ -564,7 +632,35 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     new IntersectionObserver(function (es) { es.forEach(function (e) { done = e.isIntersecting || e.boundingClientRect.top < 0; }); set(); }).observe(end);
   })();
   // a row's story opens under it
-  document.querySelectorAll('.pf-exp').forEach(function (row) { var b = row.querySelector('.pf-tg'); if (!b) return; var open = function () { var on = !row.classList.contains('open'); row.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); }; b.addEventListener('click', open); row.querySelector('.pf-top b').addEventListener('click', open); });
+  var setOpen = function (row, on) { row.classList.toggle('open', on); var b = row.querySelector('.pf-tg'); if (b) b.setAttribute('aria-expanded', String(on)); };
+  document.querySelectorAll('.pf-exp').forEach(function (row) { row.addEventListener('click', function (e) { if (e.target.closest('a') || (window.getSelection && String(getSelection()).length)) return; setOpen(row, !row.classList.contains('open')); }); });
+  var xall = document.querySelector('.pf-xall');
+  if (xall) xall.addEventListener('click', function () { var on = xall.getAttribute('aria-pressed') !== 'true'; xall.setAttribute('aria-pressed', String(on)); xall.textContent = on ? xall.dataset.close : xall.dataset.open; (xall.closest('section') || document).querySelectorAll('.pf-exp').forEach(function (row) { setOpen(row, on); }); });
+  // the tabs: one indicator that slides to the tab pointed at, and back to the page's own
+  (function () {
+    var tabs = document.querySelector('.pf-tabs'), ind = tabs && tabs.querySelector('.pf-tabs-ind'); if (!ind) return;
+    var cur = tabs.querySelector('a[aria-current]'), go = function (a) { if (!a) return; ind.style.width = Math.max(0, a.offsetWidth - 28) + 'px'; ind.style.transform = 'translateX(' + (a.offsetLeft + 14) + 'px)'; };
+    tabs.classList.add('has-ind'); go(cur);
+    tabs.querySelectorAll('a').forEach(function (a) { a.addEventListener('pointerenter', function () { go(a); }); a.addEventListener('focus', function () { go(a); }); a.addEventListener('blur', function () { go(cur); }); });
+    tabs.addEventListener('pointerleave', function () { go(cur); }); addEventListener('resize', function () { go(cur); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { go(cur); });
+  })();
+  // the headings rise as their section arrives, the bio's phrases draw their stroke
+  if (!reduce && 'IntersectionObserver' in window) {
+    document.body.classList.add('pf-hx');
+    var rise = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); rise.unobserve(e.target); } }); }, { threshold: 0.4 });
+    document.querySelectorAll('.pf-h, .pf-bio').forEach(function (h) { rise.observe(h); });
+  }
+  // the chapter rail: the section in view is lit; a click glides to its section without touching the address
+  (function () {
+    var links = [].slice.call(document.querySelectorAll('.pf-rail a')); if (!links.length) return;
+    var secs = links.map(function (a) { var t = document.getElementById(a.dataset.rail); return t ? (t.closest('section') || t) : null; });
+    links.forEach(function (a, i) { a.addEventListener('click', function (e) { var t = document.getElementById(a.dataset.rail); if (!t) return; e.preventDefault(); t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }); });
+    if (!('IntersectionObserver' in window)) return;
+    var light = function (i) { links.forEach(function (a, k) { a.classList.toggle('on', k === i); if (k === i) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); }); };
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) light(secs.indexOf(e.target)); }); }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(function (sec) { if (sec) io.observe(sec); });
+  })();
   // the lists fold after a few rows
   document.querySelectorAll('.pf-more').forEach(function (btn) { var list = btn.previousElementSibling, label = btn.querySelector('span'), more = label.textContent, less = btn.dataset.less; btn.addEventListener('click', function () { var on = !btn.classList.contains('open'); btn.classList.toggle('open', on); list.querySelectorAll('[data-more]').forEach(function (li) { li.hidden = !on; }); label.textContent = on ? less : more; if (!on) list.scrollIntoView({ block: 'nearest', behavior: reduce ? 'auto' : 'smooth' }); }); });
   // the margin notes come in with the column
