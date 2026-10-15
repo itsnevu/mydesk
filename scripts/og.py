@@ -1,12 +1,15 @@
 # Share cards and icons for navygibran.dev, drawn from the same data the pages use (node scripts/site.js --og-data).
-#   python scripts/og.py
+#   python scripts/og.py          the English cards and the icons
+#   python scripts/og.py id zh    the same cards in Indonesian and Chinese: public/og-id.jpg, site/og/<key>-id.jpg, work-id.jpg...
+#                                 (a page in that language shares its own card: scripts/site.js head() picks it when it exists;
+#                                 the Chinese words are set in Microsoft YaHei, the site's own faces having no Han)
 # writes public/og.jpg (the site's card), public/site/og/<key>.jpg (one card per project, in its colours, with its screenshot),
 # public/site/og/work.jpg (the archive's: its title and a wall of the screenshots),
 # public/apple-touch-icon.png, public/favicon.ico, public/favicon.svg and public/site/icon-192.png, icon-512.png,
 # icon-maskable-512.png. The mark everywhere is site/mark.svg (Navy's logo, traced: scripts/trace-mark.py).
 # Needs Pillow. The fonts are in scripts/fonts (SIL Open Font License 1.1, licences beside them).
 # The JPEGs stay under 260 kB: WhatsApp leaves a link without its picture when the image is much over 300 kB.
-import colorsys, json, os, re, subprocess
+import colorsys, json, os, re, subprocess, sys
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -22,6 +25,23 @@ COND, COND_SB, ITALIC = 'BarlowCondensed-Bold.ttf', 'BarlowCondensed-SemiBold.tt
 
 def font(name, size):
     return ImageFont.truetype(os.path.join(FONTS, name), size)
+
+
+CJK = re.compile(r'[\u3000-\u9fff\uff00-\uffef]')
+CJK_FACE = {True: 'C:/Windows/Fonts/msyhbd.ttc', False: 'C:/Windows/Fonts/msyh.ttc'}
+
+
+def tfont(name, size, text):
+    """the face for this text: the site's own, or a Chinese one when the text has Han in it (bold for the condensed capitals,
+    regular for the italic; a little smaller, YaHei being wider than Barlow Condensed)"""
+    if CJK.search(text or '') and os.path.exists(CJK_FACE[True]):
+        return ImageFont.truetype(CJK_FACE[name != ITALIC], max(12, round(size * 0.8)))
+    return font(name, size)
+
+
+def words_of(text):
+    """the pieces a line can break between: words, or each character of a Chinese line (which has no spaces)"""
+    return list(text) if CJK.search(text) and ' ' not in text.strip() else text.split()
 
 
 def color(s):
@@ -95,14 +115,14 @@ def kicker(draw, x, y, text, fill, accent):
     """the site's label: spaced condensed capitals between italic brackets"""
     br = font(ITALIC, 40)
     draw.text((x, y - 14), '(', font=br, fill=accent)
-    end = spaced(draw, x + 22, y, text.upper(), font(COND_SB, 19), fill, 3.2)
+    end = spaced(draw, x + 22, y, text.upper(), tfont(COND_SB, 19, text), fill, 3.2)
     draw.text((end + 8, y - 14), ')', font=br, fill=accent)
 
 
-def wrap(draw, words, f, max_w):
+def wrap(draw, words, f, max_w, sep=' '):
     lines, cur = [], ''
     for w in words:
-        t = (cur + ' ' + w).strip()
+        t = (cur + sep + w).strip()
         if not cur or draw.textlength(t, font=f) <= max_w:
             cur = t
         else:
@@ -139,7 +159,7 @@ def save_jpg(img, path, q=88):
     return os.path.getsize(path)
 
 
-def site_card():
+def site_card(ui=None):
     """the site's own card: the desk on the right fading into the page black, the name, the line, the address"""
     card = Image.new('RGB', (W, H), BG)
     desk = Image.open(os.path.join(PUB, 'site/desk-wide.webp')).convert('RGB')
@@ -161,11 +181,12 @@ def site_card():
         sd.line([(0, y), (W, y)], fill=round(230 * t ** 1.3))
     card.paste(Image.new('RGB', (W, H), BG), (0, 0), shade)
     d = ImageDraw.Draw(card, 'RGBA')
-    kicker(d, 72, 96, 'Full-stack developer  ·  Indonesia', (241, 234, 219, 185), ACC)
+    kicker(d, 72, 96, f"{ui['role']}  ·  {ui['country']}" if ui else 'Full-stack developer  ·  Indonesia', (241, 234, 219, 185), ACC)
     big = font(COND, 178)
     d.text((64, 150), 'NAVY', font=big, fill=INK)
     d.text((64, 300), 'GIBRAN', font=big, fill=INK)
-    d.text((70, 482), 'Make it work. Make them want it.', font=font(ITALIC, 54), fill=ACC2)
+    motto = ui['motto'] if ui else 'Make it work. Make them want it.'
+    d.text((70, 482), motto, font=tfont(ITALIC, 54, motto), fill=ACC2)
     spaced(d, 72, 566, 'NAVYGIBRAN.DEV', font(COND_SB, 20), (241, 234, 219, 150), 3)
     mark(card, W - 128, H - 112, 0.3, ACC)
     return card
@@ -214,7 +235,7 @@ def plate(p, bg, acc, w=700, h=440):
     return rounded(img, 12)
 
 
-def project_card(p):
+def project_card(p, ui=None):
     bg, acc = color(p['bg']), color(p['acc'])
     img = Image.new('RGBA', (W, H), bg + (255,))
     glow = Image.new('RGBA', (W, H), (0, 0, 0, 0))
@@ -238,12 +259,12 @@ def project_card(p):
         drop_shadow(img, pl, (x0, y0))
         img.alpha_composite(pl, (x0, y0))
     d = ImageDraw.Draw(img, 'RGBA')
-    kicker(d, 72, 96, f"Project {p['n']:02d} / {p['total']:02d}" if p['counted'] else 'Every client site', (241, 234, 219, 185), acc)
+    kicker(d, 72, 96, f"{ui['project'] if ui else 'Project'} {p['n']:02d} / {p['total']:02d}" if p['counted'] else (ui['every'] if ui else 'Every client site'), (241, 234, 219, 185), acc)
     # the name: the largest size at which it fits the left column in three lines or fewer, with the industry under it
-    industry = p['industry'] + (f", now {p['now']}" if p.get('now') else '')
+    industry = p['industry'] + (p.get('nowLine') or (f", now {p['now']}" if p.get('now') else ''))
     top, bottom, max_w = 146, 500, 452
-    it = font(ITALIC, 42)
-    ilines = wrap(d, industry.split(), it, max_w)
+    it = tfont(ITALIC, 42, industry)
+    ilines = wrap(d, words_of(industry), it, max_w, '' if CJK.search(industry) and ' ' not in industry.strip() else ' ')
     for size in range(132, 50, -4):
         f = font(COND, size)
         lines = wrap(d, p['title'].upper().split(), f, max_w)
@@ -271,7 +292,7 @@ def project_card(p):
     return img
 
 
-def archive_card(data):
+def archive_card(data, ui=None):
     """the archive's card (/work/): its title as the page sets it, and a wall of the projects' screenshots running off the right
     edge in staggered rows (the home page's rest of the street), fading into the page black behind the words"""
     card = Image.new('RGBA', (W, H), BG + (255,))
@@ -306,12 +327,14 @@ def archive_card(data):
     ImageDraw.Draw(glow).ellipse((-260, -220, 560, 520), fill=ACC + (34,))
     card.alpha_composite(glow.filter(ImageFilter.GaussianBlur(120)))
     d = ImageDraw.Draw(card, 'RGBA')
-    kicker(d, 72, 96, 'Archive', (241, 234, 219, 185), ACC)
-    d.text((64, 150), 'ALL THE', font=font(COND, 150), fill=INK)
-    d.text((70, 286), 'work.', font=font(ITALIC, 168), fill=ACC2)
+    kicker(d, 72, 96, ui['archive'] if ui else 'Archive', (241, 234, 219, 185), ACC)
+    all_the, work_em = (ui['allThe'].upper(), ui['workEm']) if ui else ('ALL THE', 'work.')
+    d.text((64, 150), all_the, font=tfont(COND, 150, all_the), fill=INK)
+    d.text((70, 286), work_em, font=tfont(ITALIC, 168, work_em), fill=ACC2)
     # (the Client Websites hub has a card of its own but is not a project: `counted` is false on it)
     n = sum(1 for p in data if p.get('counted', True))
-    spaced(d, 72, 486, f'{n} PROJECTS, EACH WITH ITS OWN PAGE', font(COND_SB, 19), (241, 234, 219, 170), 2.6)
+    line = ui['count'].upper() if ui else f'{n} PROJECTS, EACH WITH ITS OWN PAGE'
+    spaced(d, 72, 486, line, tfont(COND_SB, 19, line), (241, 234, 219, 170), 2.6)
     mark(card, 72, 560, 0.15, ACC)
     spaced(d, 112, 566, 'NAVYGIBRAN.DEV/WORK', font(COND_SB, 20), (241, 234, 219, 165), 3)
     return card
@@ -343,6 +366,16 @@ def favicon(path):
 
 
 if __name__ == '__main__':
+    langs = [a for a in sys.argv[1:] if a in ('id', 'zh')]
+    for lang in langs:
+        out = json.loads(subprocess.run(['node', os.path.join(ROOT, 'scripts', 'site.js'), '--og-data', lang], capture_output=True, text=True, encoding='utf8', check=True).stdout)
+        ui, data = out['ui'], out['projects']
+        print(f'og-{lang}.jpg', save_jpg(site_card(ui), os.path.join(PUB, f'og-{lang}.jpg')))
+        for p in data:
+            print(f"site/og/{p['key']}-{lang}.jpg", save_jpg(project_card(p, ui), os.path.join(PUB, 'site', 'og', f"{p['key']}-{lang}.jpg")))
+        print(f'site/og/work-{lang}.jpg', save_jpg(archive_card(data, ui), os.path.join(PUB, 'site', 'og', f'work-{lang}.jpg')))
+    if langs:
+        sys.exit(0)
     data = json.loads(subprocess.run(['node', os.path.join(ROOT, 'scripts', 'site.js'), '--og-data'], capture_output=True, text=True, encoding='utf8', check=True).stdout)
     print('og.jpg', save_jpg(site_card(), os.path.join(PUB, 'og.jpg')))
     for p in data:

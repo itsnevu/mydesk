@@ -298,6 +298,7 @@ function roll(text, em = '') {
 // are built from it. The default language's pages forward to a remembered choice (the switch sets it) before anything paints.
 function head({ title, description, pathname, image = `${ORIGIN}/${exists('og.jpg') ? 'og.jpg' : 'og.png'}`, imageAlt, css, extra = '', intro = false, theme = '#0e0c09', noindex = false, viewForward = false }) {
   const url = `${ORIGIN}${PFX}${pathname}`;
+  if (LANG !== DEFAULT_LANG && image.startsWith(ORIGIN + '/') && image.endsWith('.jpg')) { const rel = image.slice(ORIGIN.length + 1).replace(/\.jpg$/, `-${LANG}.jpg`); if (exists(rel)) image = `${ORIGIN}/${rel}`; }
   eagerSeen = 0;
   // the home (the simple page) remembers which reading the visitor chose at the gate: "full" sends them to the story before anything
   // paints, in the language they remembered too (this runs before the language forward, so the two never race), never when the
@@ -1226,7 +1227,14 @@ export async function renderSite() {
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes('--og-data')) {
   const D = await loadData();
   const order = counted(D);   // (numbered as the site numbers them; the hub after the projects)
-  process.stdout.write(JSON.stringify([...order, ...D.PROJECTS.filter(isHub)].map((p) => ({ key: p.key, n: order.indexOf(p) + 1, total: order.length, counted: !isHub(p), title: p.title, industry: p.industry, stack: p.stack, date: p.date, now: p.now?.name || null, ...tint(p), ...projectMedia(D, p) }))));
+  const want = process.argv[process.argv.indexOf('--og-data') + 1];
+  if (want && LANGS[want]) setLang(want);
+  const list = [...order, ...D.PROJECTS.filter(isHub)].map((p) => ({ key: p.key, n: order.indexOf(p) + 1, total: order.length, counted: !isHub(p), title: tp(p, 'title') || p.title, industry: want ? tp(p, 'industry') : p.industry, nowLine: p.now ? t('nowSuffix', { n: p.now.name }) : '', stack: p.stack, date: p.date, now: p.now?.name || null, ...tint(p), ...projectMedia(D, p) }));
+  if (!want || !LANGS[want]) process.stdout.write(JSON.stringify(list));
+  else {
+    const lead = t('archiveLead', { n: order.length });
+    process.stdout.write(JSON.stringify({ lang: want, ui: { role: t('role'), country: { id: 'Indonesia', zh: '印度尼西亚' }[want] || 'Indonesia', motto: t('motto'), project: t('project').trim(), every: t('everySite'), archive: t('archive'), allThe: t('allThe'), workEm: t('workEm'), count: lead.split(/(?<=[.。])\s*/)[0].replace(/[.。]$/, '') }, projects: list }));
+  }
 } else if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const dist = process.env.KW_OUT ? path.resolve(process.env.KW_OUT) : path.join(root, 'dist');
   const pages = await renderSite();
