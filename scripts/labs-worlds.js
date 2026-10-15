@@ -208,7 +208,9 @@ export const WORLDS_CSS = `
 .worlds-stack span { padding: 6px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--dim); letter-spacing: 0.1em; }
 .worlds-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .world { --acc: hsl(var(--h) 70% 72%); --bgc: hsl(var(--h) 34% 11%); scroll-margin-top: 96px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg-2); transition: border-color 0.35s, transform 0.6s var(--ease); }
-.world:hover, .js .worlds-grid.in > .world:hover { border-color: var(--line-2); transform: translateY(-3px); }   /* (outranks the stagger's transform: none) */
+.world:hover, .js .worlds-grid.in > .world:hover { border-color: var(--line-2); }   /* (no lift: only the Visit pill is a link) */
+/* the card the home's reel sent you to (#w-<key>) is marked */
+.world:target { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc), 0 24px 50px -30px rgba(0, 0, 0, 0.85); }
 .world[hidden] { display: none; }   /* (the filter hides by attribute; the flex display above would otherwise win) */
 .labs-chapter .serif-h { margin-bottom: clamp(18px, 2vw, 28px); }
 .world-plate { position: relative; display: flex; flex-direction: column; justify-content: flex-end; min-height: 190px; padding: 22px 22px 20px; background: radial-gradient(120% 100% at 85% 0%, color-mix(in srgb, var(--acc) 28%, transparent), transparent 62%), radial-gradient(90% 80% at 10% 100%, color-mix(in srgb, var(--acc) 14%, transparent), transparent 60%), var(--bgc); }
@@ -219,9 +221,9 @@ export const WORLDS_CSS = `
 .world-plate.has-shot { aspect-ratio: 16 / 9; min-height: 0; padding: 20px 22px 18px; overflow: hidden; border-radius: 13px 13px 0 0; isolation: isolate; }
 .world-shot { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.001); transition: transform 1.4s var(--ease), opacity 0.6s; }
 .world:hover .world-shot { transform: scale(1.045); }
-.world-plate.has-shot::before { z-index: 1; opacity: 1; background: linear-gradient(to top, rgba(9, 8, 10, 0.9) 0%, rgba(9, 8, 10, 0.5) 34%, rgba(9, 8, 10, 0) 58%), linear-gradient(to bottom, rgba(9, 8, 10, 0.55), rgba(9, 8, 10, 0) 30%); }
+.world-plate.has-shot::before { z-index: 1; opacity: 1; background: linear-gradient(to top, rgba(9, 8, 10, 0.92) 0%, rgba(9, 8, 10, 0.55) 36%, rgba(9, 8, 10, 0) 60%), linear-gradient(to bottom, rgba(9, 8, 10, 0.78), rgba(9, 8, 10, 0) 34%); }
 .world-plate.has-shot .world-top, .world-plate.has-shot .world-tag { z-index: 2; }
-.world-plate.has-shot .world-top { color: rgba(241, 234, 219, 0.8); }
+.world-plate.has-shot .world-top { color: rgba(241, 234, 219, 0.92); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.65); } .world-plate.has-shot .world-tag { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7); }
 .world-plate.has-shot .world-tag { text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
 @media (prefers-reduced-motion: reduce) { .world:hover .world-shot { transform: none; } }
 .world-top { position: absolute; left: 22px; right: 22px; top: 18px; display: flex; justify-content: space-between; gap: 10px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }

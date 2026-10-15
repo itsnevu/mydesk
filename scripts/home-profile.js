@@ -44,7 +44,7 @@ export const WORDS = {
     chat: 'Chat WhatsApp', see3d: 'Lihat versi 3D', cvBtn: 'Unduh CV', email: 'Email',
     waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
-    reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
+    reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll, produk konsep buatan saya sendiri tanpa klien: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
     pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs', copyMail: 'Salin email', copyNum: 'Salin nomor', aboutRow: 'Selengkapnya tentang {o}',
     services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
@@ -66,7 +66,7 @@ WORDS.en = {
   ctaTitle: 'Tell me about your business.', ctaLine: 'A website, an online store or a system. One message is enough to start, and I answer it myself.',
   chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
-  reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
+  reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through, my own concept products with no client behind them: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
   pause: 'Pause', play: 'Play', tabsLabel: 'Site', copyMail: 'Copy email', copyNum: 'Copy number', aboutRow: 'More about {o}',
   services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
@@ -87,7 +87,7 @@ WORDS.zh = {
   ctaTitle: '说说你的生意。', ctaLine: '一个网站、一家网店或一套系统。一条消息就能开始，而且由我本人回复。',
   chat: '用 WhatsApp 聊', see3d: '看 3D 版本', cvBtn: '下载简历', email: '邮箱',
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
-  reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
+  reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界，都是我自己的概念产品，没有客户委托：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
   pause: '暂停', play: '播放', tabsLabel: '网站导航', copyMail: '复制邮箱', copyNum: '复制号码', aboutRow: '关于 {o} 的更多',
   services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
@@ -867,7 +867,8 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
   // the background: the dither field (scripts/dither.js, react-bits' Dither in WebGL2) in the page's own tones. It drifts on its own,
   // the pointer erases it where it passes and leaves a short trail (mouse only), a click sends a ring out; a phone gets a coarser
   // cell at 30 fps, reduced motion gets one still frame, and without WebGL2 the CSS dots stay.
-  if (!window.requestAnimationFrame || typeof nvDither !== 'function') return;
+  // (a phone or tablet gets the static dots: there the column covers the field, and a WebGL loop would only cost battery)
+  if (!window.requestAnimationFrame || typeof nvDither !== 'function' || !fine || innerWidth <= 800) return;
   var field = nvDither({ waveColor: '#8c8c8c', backgroundColor: '#0e0c09', pixelSize: fine ? 2 : 3, dpr: fine ? 1.5 : 1, fps: fine ? 30 : 24, mouse: fine && !reduce, mouseRadius: 0.3, trail: 0.5, clickRipple: fine && !reduce, intro: !reduce, animate: !reduce });
   if (!field) return;
   document.body.prepend(field.canvas); document.body.classList.add('has-field'); requestAnimationFrame(function () { field.canvas.classList.add('on'); }); field.start();

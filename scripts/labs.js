@@ -111,9 +111,9 @@ export function labsMain({ exists = () => false, img = null, chapter = null, lan
       : `<span class="lab-plate" aria-hidden="true"><span class="lab-repo">itsnevu / <b>${esc(gh.replace(/^https:\/\/github\.com\/itsnevu\//, '').replace(/\/.*$/, ''))}</b></span><i class="lab-mark${wide.has(l.mark) ? ' lab-mark--wide' : ''}" style="--m:url(/site/tools/${esc(l.mark)}.svg)"></i><span class="lab-meta"><b>${esc(KIND[l.kind])}</b><span>${esc(l.lang)}</span>${l.license ? `<span>${esc(l.license)}</span>` : ''}<span>${esc(l.when)}</span></span></span>`;
     const links = l.links.map(([t, h]) => `<a href="${esc(h)}"${h.startsWith('/') ? '' : ' target="_blank" rel="noopener"'} class="${t === 'Live' ? 'is-live' : ''}" data-track="lab_open" data-lab="${esc(l.key)}" data-channel="${esc(t)}">${esc(S.links[t] ?? t)} ${arrow}</a>`).join('');
     return `<li class="arc-card lab" data-kind="${l.kind}" style="--i:${i % 9};--acc:${acc}">
-      <a href="${esc(live ? live[1] : gh)}"${live && live[1].startsWith('/') ? '' : ' target="_blank" rel="noopener"'} data-track="lab_open" data-lab="${esc(l.key)}" data-channel="card" aria-label="${esc(fill(live ? S.cardLive : S.cardRepo, { n: l.name }))}">
+      <a href="${esc(live ? live[1] : gh)}"${live && live[1].startsWith('/') ? '' : ' target="_blank" rel="noopener"'} data-track="lab_open" data-lab="${esc(l.key)}" data-channel="card">
         <span class="arc-pic lab-pic">${pic}</span>
-        <span class="arc-n">${pad(i + 1)}</span><span class="arc-t">${esc(l.name)}</span><span class="arc-i">${esc(l.line)}</span><span class="arc-s">${esc([KIND[l.kind], ...l.stack, l.when].join(' · '))}</span>
+        <span class="arc-n">${pad(i + 1)}</span><span class="arc-t">${esc(l.name)}<span class="sr"> (${esc((live ? S.cardLive : S.cardRepo).replace('{n}', '').replace(/^[:\uff1a]\s*/, ''))})</span></span><span class="arc-i">${esc(l.line)}</span><span class="arc-s">${esc([KIND[l.kind], ...l.stack, l.when].join(' · '))}</span>
       </a>
       ${l.more ? `<p class="lab-more">${esc(l.more)}</p>` : ''}
       <div class="lab-links">${links}</div>
