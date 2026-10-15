@@ -172,6 +172,10 @@ function inside(w, s, P) {
   return true;
 }
 const backToFront = (a, b) => (a.renderOrder - b.renderOrder) || (b._dist - a._dist);
+// the resolution's range for a screen's pixel ratio, as [max, min]: 1.5x the CSS pixels at most (with 4x MSAA on top that is plenty
+// sharp), never below the CSS pixels (0.75 of them on a dense phone screen, where that still looks sharp) unless the screen has
+// fewer (a page zoomed out below 100%, where both ends are the screen's own pixels)
+const ratioRange = (dpr) => { const max = Math.min(dpr, 1.5); return [max, Math.min(max, dpr >= 2 ? 0.75 : 1)]; };
 // slots in the uniform cache (_uc): what the main program last received, so a draw only sends what differs
 const U_COLOR = 0, U_ROUGH = 3, U_METAL = 4, U_EMIS = 5, U_OPAC = 8, U_UNLIT = 9, U_FRES = 10, U_FRESC = 11, U_RECV = 14, U_FOG = 15, U_REP = 16, U_MAP = 18, U_EMAP = 19;
 
@@ -186,11 +190,10 @@ export class Renderer {
     this.postProg = compile(gl, POST_VERT, POST_FRAG);
     this.post = { enabled: true, focus: 20, range: 14, maxBlur: 4, vignette: 0.32 };
     this.shadowSize = shadowSize;
-    // 1.5× the CSS pixels at most (with 4× MSAA on top that is plenty sharp); _adapt() lowers it when frames run long, never
-    // below the CSS pixels (0.75 of them on a dense phone screen, where that still looks sharp). renderer.adaptive = false pins it.
-    const dpr = window.devicePixelRatio || 1;
-    this.maxPixelRatio = Math.min(dpr, 1.5);
-    this.minPixelRatio = Math.min(this.maxPixelRatio, dpr >= 2 ? 0.75 : 1);
+    // the resolution starts at the top of its range (ratioRange); _adapt() lowers it when frames run long, never below
+    // minPixelRatio, and syncPixelRatio() moves the range with the screen. renderer.adaptive = false pins it.
+    this._dpr = window.devicePixelRatio || 1;
+    [this.maxPixelRatio, this.minPixelRatio] = ratioRange(this._dpr);
     this.pixelRatio = this.maxPixelRatio;
     this.adaptive = true;
     this.culling = true;   // false draws everything (a debugging switch: culled and unculled frames must look the same)
@@ -243,12 +246,27 @@ export class Renderer {
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     this.shadowTex = tex; this.shadowFB = fb;
   }
+  /** devicePixelRatio moved (browser zoom, another screen): the range follows it; a ratio at the top stays at the top, one the
+   *  adaptive step lowered stays where it is inside the new range, a pinned one (adaptive = false) keeps its value. Returns whether it moved. */
+  syncPixelRatio() {
+    const dpr = window.devicePixelRatio || 1; if (dpr === this._dpr) return false;
+    const atMax = this.pixelRatio === this.maxPixelRatio;
+    this._dpr = dpr; [this.maxPixelRatio, this.minPixelRatio] = ratioRange(dpr);
+    if (this.adaptive !== false) {
+      const pr = atMax ? this.maxPixelRatio : Math.min(this.maxPixelRatio, Math.max(this.minPixelRatio, this.pixelRatio));
+      if (pr !== this.pixelRatio) { this.pixelRatio = pr; this._adaptAt = performance.now(); }
+    }
+    return true;
+  }
   setSize(w, h) {
-    const pr = this.pixelRatio;
-    this.canvas.width = Math.floor(w * pr); this.canvas.height = Math.floor(h * pr);
+    const pr = this.pixelRatio, bw = Math.floor(w * pr), bh = Math.floor(h * pr);
+    // nothing to redo when neither the size nor the ratio moved (a zoom fires resize and the resolution query, and setting canvas.width
+    // would also clear it); a path that must rebuild at the same size (a restored WebGL context) sets this._post = null first
+    if (this._post && w === this.width && h === this.height && bw === this.canvas.width && bh === this.canvas.height) return;
+    this.canvas.width = bw; this.canvas.height = bh;
     this.canvas.style.width = w + 'px'; this.canvas.style.height = h + 'px';
     this.width = w; this.height = h;
-    this._initPost(this.canvas.width, this.canvas.height);
+    this._initPost(bw, bh);
   }
   _initPost(w, h) {
     const gl = this.gl;

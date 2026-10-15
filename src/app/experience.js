@@ -77,6 +77,7 @@ export class Experience {
     this.applyDeskLighting();
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    this.watchPixelRatio();
     const g = this.gateCam;
     V3.copy(this.camera.position, g.position); V3.copy(this.camera.target, g.target);
     this.controls.sync();
@@ -127,9 +128,15 @@ export class Experience {
 
   resize() {
     const w = innerWidth, h = innerHeight;
+    this.renderer.syncPixelRatio();
     this.renderer.setSize(w, h);
     this.camera.aspect = w / h;
     this.camera.fov = w < h ? 68 : 38;
+  }
+  // a move to a screen of another density changes devicePixelRatio with no resize event; a zoom fires both, and setSize skips the
+  // second call; the query matches only the current ratio, so it is armed afresh after each change
+  watchPixelRatio() {
+    try { matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener('change', () => { this.resize(); this.watchPixelRatio(); }, { once: true }); } catch {}
   }
 
   // the desk can be zoomed out to the edge of the room and lowered until the camera looks straight at the walls; the room's bounds keep it inside
