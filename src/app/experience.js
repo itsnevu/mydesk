@@ -24,6 +24,8 @@ export const SHORTCUTS = { note: 'A', lamp: 'S', mouse: 'C', monitor: 'W', clock
 // objects whose origin sits low get their hover title lifted clear of the top
 // (measured against each object's on-screen top from the home view and the zoomed-out views)
 export const TIP_LIFT = { cat: 7, catbowl: 4, pc: 12.5, speaker: 8.4, bike: 26, medals: 11, watches: 4.3, mouse: 3.5, monitor: 9.5, desklamp: 2.6, note: 0.9, chair: 66, neon: 7.8, katana: 5.6, pullup: 53, satoshi: 24.5 };
+// the entry flight's arc (enter() flies it; init uploads what it will show before the gate opens)
+const INTRO_ARC = { lift: 3, swing: -6 };
 
 export class Experience {
   constructor(canvas) {
@@ -83,7 +85,23 @@ export class Experience {
     ui.hud.discovery(this.found, DISCOVERY_ORDER);
     // a found thing picked from the counter's list: go back to it (not mid-flight, and only once the desk is up)
     ui.hud.discoveryPick((id) => { if (!this.flight && !state.is(S.LOADING, S.GATE, S.ENTERING)) this.activate(id); });
-    this.renderer.render(this.scene, this.camera);
+    // what the entry flight will show goes onto the GPU now, behind the loading screen: its halfway point (where the arc peaks)
+    // and the desk it lands on. Canvas textures upload on their first draw, so otherwise the first camera move stalls on them
+    // (and the adaptive resolution reads those frames as a slow device). The gate is drawn last, so the canvas holds the gate;
+    // holdAdapt keeps these back-to-back renders out of the frame-time average; a failure here only skips the warm-up.
+    const r = this.renderer, cam = this.camera, home = this.home;
+    r.holdAdapt = true;
+    try {
+      for (const e of [0.5, 1]) {
+        const s = Math.sin(e * Math.PI);
+        V3.lerp(cam.position, g.position, home.position, e); cam.position[1] += s * INTRO_ARC.lift; cam.position[0] += s * INTRO_ARC.swing;
+        V3.lerp(cam.target, g.target, home.target, e);
+        r.render(this.scene, cam);
+      }
+    } catch (err) { console.warn('[init] warm-up', err); }
+    V3.copy(cam.position, g.position); V3.copy(cam.target, g.target);
+    r.render(this.scene, cam);
+    r.holdAdapt = false;
     onProgress(1);
     this.loop = this.loop.bind(this);
     requestAnimationFrame(this.loop);
@@ -148,7 +166,7 @@ export class Experience {
     tween.delayed(0.35, () => { const g = this.world.gate; const y = { v: 0 }; tween.to(y, { v: -1.6 }, { duration: quick ? 1.0 : 1.6, ease: Ease.power2In, onUpdate: () => { g.position[1] = y.v; }, onComplete: () => { g.visible = false; } }); });
     const L = { v: this.world.lightLevel };
     tween.to(L, { v: 1 }, { duration: 3.0, delay: 0.7, ease: Ease.sineInOut, onUpdate: () => this.world.setLightLevel(L.v) });
-    this.flyTo(this.home, { duration: quick ? MOTION.dur.camera : MOTION.dur.intro + 0.8, ease: quick ? MOTION.ease.camera : Ease.power3InOut, lift: quick ? 0 : 3, swing: quick ? 0 : -6, onComplete: () => {
+    this.flyTo(this.home, { duration: quick ? MOTION.dur.camera : MOTION.dur.intro + 0.8, ease: quick ? MOTION.ease.camera : Ease.power3InOut, lift: quick ? 0 : INTRO_ARC.lift, swing: quick ? 0 : INTRO_ARC.swing, onComplete: () => {
       state.go(S.DESK);
       this.controls.enabled = true; this.controls.sync();
       this.introWave();
