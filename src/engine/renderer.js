@@ -417,16 +417,17 @@ export class Renderer {
   }
   _postPass(camera) {
     const gl = this.gl, p = this._post, w = this.canvas.width, h = this.canvas.height;
+    const blur = this.post.maxBlur * this.pixelRatio;   // the widest blur in px: POST_FRAG blurs a pixel only where coc (0..1) times this passes 0.4, so below that the depth it samples changes nothing
     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, p.msFB); gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, p.fb);
     gl.blitFramebuffer(0, 0, w, h, 0, 0, w, h, gl.COLOR_BUFFER_BIT, gl.NEAREST);
-    gl.blitFramebuffer(0, 0, w, h, 0, 0, w, h, gl.DEPTH_BUFFER_BIT, gl.NEAREST);
+    if (blur > 0.35) gl.blitFramebuffer(0, 0, w, h, 0, 0, w, h, gl.DEPTH_BUFFER_BIT, gl.NEAREST);   // nothing can blur below 0.4 px (the desk's home view sits at 0), so the full size depth resolve is skipped
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, w, h); gl.disable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE);
     const P = this.postProg; gl.useProgram(P.program); const u = P.u;
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, p.color); gl.uniform1i(u.uColor, 0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, p.depth); gl.uniform1i(u.uDepth, 1);
     gl.uniform2f(u.uTexel, 1 / w, 1 / h); gl.uniform1f(u.uNear, camera.near); gl.uniform1f(u.uFar, camera.far);
-    gl.uniform1f(u.uFocus, this.post.focus); gl.uniform1f(u.uRange, this.post.range); gl.uniform1f(u.uMaxBlur, this.post.maxBlur * this.pixelRatio); gl.uniform1f(u.uVignette, this.post.vignette);
+    gl.uniform1f(u.uFocus, this.post.focus); gl.uniform1f(u.uRange, this.post.range); gl.uniform1f(u.uMaxBlur, blur); gl.uniform1f(u.uVignette, this.post.vignette);
     gl.bindVertexArray(this._postVAO); gl.drawArrays(gl.TRIANGLES, 0, 3);
     gl.enable(gl.DEPTH_TEST); gl.enable(gl.CULL_FACE);
   }
