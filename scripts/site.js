@@ -13,6 +13,7 @@ import { LANGS, DEFAULT_LANG, LANG_ORDER, OTHER_PREFIXES, UI, CONTENT, fill } fr
 import { PROJECTS_T, WORLDS_T, STORY } from './i18n-projects.js';
 import { labsMain, LABS_CSS, LABS_META, labsMetaFor } from './labs.js';
 import { worldsSection, WORLDS, WORLDS_CSS, worldsFor } from './labs-worlds.js';
+import { labsFor } from '../src/app/labs.js';
 import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profile.js';
 import { STACK, stackModel, stackParts, slugOf, toolboxGrid, STACK_CSS, TOOLBOX_CSS, TOOLBOX_JS } from './stack-tools.js';
 import { minifyJS, minifyCSS } from './jsmin.js';
@@ -993,6 +994,10 @@ function cvPage(D, ctx) {
   // a selected project as a recruiter reads it: the role, then the first thing built (the page's address shows when printed)
   const sel = FEATURED.map((f) => P(f.key)).filter(Boolean).map((p) => { const did = tp(p, 'did') || p.did || [], role = tp(p, 'role') || p.role;
     return `<li><a ${pAttrs(p, 'cv')} data-print="navygibran.dev${u(`/work/${p.key}/`)}"><b>${esc(p.title)}</b></a><span class="cv-stack">${esc(stackOf(p))}</span>${role ? `<span class="cv-prole">${esc(role)}</span>` : ''}<p>${esc(did[0] || featuredText(p.key).line)}</p></li>`; }).join('');
+  const OSS = ['flowkite', 'curb', 'mydesk'].map((k) => labsFor(LANG).find((l) => l.key === k)).filter(Boolean);
+  const oss = OSS.map((l) => { const gh = l.links.find(([n]) => n === 'GitHub')?.[1], live = l.links.find(([n]) => n === 'Live')?.[1];
+    const href = live && live.startsWith('/') ? `${ORIGIN}${live}` : live || gh;
+    return `<li><a href="${esc(href)}" target="_blank" rel="noopener" data-print="${esc((gh || href).replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''))}" data-track="lab_open" data-lab="${l.key}" data-channel="cv"><b>${esc(l.name)}</b></a><span class="cv-stack">${esc(l.stack.join(' · '))}</span><p>${esc(l.line)}</p></li>`; }).join('');
   const ld = { '@context': 'https://schema.org', '@type': 'ProfilePage', name: `${t('cv_title')} | Navy Gibran`, url: `${ORIGIN}${u('/cv/')}`, inLanguage: L.html, mainEntity: { '@id': PERSON_ID, ...personLd(D) } };
   return head({ title: `${t('cv_title')} | Navy Gibran`, description: t('cv_desc'), pathname: '/cv/', css: ctx.css, imageAlt: t('ogDefaultAlt'), extra: `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` }) + `
 <body class="cv-page">
@@ -1017,6 +1022,8 @@ ${header('cv', '/cv/')}
       <ol class="cv-list">${edu.map((r) => `<li><span class="cv-when">${esc(r.when)}</span><div><h3>${esc(r.role)}</h3><span class="cv-org">${esc(r.org)}</span><p>${esc(r.body)}</p></div></li>`).join('')}</ol>
       <h2 class="lbl">${esc(t('cv_sel'))}</h2>
       <ul class="cv-sel">${sel}</ul>
+      ${oss ? `<h2 class="lbl">${esc(t('cv_oss'))}</h2>
+      <ul class="cv-sel cv-oss">${oss}</ul>` : ''}
     </section>
     <aside class="cv-side">
       <h2 class="lbl">${esc(t('cv_contact'))}</h2>
