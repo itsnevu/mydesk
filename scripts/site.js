@@ -498,7 +498,7 @@ function home(D, ctx) {
           <span class="case-cta">${esc(t('viewProject'))} ${circleGo}</span>
         </div>
         <div class="case-media"><div class="case-big"${m.shots.length > 1 ? ` data-shots="${esc(JSON.stringify(m.shots.map((s) => '/' + s)))}"` : ''}>${m.cover ? img(m.cover, t('screenshot', { t: p.title }), { sizes: '(min-width: 1100px) 56vw, 100vw' }) : plate(p)}${m.shots.length > 1 ? `<img class="case-alt" alt="" src="${BLANK}" aria-hidden="true" decoding="async"><img class="case-alt" alt="" src="${BLANK}" aria-hidden="true" decoding="async"><span class="case-bars" aria-hidden="true">${m.shots.map(() => '<i></i>').join('')}</span>` : ''}</div>${small}</div>
-        <span class="case-ghost" aria-hidden="true">${pad(i + 1)}</span>
+        <span class="case-ghost" aria-hidden="true" data-n="${pad(i + 1)}"></span>
       </a>
     </li>`;
   }).join('');

@@ -450,19 +450,20 @@ export const TOOLBOX_CSS = `
 /* ---------- /full/'s toolbox (scripts/stack-tools.js toolboxGrid): on cream, so the dark tokens the card and the meter use are
    given cream values here; the dialog keeps the dark ones */
 .stack .pf-m, .tl-dlg .pf-m { display: inline-block; width: 15px; height: 15px; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat; }
-.stack { --ink: var(--cream-ink); --dim: var(--cream-dim); --faint: rgba(23, 18, 12, 0.58); --line: var(--cream-line); --line-2: rgba(23, 18, 12, 0.26); --accent: #8f5418; --accent-2: #8f5418; }
+.stack { --ink: var(--cream-ink); --dim: var(--cream-dim); --faint: rgba(23, 18, 12, 0.7); --line: var(--cream-line); --line-2: rgba(23, 18, 12, 0.26); --accent: #8f5418; --accent-2: #8f5418; }
 .stack-lead { max-width: 40em; margin: -12px 0 22px; font-size: clamp(17px, 1.3vw, 20px); line-height: 1.55; color: var(--cream-dim); text-wrap: pretty; }
 .stack .pf-gh { margin-bottom: 30px; background: rgba(23, 18, 12, 0.03); }
 .stack .pf-gh-bar { background: rgba(23, 18, 12, 0.08); }
 .stack .pf-gh-bar i, .stack .pf-gh-dot { filter: saturate(0.9); }
 .stack .pf-gh-leg button:hover, .stack .pf-gh-leg button:focus-visible, .stack .pf-gh-top6 button:hover, .stack .pf-gh-top6 button:focus-visible { background: rgba(23, 18, 12, 0.06); }
 .stack .pf-gh-tb { background: rgba(23, 18, 12, 0.1); }
+.stack .pf-gh-top6 .tool-i, .stack .pf-gh-top6 .tool-i--wide { width: 16px; height: 16px; margin: 0; opacity: 1; } .stack .pf-gh-top6 .tool-i--txt { width: 16px; height: 16px; font-size: 6.5px; color: var(--cream-ink); }
 .st-tool { display: inline-flex; align-items: center; gap: 0.5em; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .st-tool .pf-u { margin-left: 0.15em; transform: translateY(-0.1em); }
 .st-tool.is-now::after { content: ""; width: 7px; height: 7px; margin-left: 2px; border-radius: 50%; background: #3f9a62; box-shadow: 0 0 0 3px rgba(63, 154, 98, 0.16); align-self: flex-start; transform: translateY(0.35em); }
 .st-col li:has(.st-tool) { transition: color 0.3s, transform 0.45s var(--ease); }
 .st-col li:has(.st-tool:focus-visible) { color: #8f5418; transform: translateX(8px); }
-.stack .pf-st-key { margin-top: 34px; border-top-color: var(--cream-line); color: rgba(23, 18, 12, 0.58); }
+.stack .pf-st-key { margin-top: 34px; border-top-color: var(--cream-line); color: rgba(23, 18, 12, 0.7); }
 .stack .pf-st-key-t { color: var(--cream-dim); }
 .tl-dlg { --ink: #f1eadb; --dim: rgba(241, 234, 219, 0.68); --faint: rgba(241, 234, 219, 0.52); --line: rgba(241, 234, 219, 0.13); --line-2: rgba(241, 234, 219, 0.24); --accent: #d9a05b; --accent-2: #e8b97a;
   width: min(660px, calc(100vw - 32px)); max-height: calc(88vh / var(--k, 1)); margin: auto; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible; }
