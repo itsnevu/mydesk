@@ -54,9 +54,19 @@ function build() {
   root.addEventListener('click', (e) => { const b = e.target.closest('[data-id]'); if (!b) return; const id = b.dataset.id; hideHints(); xp?.activate(id); });
   bar.querySelector('[data-hide]').addEventListener('click', () => hideHints());
   bar.querySelector('[data-full]').addEventListener('click', () => { hideHints(); onFull?.(); });
-  // they go away when the visitor moves on: Esc, a click into the scene, or leaving the desk
+  // they go away when the visitor moves on: Esc, a tap or click into the scene (the one app/experience answers: within its
+  // slop, 10 px for a finger and 6 for a mouse, inside 500 ms), or leaving the desk; a drag or a pinch is the visitor
+  // looking around for more, and the labels stay pinned to what they name
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && hintsOn()) { e.stopImmediatePropagation(); hideHints(); } }, true);
-  document.getElementById('canvas')?.addEventListener('pointerdown', () => { if (hintsOn()) hideHints(); });
+  const cv = document.getElementById('canvas'); let down = null;
+  cv?.addEventListener('pointerdown', (e) => { down = hintsOn() && e.isPrimary ? [e.clientX, e.clientY, performance.now(), e.pointerId, 0] : null; });
+  cv?.addEventListener('pointermove', (e) => { if (down && e.pointerId === down[3]) down[4] = Math.max(down[4], Math.hypot(e.clientX - down[0], e.clientY - down[1])); });
+  cv?.addEventListener('pointerup', (e) => {
+    const d = down; if (!d || e.pointerId !== d[3]) return; down = null;
+    const far = Math.max(d[4], Math.hypot(e.clientX - d[0], e.clientY - d[1]));
+    if (far <= (e.pointerType === 'touch' ? 10 : 6) && performance.now() - d[2] <= 500 && e.button === 0 && hintsOn()) hideHints();
+  });
+  cv?.addEventListener('pointercancel', () => { down = null; });
 }
 
 // over the top of what the object actually is (its geometry's box, wherever the mesh's own origin happens to be); the hover
