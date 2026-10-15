@@ -1,4 +1,5 @@
-// navygibran.dev page script (inlined into every page by scripts/site.js). Everything here is an enhancement: without it the page
+// navygibran.dev page script (one cached file for every page and language, written by scripts/site.js; the page's own data comes
+// inline as window.__NV, just before it). Everything here is an enhancement: without it the page
 // reads the same. No libraries, no WebGL.
 //   · a gentle inertial scroll for the mouse wheel (touch and keyboard stay native), anchors and "back to top" glide with it
 //   · scenes: each one gets a progress value every frame it is near the screen and turns it into CSS custom properties
@@ -8,9 +9,10 @@
   const root = document.documentElement;
   // a link shared before the split (navygibran.dev/#project-x, /#note) belongs to the 3D desk: a project goes to its page here,
   // anything else the desk knows goes to the desk
-  const DESK = __DESK_TARGETS__, PROJECTS = __PROJECTS__, INDEX = __INDEX__;
+  const NV = window.__NV || {};
+  const DESK = NV.desk || [], PROJECTS = NV.projects || [], INDEX = NV.index || { p: [], l: [] };
   // the page's language: its path prefix ('' for Indonesian, '/en', '/zh') and the few words this script says itself
-  const PFX = __PREFIX__, LANG = __LANG__, JT = __JS_T__;
+  const PFX = NV.prefix || '', LANG = NV.lang || 'en', JT = NV.t || {};
   const jt = (k, vars) => String(JT[k] ?? k).replace(/\{(\w+)\}/g, (m, v) => (vars && v in vars ? vars[v] : m));
   // the language switch remembers the choice (the default pages forward to it on arrival)
   document.querySelectorAll('.lang a[data-lang]').forEach((a) => a.addEventListener('click', () => { try { localStorage.setItem('nv-lang', a.dataset.lang); } catch {} }));

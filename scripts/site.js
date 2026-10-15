@@ -17,6 +17,7 @@ import { homeProfileMain, HOME_PROFILE_CSS, HOME_PROFILE_JS } from './home-profi
 import { STACK } from './stack-tools.js';
 import { minifyJS, minifyCSS } from './jsmin.js';
 import vm from 'node:vm';
+import { createHash } from 'node:crypto';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const ORIGIN = 'https://navygibran.dev';
@@ -339,7 +340,8 @@ ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alt
 <link rel="preload" href="/site/fonts/instrument-serif-400-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/site/fonts/newsreader-400-latin.woff2" as="font" type="font/woff2" crossorigin>
 ${ADOBE_KIT ? `<link rel="stylesheet" href="https://use.typekit.net/${esc(ADOBE_KIT)}.css">\n` : ''}<script>(function(d){${viewFwd}${forward}d.classList.replace('no-js','js');try{if(window.top!==window.self)d.classList.add('in-desk')}catch(e){}try{var k=Math.max(1,Math.min(innerWidth/1600,innerHeight/900));if(k>1.02&&CSS.supports('zoom','1.5')){d.style.setProperty('--k',k.toFixed(4));d.style.zoom=k.toFixed(4)}}catch(e){}try{if(localStorage.getItem('nv-motion')==='off')d.classList.add('motion-off')}catch(e){}try{var s=sessionStorage,c=s.getItem('nv-curtain');if(c){d.classList.add('curtain-on');if(c!=='1'){d.style.setProperty('--curtain',c);d.classList.add('curtain-tint')}s.removeItem('nv-curtain')}${intro ? "if(!c&&!s.getItem('nv-intro')&&!d.classList.contains('in-desk')&&!d.classList.contains('motion-off')&&!matchMedia('(prefers-reduced-motion: reduce)').matches)d.classList.add('intro-on')" : ''}}catch(e){}})(document.documentElement)</script>
-<style>${minCss(css)}</style>
+${cssLinks(css)}
+${BASE_JS ? `<link rel="preload" as="script" href="${asset(minJs(BASE_JS), 'js')}">` : ''}
 <script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":"/3d/*"}}]},"eagerness":"moderate"},{"where":{"href_matches":"/3d/*"},"eagerness":"conservative"}]}</script>
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script>
 ${extra}</head>`;
@@ -443,13 +445,24 @@ function minJs(js) {
   minCache.set(js, out);
   return out;
 }
+// the files the pages share, named by their content: /s/<hash>.css and .js (vercel.json caches /s/ for a year, immutable). The
+// stylesheet and the script every page carries are one file each; a page's own extra (the home's profile, Labs' worlds) is a second.
+// Only the page's data stays inline (window.__NV: its language, its words, the index the search reads), a few kB.
+let ASSETS = new Map(), BASE_CSS = '', BASE_JS = '', NV_DATA = '{}';
+function asset(content, ext) {
+  const rel = `s/${createHash('sha1').update(content).digest('hex').slice(0, 10)}.${ext}`;
+  ASSETS.set(rel, content);
+  return '/' + rel;
+}
+const splitBase = (code, base) => (base && code.startsWith(base) ? [base, code.slice(base.length)] : [code]).filter((c) => c.trim());
+const cssLinks = (css) => splitBase(css, BASE_CSS).map((c) => `<link rel="stylesheet" href="${asset(minCss(c), 'css')}">`).join('\n');
 function minCss(css) {
   if (minCache.has(css)) return minCache.get(css);
   let out = css; try { out = minifyCSS(css); } catch (e) { console.warn('page CSS left unminified:', e.message); }
   minCache.set(css, out);
   return out;
 }
-const tail = (js) => `<script>${minJs(js)}</script>\n</body>\n</html>\n`;
+const tail = (js) => `<script>window.__NV=${NV_DATA}</script>\n${splitBase(js, BASE_JS).map((c) => `<script src="${asset(minJs(c), 'js')}"></script>`).join('\n')}\n</body>\n</html>\n`;
 
 // ---------- home
 function home(D, ctx) {
@@ -1120,6 +1133,7 @@ export async function renderSite() {
   const css = read('site/site.css').replace(/(?<![\w.#-])(\d*\.?\d+)(svh|dvh|lvh|vh|vw|vmin|vmax)\b/g, 'calc($1$2 / var(--k, 1))');
   const cssAll = read('site/fonts.css') + css + motionOffRules(css);
   const jsSrc = read('site/site.js');
+  ASSETS = new Map(); BASE_CSS = cssAll; BASE_JS = jsSrc;
   // shared links to the old address (navygibran.dev/#project-x, /#note) belong to the desk: the page script forwards them
   const targets = [...Object.keys(D.TARGETS), 'site'];
   const nClients = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
@@ -1130,9 +1144,8 @@ export async function renderSite() {
     const DL = { ...D0, PROJECTS: D0.PROJECTS.map((p) => (PROJECTS_T[lang]?.[p.key]?.title ? { ...p, title: PROJECTS_T[lang][p.key].title } : p)) };
     const D = DL;
     const ctx = { css: cssAll, js: jsSrc };
-    ctx.js = ctx.js.replace('__DESK_TARGETS__', JSON.stringify(targets)).replace('__PROJECTS__', JSON.stringify(D.PROJECTS.map((p) => p.key)))
-      .replace('__INDEX__', JSON.stringify({ p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]) }).replace(/</g, '\\u003c'))
-      .replace('__PREFIX__', JSON.stringify(PFX)).replace('__LANG__', JSON.stringify(lang)).replace('__JS_T__', JSON.stringify(t('js')).replace(/</g, '\\u003c'));
+    // (this language's data for the page script: the desk's old targets, the projects, the index the search reads, the words)
+    NV_DATA = JSON.stringify({ desk: targets, projects: D.PROJECTS.map((p) => p.key), index: { p: workOrder(D.PROJECTS).map((p) => [p.key, p.title, industryLine(p), stackOf(p), tint(p).bg, kindLabel(kindOf(p))]), l: D.SITE.links.map((l) => [linkLabel(l), l.href]) }, prefix: PFX, lang, t: t('js') }).replace(/</g, '\\u003c');
     const menuLinks = D.SITE.links.map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
     // The simple menu already holds the WhatsApp button and the mail link, so its "elsewhere" row skips those two
     const elseLinks = D.SITE.links.filter((l) => !/^(https:\/\/wa\.me|mailto:)/.test(l.href)).map((l) => `<li><a href="${esc(l.href)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="${esc(l.label)}">${esc(linkLabel(l))}</a></li>`).join('');
@@ -1147,6 +1160,7 @@ export async function renderSite() {
     if (lang === DEFAULT_LANG) out['404.html'] = fillAll(notFound(D, ctx));
   }
   setLang(DEFAULT_LANG);
+  for (const [rel, content] of ASSETS) out[rel] = content;
   const paths = ['/', '/full/', '/work/', '/labs/', '/cv/', ...D.PROJECTS.map((p) => `/work/${p.key}/`)];
   const alt = (pth) => LANG_ORDER.map((l) => `<xhtml:link rel="alternate" hreflang="${LANGS[l].html}" href="${ORIGIN}${LANGS[l].prefix}${pth}"/>`).join('') + `<xhtml:link rel="alternate" hreflang="x-default" href="${ORIGIN}${pth}"/>`;
   const urls = [];

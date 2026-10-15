@@ -79,12 +79,12 @@ http.createServer((req, res) => {
   // (the portfolio speaks three languages: /en/ and /zh/ hold the same pages under a prefix, the default Indonesian ones at /)
   const old = !desk && OLD_PREFIXES.length && new RegExp(`^/(${OLD_PREFIXES.join('|')})(/|$)`).exec(p);
   if (old) { res.writeHead(301, { Location: p.slice(old[1].length + 1) || '/' }); return res.end(); }
-  const sitePath = !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/|full/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
+  const sitePath = !desk && /^\/s\/[\w-]+\.(css|js)$/.test(p) ? p.slice(1) : !desk && (new RegExp(`^/((${LP})/)?$`).test(p) ? p.slice(1) + 'index.html' : /^\/(index\.html|404\.html|sitemap\.xml|robots\.txt)$/.test(p) ? p.slice(1) : new RegExp(`^/((${LP})/)?(work/([\\w-]+/)?|labs/|cv/|full/)(index\\.html)?$`).test(p) ? p.slice(1).replace(/\/$/, '/index.html') : null);
   // (rendered by the worker above: any edit to the templates, the dictionaries, labs or data.js shows without a restart)
   const renderPage = (rel, status = 200) => renderSite().then((pages) => {
     const body = pages[rel];
     if (body === undefined) return renderPage('404.html', 404);
-    const type = rel.endsWith('.xml') ? 'application/xml; charset=utf-8' : rel.endsWith('.txt') ? types['.txt'] : types['.html'];
+    const type = rel.endsWith('.xml') ? 'application/xml; charset=utf-8' : rel.endsWith('.txt') ? types['.txt'] : rel.endsWith('.css') ? types['.css'] : rel.endsWith('.js') ? types['.js'] : types['.html'];
     res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' }); res.end(req.method === 'HEAD' ? undefined : body);
   }).catch((e) => { console.error('site:', e); res.writeHead(500, { 'Content-Type': 'text/plain' }); res.end(String(e.stack || e)); });
   if (sitePath) return renderPage(sitePath);
