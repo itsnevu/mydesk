@@ -209,6 +209,7 @@ export const WORLDS_CSS = `
 .worlds-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
 .world { --acc: hsl(var(--h) 70% 72%); --bgc: hsl(var(--h) 34% 11%); scroll-margin-top: 96px; display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--bg-2); transition: border-color 0.35s, transform 0.6s var(--ease); }
 .world:hover, .js .worlds-grid.in > .world:hover { border-color: var(--line-2); }   /* (no lift: only the Visit pill is a link) */
+.world:has(:focus-visible) { border-color: var(--line-2); }   /* (keyboard focus on its Visit pill lights the card as the pointer does) */
 /* the card the home's reel sent you to (#w-<key>) is marked */
 .world:target { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc), 0 24px 50px -30px rgba(0, 0, 0, 0.85); }
 .world[hidden] { display: none; }   /* (the filter hides by attribute; the flex display above would otherwise win) */
@@ -220,7 +221,7 @@ export const WORLDS_CSS = `
    the scrim, a brighter strip that did not belong to anything; the plate's top corners round like the card's) */
 .world-plate.has-shot { aspect-ratio: 16 / 9; min-height: 0; padding: 20px 22px 18px; overflow: hidden; border-radius: 13px 13px 0 0; isolation: isolate; }
 .world-shot { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.001); transition: transform 1.4s var(--ease), opacity 0.6s; }
-.world:hover .world-shot { transform: scale(1.045); }
+.world:hover .world-shot { transform: scale(1.045); } .world:has(:focus-visible) .world-shot { transform: scale(1.045); }
 .world-plate.has-shot::before { z-index: 1; opacity: 1; background: linear-gradient(to top, rgba(9, 8, 10, 0.92) 0%, rgba(9, 8, 10, 0.55) 36%, rgba(9, 8, 10, 0) 60%), linear-gradient(to bottom, rgba(9, 8, 10, 0.78), rgba(9, 8, 10, 0) 34%); }
 .world-plate.has-shot .world-top, .world-plate.has-shot .world-tag { z-index: 2; }
 .world-plate.has-shot .world-top { color: rgba(241, 234, 219, 0.92); }
@@ -228,7 +229,8 @@ export const WORLDS_CSS = `
 .world-plate.has-shot .world-top > * { padding: 4px calc(8px - 0.18em) 4px 8px; border-radius: 6px; background: rgba(14, 12, 9, 0.88); box-shadow: 0 0 0 1px var(--line); }
 .world-plate.has-shot .world-top b { color: color-mix(in srgb, var(--acc) 80%, var(--ink)); text-wrap: balance; } .world-plate.has-shot .world-tag { text-shadow: 0 1px 10px rgba(0, 0, 0, 0.7); }
 .world-plate.has-shot .world-tag { text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5); }
-@media (prefers-reduced-motion: reduce) { .world:hover .world-shot { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .world:hover .world-shot { transform: none; } .world:has(:focus-visible) .world-shot { transform: none; } }
+@media (hover: none) { .world-links a:active { scale: 0.96; } }
 .world-top { position: absolute; left: 22px; right: 22px; top: 18px; display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; font: 600 11px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
 .world-top b { color: var(--acc); font-weight: 700; }
 .world-tag { position: relative; font: italic 400 clamp(24px, 1.9vw, 30px)/1.12 var(--serif); color: var(--ink); text-wrap: balance; }

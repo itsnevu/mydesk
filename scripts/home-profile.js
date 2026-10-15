@@ -433,7 +433,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-tabs-ind { position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: var(--accent); pointer-events: none; transition: transform 0.55s var(--ease), width 0.55s var(--ease); }
 .pf-tabs.has-ind a::after { display: none; }
 .pf-tabs a::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 0.5s var(--ease); }
-.pf-tabs a:hover, .pf-tabs a[aria-current] { color: var(--ink); } .pf-tabs a[aria-current]::after, .pf-tabs a:hover::after { transform: none; }
+.pf-tabs a:hover, .pf-tabs a:focus-visible, .pf-tabs a[aria-current] { color: var(--ink); } .pf-tabs a[aria-current]::after, .pf-tabs a:hover::after, .pf-tabs a:focus-visible::after { transform: none; }
 .pf-hatch { height: 14px; background-color: var(--bg); background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 9px); background-size: 200% 100%; animation: pf-hatch 60s linear infinite; }
 @keyframes pf-hatch { to { background-position: -400px 0; } }
 .pf-sec { padding: clamp(18px, 2.6vw, 26px) clamp(18px, 3vw, 30px) clamp(22px, 3vw, 30px); }
@@ -442,7 +442,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-h sup { margin-left: 6px; font: 600 11px var(--cond); letter-spacing: 0.12em; color: var(--faint); vertical-align: 0.9em; }
 .pf-h--sub { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
 .pf-h h3 { display: inline-flex; align-items: center; gap: 8px; font: 600 12px var(--cond); letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); } .pf-h h3 svg { width: 16px; height: 16px; color: var(--accent); }
-.pf-all { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; } .pf-all:hover { color: var(--accent-2); }
+.pf-all { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; } .pf-all:hover, .pf-all:focus-visible { color: var(--accent-2); }
 .pf-list { display: grid; }
 .pf-row { display: grid; grid-template-columns: 44px 1fr; column-gap: 14px; padding: 16px 0; border-top: 1px solid var(--line); transition: background 0.3s; }
 .pf-row:first-child { border-top: 0; }
@@ -458,13 +458,13 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 .pf-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 6px; font: 500 12px var(--cond); letter-spacing: 0.08em; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.4s var(--ease); }
 .pf-chip .pf-m { width: 13px; height: 13px; opacity: 0.85; }
-.pf-chip:hover { border-color: var(--line-2); color: var(--ink); transform: translateY(-2px); }
+.pf-chip:hover, .pf-tool:focus-visible { border-color: var(--line-2); color: var(--ink); transform: translateY(-2px); }
 .pf-chip--a { border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--ink); } .pf-chip--a::after { content: "↗"; margin-left: 2px; font-size: 0.85em; opacity: 0.7; } .pf-chip--a:hover, .pf-chip--a:focus-visible { border-color: var(--accent); color: var(--accent-2); }
 .pf-pj.rise { animation: pf-rise 0.6s var(--ease) both; animation-delay: calc(var(--k, 0) * 45ms); }
 .pf-hx .pf-tl::before { transform: scaleY(0); transform-origin: top; transition: transform 1.6s var(--ease); } .pf-hx .pf-tl.in::before { transform: none; }
 .pf-hx .pf-proc-l::before { transform: scaleX(0); transform-origin: left; transition: transform 1.4s var(--ease) 0.2s; } .pf-hx .pf-proc-l.in::before { transform: none; }
 .pf-tg { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 8px; background: none; color: var(--dim); cursor: pointer; transition: border-color 0.3s, color 0.3s, transform 0.4s var(--ease); }
-.pf-tg svg { width: 14px; height: 14px; } .pf-tg:hover { border-color: var(--ink); color: var(--ink); }
+.pf-tg svg { width: 14px; height: 14px; } .pf-tg:hover, .pf-tg:focus-visible { border-color: var(--ink); color: var(--ink); }
 .pf-tg[aria-expanded="true"] { transform: rotate(180deg); }
 .pf-fold { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease); }
 .pf-fold > p { overflow: hidden; margin: 0; font-size: 16px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
@@ -479,10 +479,10 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 /* the first three projects as picture cards; the rest keep the list, with a bigger thumbnail */
 .pf-feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
 .pf-feat a { display: grid; gap: 0; height: 100%; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-2); transition: border-color 0.3s, transform 0.6s var(--ease), box-shadow 0.4s; }
-.pf-feat a:hover { border-color: var(--line-2); --ty: -4px; box-shadow: 0 24px 40px -28px rgba(0, 0, 0, 0.9); }
+.pf-feat a:hover, .pf-feat a:focus-visible { border-color: var(--line-2); --ty: -4px; box-shadow: 0 24px 40px -28px rgba(0, 0, 0, 0.9); }
 .pf-feat-pic { display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden; color: var(--dim); background: var(--bg-3); }
 .pf-feat-pic img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: saturate(0.9); transform: scale(1.001); transition: transform 1.4s var(--ease); } .pf-feat-pic svg { width: 24px; height: 24px; }
-.pf-feat a:hover .pf-feat-pic img { transform: scale(1.06); }
+.pf-feat a:hover .pf-feat-pic img, .pf-feat a:focus-visible .pf-feat-pic img { transform: scale(1.06); }
 .pf-feat-pic { position: relative; padding-top: 22px; place-items: stretch; }
 .pf-feat-pic > svg { margin: auto; }
 .pf-feat-bar { position: absolute; left: 0; right: 0; top: 0; z-index: 1; display: flex; align-items: center; gap: 5px; height: 22px; padding: 0 10px; background: rgba(14, 12, 9, 0.92); border-bottom: 1px solid var(--line); }
@@ -529,6 +529,16 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 /* keyboard focus gets the hover's lift, and a press answers on touch */
 .pf-num:focus-visible { transform: translateY(-3px); border-color: var(--line-2); } .pf-feat > a:focus-visible { --ty: -4px; border-color: var(--line-2); } .pf-logo:focus-visible { transform: translateY(-3px); }
 .pf-num:active, .pf-feat > a:active, .pf-logo:active, .pf-soc:active, .pf-pj a:active, .pf-svc-c:active, .pf-thumb:active { scale: 0.98; }
+/* on touch the rest of the controls answer a press too (scale and filter only, so nothing fights the reveal or tilt transforms) */
+@media (hover: none) {
+  .pf-fab:active, .pf-banner-go:active, .pf-reel-pause:active, .pf-tool:active, .pf-chip--a:active, .pf-tdx-ln a:active, .pf-tdx-also a:active { scale: 0.96; }
+  .pf-tg:active, .pf-tdx-x:active { scale: 0.92; }
+  .pf-more:active, .pf-stage:active { scale: 0.98; }
+  .pf-all:active, .pf-tabs a:active, .pf-gh-meta:active, .pf-gh-leg button:active, .pf-gh-top6 button:active { filter: brightness(0.78); }
+}
+/* keyboard focus inside a row or a service card lights it as the pointer does */
+.pf-exp:has(.pf-tg:focus-visible) .pf-top b { color: var(--accent-2); }
+.pf-svc-c:has(:focus-visible) { border-color: var(--line-2); background: rgba(241, 234, 219, 0.04); }
 .pf-sec--cream .pf-logo::before { background: radial-gradient(150px circle at var(--gx, 50%) var(--gy, 50%), rgba(23, 18, 12, 0.08), transparent 65%); }
 .pf-feat .pf-go { z-index: 3; }
 /* the list's floating preview: the project's picture riding beside the pointer (wide screens with a mouse) */
@@ -548,11 +558,11 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-feat b { font: 700 15.5px/1.2 var(--cond); text-transform: uppercase; letter-spacing: 0.01em; }
 .pf-feat .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 13.5px var(--text); color: var(--dim); }
 .pf-feat .pf-go { position: absolute; } .pf-feat { position: relative; } .pf-feat .pf-go { right: 12px; top: 12px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: rgba(9, 8, 10, 0.6); color: var(--ink); opacity: 0; transform: translateY(4px); }
-.pf-feat a:hover .pf-go { opacity: 1; transform: none; }
+.pf-feat a:hover .pf-go, .pf-feat a:focus-visible .pf-go { opacity: 1; transform: none; }
 .pf-pj { display: block; padding: 0; }
 .pf-pj-st { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 5px 9px; border: 1px solid var(--line); border-radius: 6px; font: 600 10.5px var(--cond); letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); transition: border-color 0.3s, color 0.3s; }
 .pf-pj-st:empty { visibility: hidden; padding: 0; border: 0; }
-.pf-pj a:hover .pf-pj-st { border-color: var(--line-2); color: var(--dim); }
+.pf-pj a:hover .pf-pj-st, .pf-pj a:focus-visible .pf-pj-st { border-color: var(--line-2); color: var(--dim); }
 .pf-live { display: inline-flex; align-items: center; gap: 6px; color: #9fdcb3; }
 .pf-live i { width: 6px; height: 6px; border-radius: 50%; background: #7fd49c; box-shadow: 0 0 0 3px rgba(127, 212, 156, 0.16); }
 /* the experience opens with a click anywhere on the row, or all at once from the header */
@@ -578,18 +588,18 @@ html:has(.pf-tabs--pin) { scroll-padding-top: calc(var(--head-h) + 70px); }
   .pf-rail a.on { color: var(--ink); } .pf-rail a.on::after { width: 30px; background: var(--accent); opacity: 1; }
 } .pf-pj[hidden] { display: none; }
 .pf-pj a { display: grid; grid-template-columns: 96px 1fr auto 24px; align-items: center; column-gap: 14px; padding: 12px 0; transition: padding 0.4s var(--ease), color 0.3s; }
-.pf-pj a:hover { color: var(--accent-2); padding-left: 8px; }
+.pf-pj a:hover, .pf-pj a:focus-visible { color: var(--accent-2); padding-left: 8px; }
 .pf-th { display: grid; place-items: center; width: 96px; height: 60px; overflow: hidden; border-radius: 6px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--dim); }
 .pf-th img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.15) brightness(0.95); } .pf-th svg { width: 20px; height: 20px; }
 .pf-pj b { font: 700 clamp(17px, 1.6vw, 20px)/1.2 var(--cond); text-transform: uppercase; }
 .pf-pj .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 14.5px var(--text); color: var(--dim); }
 .pf-kind { color: var(--ink); }
-.pf-go { color: var(--faint); transition: color 0.3s, transform 0.4s var(--ease); } .pf-go .ar { width: 14px; height: 14px; } .pf-pj a:hover .pf-go { color: var(--accent-2); transform: translate(2px, -2px); }
+.pf-go { color: var(--faint); transition: color 0.3s, transform 0.4s var(--ease); } .pf-go .ar { width: 14px; height: 14px; } .pf-pj a:hover .pf-go, .pf-pj a:focus-visible .pf-go { color: var(--accent-2); transform: translate(2px, -2px); }
 .pf-more { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--dim); font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
-.pf-more svg { width: 14px; height: 14px; transition: transform 0.4s var(--ease); } .pf-more:hover { border-color: var(--ink); color: var(--ink); } .pf-more.open svg { transform: rotate(180deg); }
+.pf-more svg { width: 14px; height: 14px; transition: transform 0.4s var(--ease); } .pf-more:hover, .pf-more:focus-visible { border-color: var(--ink); color: var(--ink); } .pf-more.open svg { transform: rotate(180deg); }
 /* the clients on cream: one light room in the dark column */
 .pf-sec--cream { background: var(--cream); color: var(--cream-ink); border-color: var(--cream-line); }
-.pf-sec--cream .pf-h h2 em { color: var(--cream-ink); } .pf-sec--cream .pf-h sup, .pf-sec--cream .pf-all { color: var(--cream-dim); } .pf-sec--cream .pf-all:hover { color: var(--cream-ink); }
+.pf-sec--cream .pf-h h2 em { color: var(--cream-ink); } .pf-sec--cream .pf-h sup, .pf-sec--cream .pf-all { color: var(--cream-dim); } .pf-sec--cream .pf-all:hover, .pf-sec--cream .pf-all:focus-visible { color: var(--cream-ink); }
 .pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); }
 /* a mark names itself on hover: it lifts, its client's name slides in under it */
 .pf-logo:not(.pf-logo--w)::after { content: attr(title); position: absolute; left: 6px; right: 6px; bottom: 7px; font: 700 9px/1 var(--cond); letter-spacing: 0.12em; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--cream-ink); opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.45s var(--ease); }

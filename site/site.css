@@ -24,8 +24,8 @@ html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent;
 /* on a touch screen a press shows on the thing pressed, in place of the browser's grey box: buttons give a little, rows and cards
    dim for a moment (scale and filter, so nothing fights the reveals' transforms and fades) */
 @media (hover: none) {
-  .btn:active, .pill:active, .pill-f:active, .copy:active, .menu-btn:active, .brand:active, .to-top:active, .motion:active, .side-3d:active { scale: 0.96; }
-  .index-list a:active, .arc-card a:active, .more-list a:active, .contact-links a:active, .foot-cols a:active, .logo:active, .p-next a:active, .case-in:active .case-media, .t:active { filter: brightness(0.78); }
+  .btn:active, .pill:active, .pill-f:active, .pill-q:active, .keys a:active kbd, .copy:active, .menu-btn:active, .brand:active, .to-top:active, .motion:active, .side-3d:active { scale: 0.96; }
+  .index-list a:active, .arc-card a:active, .more-list a:active, .contact-links a:active, .foot-cols a:active, .logo:active, .p-next a:active, .case-in:active .case-media, .t:active, .arc-hub a:active, .p-meta dd a:active, .archive .p-crumbs > a:active, .project .p-crumbs > a:active { filter: brightness(0.78); }
 }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 400 19px/1.55 var(--text); font-optical-sizing: auto; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; overflow-x: clip; }
 img { display: block; max-width: 100%; height: auto; }
@@ -958,7 +958,7 @@ html[lang="zh-Hans"] .faq-q summary { letter-spacing: 0.02em; }
 .arc-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: clamp(40px, 5vw, 72px); }
 .pill-f { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 18px; border: 1px solid var(--line-2); border-radius: 999px; background: none; color: var(--dim); font: 600 13px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: background 0.3s, color 0.3s, border-color 0.3s; }
 .pill-f .c { font-size: 11px; letter-spacing: 0.06em; color: var(--faint); transition: color 0.3s; }
-.pill-f:hover { border-color: var(--ink); color: var(--ink); }
+.pill-f:hover, .pill-f:focus-visible { border-color: var(--ink); color: var(--ink); }
 .pill-f[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: #140f09; }
 .pill-f[aria-pressed="true"] .c { color: rgba(20, 15, 9, 0.55); }
 .pill-q { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 12px 0 16px; border: 1px dashed var(--line-2); border-radius: 999px; background: none; color: var(--dim); font: 600 13px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: color 0.3s, border-color 0.3s; }
@@ -991,7 +991,7 @@ html[lang="zh-Hans"] .faq-q summary { letter-spacing: 0.02em; }
 .arc-dock-t { position: relative; display: flex; gap: 4px; overflow-x: auto; border-radius: 999px; scrollbar-width: none; overscroll-behavior-x: contain; -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--fl, 0px), #000 calc(100% - var(--fr, 0px)), transparent); mask-image: linear-gradient(90deg, transparent, #000 var(--fl, 0px), #000 calc(100% - var(--fr, 0px)), transparent); }
 .arc-dock-t::-webkit-scrollbar { display: none; }
 .arc-dock .pill-f { flex: none; height: 40px; padding: 0 16px; border-color: transparent; }
-.arc-dock .pill-f:hover { border-color: var(--line-2); }
+.arc-dock .pill-f:hover, .arc-dock .pill-f:focus-visible { border-color: var(--line-2); }
 @media (max-width: 900px) { body.dock-on .side-3d { transform: translateX(160%); } }
 .no-js .arc-filters { display: none; }
 
