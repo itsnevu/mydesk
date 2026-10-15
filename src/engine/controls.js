@@ -1,4 +1,4 @@
-// Orbit controls with damping: left drag rotate, right (or shift/ctrl + left) drag pan, wheel / trackpad pinch zoom; touch: 1 finger rotate, 2 finger pinch/pan.
+// Orbit controls with damping: left drag rotate, right (or shift/ctrl + left) drag pan, wheel / trackpad pinch zoom; touch: 1 finger rotate, 2 finger pinch/pan; keys (keyLook, called by app/experience): the arrows turn, + and - zoom.
 import { V3, clamp, smoothstep } from 'engine/math';
 
 const WALL_SOFT = 4; // the camera eases onto a wall over this many units instead of stopping dead
@@ -196,6 +196,18 @@ export class OrbitControls {
     }
     g.r = r1;
     this.onChange?.('zoom');
+  }
+  /** The keyboard's look-around (app/experience decides when a key belongs to the view). Each arrow is a short drag its own way: ← swings the view toward the room's left and ↑ tilts it up. + (or =) and - zoom on the middle of the view. A tap is a 10° step; a held key's repeats are 4°, so holding turns steadily instead of whipping round at the key-repeat rate. Returns true when the key was one of these. */
+  keyLook(key, repeat = false) {
+    const px = (((repeat ? 4 : 10) / 360) * (this.dom.clientHeight || 1)) / (this.rotateSpeed || 1); // _rotate turns 360° per clientHeight of drag
+    if (key === 'ArrowLeft') this._rotate(-px, 0);
+    else if (key === 'ArrowRight') this._rotate(px, 0);
+    else if (key === 'ArrowUp') this._rotate(0, -px);
+    else if (key === 'ArrowDown') this._rotate(0, px);
+    else if (key === '+' || key === '=') this._zoom(repeat ? 0.94 : 0.87);
+    else if (key === '-') this._zoom(repeat ? 1.065 : 1.15);
+    else return false;
+    return true;
   }
   update(dt) {
     if (!this.enabled) return;

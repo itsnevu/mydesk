@@ -118,7 +118,7 @@ export class Experience {
     else if (mode === 'project') { c.minDistance = 7; c.maxDistance = 26; c.minPolar = degToRad(20); c.maxPolar = degToRad(80); c.minAzimuth = degToRad(-70); c.maxAzimuth = degToRad(70); c.autoRotate = false; c.enablePan = true; c.enableZoom = true; c.enableRotate = true; }
     else if (mode === 'focus') { c.minDistance = 2; c.maxDistance = 90; c.minPolar = degToRad(10); c.maxPolar = degToRad(85); c.minAzimuth = -Infinity; c.maxAzimuth = Infinity; c.autoRotate = false; c.enablePan = false; c.enableZoom = true; c.enableRotate = true; }
     else if (mode === 'gallery') { c.minDistance = 6; c.maxDistance = 16; c.minPolar = degToRad(50); c.maxPolar = degToRad(80); c.minAzimuth = degToRad(-18); c.maxAzimuth = degToRad(18); c.autoRotate = false; c.enablePan = false; c.enableZoom = false; c.enableRotate = true; }
-    else if (mode === 'overview') { c.minDistance = 12; c.maxDistance = 160; c.minPolar = 0.15; c.maxPolar = degToRad(80); c.minAzimuth = -Infinity; c.maxAzimuth = Infinity; c.autoRotate = true; c.autoRotateSpeed = 0.12; c.enablePan = false; c.enableZoom = true; c.enableRotate = true; }
+    else if (mode === 'overview') { c.minDistance = 12; c.maxDistance = 160; c.minPolar = 0.15; c.maxPolar = degToRad(80); c.minAzimuth = -Infinity; c.maxAzimuth = Infinity; c.autoRotate = !MOTION.reduced; c.autoRotateSpeed = 0.12; c.enablePan = false; c.enableZoom = true; c.enableRotate = true; }
     // the desk lives in a room: orbiting into a wall slides along it; inside a world there are no walls
     c.bounds = ['desk', 'focus', 'overview'].includes(mode) ? this.world?.room?.bounds || null : null;
     c.rise = mode === 'desk' ? { from: 46, rate: 0.24, max: 18 } : null;
@@ -168,7 +168,9 @@ export class Experience {
   }
 
   // ---------- camera
-  flyTo(stage, { duration = MOTION.dur.camera, ease = MOTION.ease.camera, lift = 0, swing = 0, onComplete } = {}) {
+  flyTo(stage, { duration = MOTION.dur.camera, ease = MOTION.ease.camera, lift = 0, swing = 0, keepLift = false, onComplete } = {}) {
+    // reduced motion: straight, soft moves at the same pace to the same place; a lift passed with keepLift is clearance and stays
+    if (MOTION.reduced) { swing = 0; if (!keepLift) lift = 0; ease = MOTION.ease.cameraSoft; }
     const from = { p: V3.clone(this.camera.position), t: V3.clone(this.camera.target) };
     const to = { p: V3.clone(stage.position), t: V3.clone(stage.target) };
     this.controls.enabled = false;
@@ -360,7 +362,7 @@ export class Experience {
         // (the orbit swings the camera away from whatever the pointer was on: its title and its half-press go with it)
         this.setHovered(null); this.leaveFocus(id);
         this.discover(id); state.go(S.OVERVIEW, { focusKey: id }); this.focus = { id, stage: 0 };
-        this.setupControls('overview'); ui.hud.sceneLabel(t.label.title, t.label.sub); ui.hud.back(true); ui.hud.navHints(false); this.pressKey('esc');
+        this.setupControls('overview'); ui.hud.sceneLabel(t.label.title, MOTION.reduced && t.label.still ? t.label.still : t.label.sub); ui.hud.back(true); ui.hud.navHints(false); this.pressKey('esc');
         this.flyTo(target.stages[0], { duration: MOTION.dur.cameraLong, ease: MOTION.ease.cameraSoft, lift: 3, swing: -4, onComplete: () => { this.controls.enabled = true; this.controls.sync(); } });
         this.updateHints(); setRoute(id); return;
       // on a phone held upright the screen zoom only shows a slice of the monitor: the projects open as pages instead
@@ -651,7 +653,9 @@ export class Experience {
     const wrap = i + dir < 0 || i + dir >= PORTALS.length; const lift = wrap ? 26 : 12, dur = wrap ? 2.4 : 1.9;
     d.introAt = this.time + dur - 0.5; d.outroAt = -1; from.outroAt = this.time; // the pins left behind bow out
     tween.delayed(0.9, () => { this.world3 = d; this.applyWorldLighting(d); setRoute(`project-${next.key}`); });
-    this.flyTo(d.view, { duration: dur, ease: Ease.power2InOut, lift, onComplete: () => { for (const o of this.dioramas.values()) o.root.visible = o === d; this.settle('project'); this.showWorldLabel(d); this.maybeShowViewProject(); this.updateHints(); } });
+    // from the settled view every switch has a clear straight line; from a place inspected inside a world, or a view turned or zoomed into it, the arc is what clears the About workshop's walls
+    const offView = V3.dist(this.camera.position, from.view.position) > 0.5;
+    this.flyTo(d.view, { duration: dur, ease: Ease.power2InOut, lift, keepLift: offView, onComplete: () => { for (const o of this.dioramas.values()) o.root.visible = o === d; this.settle('project'); this.showWorldLabel(d); this.maybeShowViewProject(); this.updateHints(); } });
   }
   leaveWorld(after) {
     if (!state.go(S.SWITCHING)) return;
@@ -821,6 +825,10 @@ export class Experience {
     // Ctrl/Cmd/Alt chords (copy, save, print, select all…) belong to the browser, not the desk
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (id && this.world.keyById[id] && !this.physical.has(id)) { this.physical.add(id); this.world.keyById[id].userData.targetPress = 1; if (state.is(S.DESK, S.FOCUS, S.OVERVIEW)) audio.keyPress(1, this.keyVoice(this.world.keyById[id])); }
+    // the arrows look around and + / - zoom (controls.keyLook) on the desk, an object and the overview; a held key keeps turning. Not in the story (its arrows walk the stops), not mid-flight, and not while a panel, the discoveries list or the menu has the focus or the pointer (there the arrows scroll it, as before)
+    if (/^(Arrow(Left|Right|Up|Down)|[-+=])$/.test(k) && state.is(S.DESK, S.FOCUS, S.OVERVIEW) && !this.story && !this.flight && this.controls.enabled
+      && !document.activeElement?.closest?.('#spatial, #story, #discovery-list, #site-menu') && !document.querySelector('#spatial:hover, #discovery-list:hover, #site-menu:hover')
+      && this.controls.keyLook(k, e.repeat)) { e.preventDefault(); this.controls.onStart?.(); return; }
     if (e.repeat) return;
     if (state.is(S.GATE) && (k === 'Enter' || k === ' ')) { e.preventDefault(); const m = this.world.gateEnter; this.physical.add('gate-enter'); m.userData.targetPress = 1; this.enter({ music: k === 'Enter', direct: this.pendingDirect }); return; }
     if (state.is(S.LOADING, S.GATE, S.ENTERING, S.SWITCHING)) return;
@@ -855,9 +863,9 @@ export class Experience {
   updateHints() {
     if (ui.isTouch) return;
     switch (state.current) {
-      case S.DESK: ui.hud.kbdHints([['click', 'anything that glows'], ['drag', 'look around']]); break;
-      case S.FOCUS: ui.hud.kbdHints([['ESC', 'back'], ['DRAG', 'look']]); break;
-      case S.OVERVIEW: ui.hud.kbdHints([['ESC', 'back'], ['DRAG', 'orbit']]); break;
+      case S.DESK: ui.hud.kbdHints([['click', 'what glows'], ['drag / ← →', 'look around']]); break;
+      case S.FOCUS: ui.hud.kbdHints([['ESC', 'back'], ['DRAG / ← →', 'look']]); break;
+      case S.OVERVIEW: ui.hud.kbdHints([['ESC', 'back'], ['DRAG / ← →', 'orbit']]); break;
       case S.PROJECT: ui.hud.kbdHints([['CLICK', 'inspect'], ['←', 'prev world'], ['→', 'next world'], ['ESC', 'desk']]); break;
       default: ui.hud.kbdHints(null);
     }
@@ -880,8 +888,9 @@ export class Experience {
     }
     // left alone for a while, the desk keeps breathing at half rate (the fans, the clock and the steam still move) so a tab left open
     // doesn't keep a laptop's fan spinning; any input brings the full rate straight back
-    // (not in the overview: that is a slow camera orbit, and a moving camera at half rate judders)
-    const idle = !this.flight && !this.pointer.down && !state.is(S.OVERVIEW) && performance.now() - this._inputAt > 20000;
+    // (not in the overview while it orbits: that is a slow camera orbit, and a moving camera at half rate judders; a still overview
+    // (reduced motion) may drop to half rate like the desk)
+    const idle = !this.flight && !this.pointer.down && !(state.is(S.OVERVIEW) && this.controls.autoRotate) && performance.now() - this._inputAt > 20000;
     this.renderer.holdAdapt = idle;
     if (idle && ts - (this._frameAt || 0) < 30) return;
     this._frameAt = ts;
@@ -890,7 +899,7 @@ export class Experience {
   frame(ts) {
     const t = ts / 1000; const dt = Math.min(0.05, t - (this.last || t)); this.last = t; this.time = t;
     tween.update(t);
-    if (state.is(S.GATE, S.LOADING)) { const g = this.gateCam; V3.copy(this.camera.target, g.target); const a = t * 0.06; this.camera.position[0] = g.position[0] + Math.sin(a) * 0.7; this.camera.position[2] = g.position[2] + Math.cos(a) * 0.4; this.camera.position[1] = g.position[1] + Math.sin(t * 0.13) * 0.25; }
+    if (state.is(S.GATE, S.LOADING)) { const g = this.gateCam, still = MOTION.reduced, a = still ? 0 : t * 0.06, b = still ? 0 : t * 0.13; V3.copy(this.camera.target, g.target); this.camera.position[0] = g.position[0] + Math.sin(a) * 0.7; this.camera.position[2] = g.position[2] + Math.cos(a) * 0.4; this.camera.position[1] = g.position[1] + Math.sin(b) * 0.25; }
     this.controls.update(dt);
     this.updateHover();
     if (this.sceneName === 'desk') {

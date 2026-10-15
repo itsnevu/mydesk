@@ -297,7 +297,7 @@ export const TARGETS = {
   // the orange bookmark key: the keyboard read as a story, stop by stop (STORY below)
   art4: { kind: 'story', hint: 'The story so far', shortcut: 'T', label: { title: 'The story', sub: '2022 to now, stop by stop' }, discover: 'The story' },
   story: { kind: 'alias', to: 'art4' },   // #story, and the menu's Story
-  esc: { kind: 'overview', hint: 'Overview', label: { title: 'Overview', sub: 'a slow orbit of the desk' }, discover: 'Overview' },
+  esc: { kind: 'overview', hint: 'Overview', label: { title: 'Overview', sub: 'a slow orbit of the desk', still: 'drag to orbit the desk' }, discover: 'Overview' },
   fn: { kind: 'backlight', hint: 'Backlight', label: { title: 'Backlight', sub: 'cycle the key light' }, discover: 'Backlight' },
   space: { kind: 'music', hint: 'Music', label: { title: 'Sound', sub: 'play / pause the room tone' } },
   speaker: { kind: 'music', hint: 'Music', shortcut: 'M', label: { title: 'Music', sub: 'play / pause the room' } },

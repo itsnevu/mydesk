@@ -121,7 +121,7 @@ project pages. The intro happens once.
 | **Mouse** (C) | a door straight into 09 **Contact**, where the phone opens the links and a message form that sends through WhatsApp |
 | **Keyboard** (any plain key or the frame) | keys ripple, the navigation keys light → the keyboard becomes the hero |
 | **Coffee** | steam + a small message |
-| **Esc** | slow cinematic orbit of the desk · **Fn** cycles the backlight (amber, warm white, ember, off) · **Space / M** or the speakers: sound |
+| **Esc** | slow cinematic orbit of the desk (held still when the OS asks for reduced motion) · **Fn** cycles the backlight (amber, warm white, ember, off) · **Space / M** or the speakers: sound |
 
 **Also on the keyboard:** F3 (a cap lifted off its switch), H (a sapling through the cap), [ (a staircase into the plate), ' (a plaza),
 ; (a sunken garden), F5 to F7 (the mechanism bay) and Scroll Lock (the secret).

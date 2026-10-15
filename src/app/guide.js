@@ -13,7 +13,7 @@ const ROWS = [
   ['Sit where I work', 'Click the chair', '', 'chair'],
   ['Lost? Back to the start', 'Brings the camera back to the whole desk', '', 'home'],
 ];
-const CONTROLS = [['Look around', 'drag with the mouse (or one finger)'], ['Zoom in / out', 'scroll (or pinch)'], ['Go back', 'press Esc, or the ✕ at the top right'], ['Tip', 'anything that lights up when you point at it can be clicked']];
+const CONTROLS = [['Look around', 'drag with the mouse (or one finger)', 'or use the arrow keys'], ['Zoom in / out', 'scroll (or pinch)', 'or press + and -'], ['Go back', 'press Esc, or the ✕ at the top right'], ['Tip', 'anything that lights up when you point at it can be clicked']];
 
 const CSS = `
 #guide-btn { position: absolute; left: 40px; bottom: calc(30px + var(--safe-b, 0px)); z-index: 40; display: flex; align-items: center; gap: 10px; padding: 11px 18px 11px 12px; border: 1px solid rgba(217,160,91,0.6); border-radius: 999px; background: rgba(18,15,10,0.78); backdrop-filter: blur(8px); color: var(--paper, #e7ddc8); font: 600 14px/1 var(--sans, system-ui); letter-spacing: 0.04em; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .5s, border-color .2s, transform .2s; }
@@ -118,7 +118,7 @@ export function initGuide(xp) {
     <button class="row hints-row" type="button" data-go="hints"><div class="what"><strong>What can I ${touch ? 'tap' : 'click'}?</strong><span>A label on everything in view that opens something</span></div><span class="go">SHOW →</span></button>
     <div class="rows">${ROWS.map(([t, how, key, id]) => `<button class="row" type="button" data-go="${id}"><div class="what"><strong>${t}</strong><span>${verb(how)}</span></div>${key ? `<kbd>${key}</kbd>` : ''}<span class="go">GO →</span></button>`).join('')}</div>
     <h3>Moving around</h3>
-    <dl>${CONTROLS.map(([a, b]) => `<dt>${a}</dt><dd>${verb(b)}</dd>`).join('')}</dl>
+    <dl>${CONTROLS.map(([a, b, k]) => `<dt>${a}</dt><dd>${verb(b)}${k && !touch ? `, ${k}` : ''}</dd>`).join('')}</dl>
     <button class="close" type="button">Got it, let me explore</button>
   </div>`;
   const quick = document.createElement('button'); quick.id = 'quick-btn'; quick.type = 'button'; quick.textContent = 'See the work →';
