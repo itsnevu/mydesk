@@ -338,7 +338,6 @@ ${noindex ? '' : `<link rel="canonical" href="${url}">\n${alts}\n`}<meta name="r
 <meta property="og:locale" content="${L.og}">
 ${LANG_ORDER.filter((l) => l !== LANG).map((l) => `<meta property="og:locale:alternate" content="${LANGS[l].og}">`).join('\n')}
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@itsnevuu">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${image}">

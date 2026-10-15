@@ -16,7 +16,7 @@ export const SITE = {
     { label: 'Email', href: 'mailto:navygibran16@gmail.com' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/navy-gibran-29950528a/' },
     { label: 'GitHub', href: 'https://github.com/itsnevu' },
-    { label: 'X', href: 'https://x.com/itsnevuu' },
+    // (no X link for now: x.com/itsnevuu answers "User Profile Not Found", checked 2026-10-16; it comes back when Navy gives his handle)
     { label: 'Résumé', href: '/cv/Navy-Gibran-CV.pdf' },   // (public/cv: the same PDF as on itsnevu.xyz, served from this domain)
   ],
   // the one-line status a recruiter or a client looks for first (hero corner, menu, contact); `where` is the time zone, not a street
