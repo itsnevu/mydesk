@@ -17,6 +17,7 @@ const I = {
   flask: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 3h6M10 3v6l-5.5 9A2 2 0 006.2 21h11.6a2 2 0 001.7-3L14 9V3"/></svg>',
   doc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6"/></svg>',
   cube: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>',
+  org: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 21V5a1 1 0 011-1h9a1 1 0 011 1v16M15 9h4a1 1 0 011 1v11M8 8h3M8 12h3M8 16h3M3 21h18"/></svg>',
   cap: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5L2 9zM6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
   out: '<svg class="ar" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M5.5 4H12v6.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
@@ -24,6 +25,8 @@ const I = {
   play: '<svg class="pl" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.2v9.6L12.6 8z" fill="currentColor"/></svg>',
   right: '<svg class="ar ar-r" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
 };
+// +62 851-7953-6062 from 6285179536062 (Indonesian mobile numbers: country code, then 3-4-4)
+const phoneOf = (n) => { const d = String(n).replace(/\D/g, ''); return d.startsWith('62') && d.length >= 11 ? `+62 ${d.slice(2, 5)}-${d.slice(5, 9)}-${d.slice(9)}` : `+${d}`; };
 const mark = (slug, cls = '') => `<i class="pf-m${cls ? ' ' + cls : ''}" style="--m:url(/site/tools/${slug}.svg)" aria-hidden="true"></i>`;
 
 export const WORDS = {
@@ -43,7 +46,7 @@ export const WORDS = {
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
-    pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs', copyMail: 'Salin email', aboutRow: 'Selengkapnya tentang {o}',
+    pause: 'Jeda', play: 'Putar', tabsLabel: 'Navigasi situs', copyMail: 'Salin email', copyNum: 'Salin nomor', aboutRow: 'Selengkapnya tentang {o}',
     services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
     ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
     rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
@@ -65,7 +68,7 @@ WORDS.en = {
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
-  pause: 'Pause', play: 'Play', tabsLabel: 'Site', copyMail: 'Copy email', aboutRow: 'More about {o}',
+  pause: 'Pause', play: 'Play', tabsLabel: 'Site', copyMail: 'Copy email', copyNum: 'Copy number', aboutRow: 'More about {o}',
   services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
   ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
   rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
@@ -78,7 +81,7 @@ WORDS.zh = {
   live: '个上线网站', tabs: { home: '首页', work: '作品', labs: '实验室', cv: '简历', desk: '3D 桌面' },
   exp: '经历', edu: '教育', projects: '项目', clients: '客户', stack: '技术栈',
   viewAll: '查看全部', more: '显示更多', less: '收起', open_: '展开', close_: '收起',
-  status: { live: '上线', first: '第一版', done: '已完成' }, dur: { y: '年', m: '个月', d: '天' }, present: '至今',
+  status: { live: '已上线', first: '第一版', done: '已完成' }, dur: { y: '年', m: '个月', d: '天' }, present: '至今',
   thanks: '感谢你把品牌托付给我。',
   notes: ['从扛电视上楼，到构建 ERP。', '二十六个项目，其中二十三个如今在线。', '一条消息就能开始。'],
   ctaTitle: '说说你的生意。', ctaLine: '一个网站、一家网店或一套系统。一条消息就能开始，而且由我本人回复。',
@@ -86,16 +89,17 @@ WORDS.zh = {
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
-  pause: '暂停', play: '播放', tabsLabel: '网站导航', copyMail: '复制邮箱', aboutRow: '关于 {o} 的更多',
+  pause: '暂停', play: '播放', tabsLabel: '网站导航', copyMail: '复制邮箱', copyNum: '复制号码', aboutRow: '关于 {o} 的更多',
   services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
-  ring: '接受自由职业与全职工作', enter3d: '进入 3D 书桌', expandAll: '全部展开', collapseAll: '全部收起',
+  ring: '接受自由职业与全职工作', enter3d: '进入 3D 桌面', expandAll: '全部展开', collapseAll: '全部收起',
   rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
   reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
 };
 // the chips that are words rather than tool names, in the page's language (the tool names stay as they are written)
 const CHIP_T = {
-  id: { 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
-  zh: {
+  en: { TK: 'Kindergarten', SD: 'Primary school', SMP: 'Junior high', SMA: 'Senior high' },
+  id: { 'GPA 3.71': 'IPK 3.71', 'Field work': 'Kerja lapangan', '341 laptops': '341 laptop', 'Custom themes': 'Tema custom', 'Wallet integration': 'Integrasi wallet', 'dApp frontends': 'Frontend dApp' },
+  zh: { 'GPA 3.71': '绩点 3.71',
     Hardware: '硬件', '341 laptops': '341 台笔记本', 'Field work': '现场工作', 'Competitive programming': '算法竞赛', 'Design patterns': '设计模式',
     TK: '幼儿园', SD: '小学', SMP: '初中', SMA: '高中', 'REST APIs': 'REST API', 'Custom themes': '定制主题', 'Smart contracts': '智能合约',
     'Wallet integration': '钱包集成', 'dApp frontends': 'dApp 前端',
@@ -151,13 +155,18 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     </li>`;
   const rows = path.map((r, i) => [r, PATH_META[i] || { chips: [] }, i]);
   const expRows = rows.filter(([, m]) => !m.edu), eduRows = rows.filter(([, m]) => m.edu);
+  const nowOrg = (rows.find(([, m]) => m.from && m.to === null) || [])[0]?.org || '';   // (the job with no end: shown in the hero)
   const exp = expRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
   const edu = eduRows.map(([r, m, i]) => rowPath(r, m, i)).join('');
 
   const counted = D.PROJECTS.filter((p) => p.key !== 'client-websites');
   const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
   const status = (p) => p.now ? W.nowIs.replace('{n}', p.now.name) : W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
-  const stat = (p) => status(p) === W.status.live ? `<span class="pf-live"><i aria-hidden="true"></i>${esc(status(p))}</span>` : `<span>${esc(status(p))}</span>`;
+  const stat = (p) => {
+    const yr = W.year[p.key] || (p.year ? String(p.year) : '');
+    if (!p.now && p.date === 'live') return `<span class="pf-live"><i aria-hidden="true"></i>${esc(W.status.live)}</span>${yr ? `<i>·</i><span>${esc(yr)}</span>` : ''}`;
+    return `<span>${esc(status(p))}</span>`;
+  };
   const stk = (p) => (p.stack ? stackOf(p) : '').split(' · ').slice(0, 2).join(' · ');   // (stackOf: site.js, the words translated)
   const sm = (rel, w) => { const x = rel.replace(/\.webp$/, `-${w}.webp`); return x !== rel && exists(x) ? x : null; };
   const cover = (rel, sizes, w, h) => { const set = [[sm(rel, 384), 384], [sm(rel, 800), 800]].filter(([x]) => x).map(([x, n]) => `/${x} ${n}w`).join(', '); return `<img src="/${rel}"${set ? ` srcset="${set}" sizes="${sizes}"` : ''} alt="" loading="lazy" decoding="async" width="${w}" height="${h}">`; };
@@ -262,7 +271,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
       <span class="pf-handle">${esc(W.handle)}</span>
       <p class="pf-bio">${bio}</p>
-      <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}<span class="pf-clock" data-clock title="${esc(W.localTime)}"></span></li><li>${I.link}${esc(W.site)}</li><li class="pf-open"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.open)}</li></ul>
+      <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}<span class="pf-clock" data-clock title="${esc(W.localTime)}"></span></li><li>${nowOrg ? `${I.org}${esc(nowOrg)}` : `${I.link}${esc(W.site)}`}</li><li class="pf-open"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.open)}</li></ul>
       <div class="pf-nums" data-stagger>
         <a class="pf-num" href="${u('/work/client-websites/')}" style="--i:0"><b data-count="${clientSites}">${clientSites}</b><span>${esc(W.stats.live)}</span></a>
         <a class="pf-num" href="${u('/work/')}" style="--i:1"><b data-count="${counted.length}">${counted.length}</b><span>${esc(W.stats.projects)}</span></a>
@@ -312,6 +321,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <p>${esc(W.ctaLine)}</p>
       <div class="pf-cta-row">
         <a class="btn btn-fill" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${esc(W.chat)} ${I.out}</a>
+        ${D.SITE.whatsapp ? `<button class="btn pf-cta-mail pf-cta-num" type="button" aria-label="${esc(W.copyNum)} ${esc(phoneOf(D.SITE.whatsapp))}" data-copy="+${esc(D.SITE.whatsapp)}" data-track="contact_click" data-channel="WhatsApp number" data-from="profile-cta" data-magnet>${exists('site/tools/whatsapp.svg') ? mark('whatsapp') : ''}<span>${esc(phoneOf(D.SITE.whatsapp))}</span></button>` : ''}
         ${D.SITE.email ? `<button class="btn pf-cta-mail" type="button" aria-label="${esc(W.copyMail)} ${esc(D.SITE.email)}" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="profile-cta" data-magnet>${exists('site/tools/gmail.svg') ? mark('gmail') : ''}<span>${esc(D.SITE.email)}</span></button>` : ''}
         <a class="btn" href="/3d/" data-track="3d_cta_click" data-from="profile-cta" data-magnet>${esc(W.see3d)} ${I.right}</a>
       </div>
@@ -474,6 +484,9 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-num, .pf-feat > a, .pf-logo { position: relative; }
 .pf-num::before, .pf-feat > a::before, .pf-logo::before { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none; background: radial-gradient(240px circle at var(--gx, 50%) var(--gy, 50%), rgba(217, 160, 91, 0.15), transparent 65%); opacity: 0; transition: opacity 0.35s; }
 .pf-num:hover::before, .pf-feat > a:hover::before, .pf-logo:hover::before { opacity: 1; }
+/* keyboard focus gets the hover's lift, and a press answers on touch */
+.pf-num:focus-visible { transform: translateY(-3px); border-color: var(--line-2); } .pf-feat > a:focus-visible { --ty: -4px; border-color: var(--line-2); } .pf-logo:focus-visible { transform: translateY(-3px); }
+.pf-num:active, .pf-feat > a:active, .pf-logo:active, .pf-soc:active, .pf-pj a:active, .pf-svc-c:active, .pf-thumb:active { scale: 0.98; }
 .pf-sec--cream .pf-logo::before { background: radial-gradient(150px circle at var(--gx, 50%) var(--gy, 50%), rgba(23, 18, 12, 0.08), transparent 65%); }
 .pf-feat .pf-go { z-index: 3; }
 /* the list's floating preview: the project's picture riding beside the pointer (wide screens with a mouse) */
@@ -514,7 +527,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 @media (min-width: 1360px) and (hover: hover) {
   .pf-rail { display: block; position: fixed; left: 26px; top: 50%; z-index: 25; translate: 0 -50%; }
   .pf-rail ol { display: grid; gap: 2px; }
-  .pf-rail a { display: flex; align-items: center; gap: 10px; height: 26px; font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--faint); transition: color 0.3s; }
+  .pf-rail a { display: flex; align-items: center; gap: 10px; height: 26px; font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); text-shadow: 0 0 6px var(--bg), 0 0 14px var(--bg); transition: color 0.3s; }
   .pf-rail b { width: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .pf-rail a::after { content: ""; order: 1; width: 12px; height: 1px; background: currentColor; opacity: 0.5; transition: width 0.5s var(--ease), background 0.3s, opacity 0.3s; }
   .pf-rail span { order: 2; max-width: 0; overflow: hidden; white-space: nowrap; opacity: 0; transition: max-width 0.5s var(--ease), opacity 0.3s; }
@@ -609,7 +622,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
 .pf-strip li { flex: 0 0 auto; scroll-snap-align: center; }
 .pf-thumb { position: relative; display: block; width: 128px; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 7px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); opacity: 0.5; transform: scale(0.95); transition: opacity 0.35s, transform 0.5s var(--ease); }
 .pf-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.pf-thumb::before { content: attr(data-name); position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 16px 8px 5px; background: linear-gradient(transparent, rgba(9, 8, 10, 0.85)); font: 700 9.5px/1 var(--cond); letter-spacing: 0.16em; color: var(--ink); opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.4s var(--ease); }
+.pf-thumb::before { content: attr(data-name); position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 18px 8px 5px; background: linear-gradient(rgba(9, 8, 10, 0), rgba(9, 8, 10, 0.94) 60%); text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); font: 700 9.5px/1 var(--cond); letter-spacing: 0.16em; color: var(--ink); opacity: 0; transform: translateY(4px); transition: opacity 0.3s, transform 0.4s var(--ease); }
 .pf-thumb:hover::before, .pf-thumb:focus-visible::before, .pf-thumb.is-on::before { opacity: 1; transform: none; }
 .pf-thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--acc); opacity: 0; transition: opacity 0.3s; }
 .pf-thumb:hover, .pf-thumb:focus-visible { opacity: 0.92; transform: none; }
@@ -630,7 +643,7 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-notes, .pf-note--cl, .pf-note--2 { display: block; }
   /* (the thanks rides beside the client logos: inside their section, so it stays with them whatever the lists above unfold to) */
   .pf-sec--cl { position: relative; } .pf-note--cl { right: -230px; top: 50%; translate: 0 -50%; }
-  .pf-note { position: absolute; width: 190px; font: italic 400 20px/1.3 var(--serif); color: var(--accent-2); opacity: 0; transform: translateY(14px) rotate(-2deg); transition: opacity 1s var(--ease), transform 1.2s var(--ease); }
+  .pf-note { text-shadow: 0 0 10px var(--bg), 0 0 22px var(--bg); position: absolute; width: 190px; font: italic 400 20px/1.3 var(--serif); color: var(--accent-2); opacity: 0; transform: translateY(14px) rotate(-2deg); transition: opacity 1s var(--ease), transform 1.2s var(--ease); }
   .pf-note.in { opacity: 0.9; transform: rotate(-2deg); }
   .pf-sec--pj { position: relative; } .pf-note--2 { right: -230px; top: 50%; translate: 0 -50%; }   /* (the projects count sits beside the projects, Navy's ask) */
   .pf-note--1 { left: -230px; top: 560px; text-align: right; } .pf-note--3 { left: -230px; bottom: 120px; text-align: right; }
@@ -700,6 +713,7 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
       a.addEventListener('pointerleave', function () { on = false; peek.classList.remove('on'); });
     });
     addEventListener('scroll', function () { if (on) { on = false; peek.classList.remove('on'); } }, { passive: true });
+    addEventListener('keydown', function (e) { if (e.key === 'Escape' && on) { on = false; peek.classList.remove('on'); } });   // (WCAG 1.4.13: what appears on hover can be dismissed)
   })();
   // the floating WhatsApp button: in once the hero's button has gone by, out again when the closing banner comes into view
   (function () {
@@ -708,6 +722,16 @@ export const HOME_PROFILE_JS = DITHER_JS + STACK_JS + `
     var past = false, done = false, set = function () { var on = past && !done; fab.classList.toggle('on', on); fab.tabIndex = on ? 0 : -1; };
     new IntersectionObserver(function (es) { es.forEach(function (e) { past = !e.isIntersecting && e.boundingClientRect.top < 0; }); set(); }).observe(hero);
     new IntersectionObserver(function (es) { es.forEach(function (e) { done = e.isIntersecting || e.boundingClientRect.top < 0; }); set(); }).observe(end);
+  })();
+  // the three numbers count up once the intro has gone and they are in view (the page's own counter only arms numbers below the fold)
+  (function () {
+    var nums = [].slice.call(document.querySelectorAll('.pf-num b[data-count]')); if (!nums.length || reduce || !('IntersectionObserver' in window)) return;
+    var root = document.documentElement;
+    nums.forEach(function (el) { el.dataset.counted = '1'; el.textContent = '0'; });
+    var go = function () { nums.forEach(function (el, k) { var n = +el.dataset.count || 0, t0 = 0; var step = function (now) { if (!t0) t0 = now + k * 140; var q = Math.min(1, Math.max(0, (now - t0) / 1100)); el.textContent = String(Math.round((1 - Math.pow(1 - q, 3)) * n)); if (q < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }); };
+    var watch = function () { var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); go(); } }, { threshold: 0.6 }); io.observe(nums[0].closest('.pf-nums') || nums[0]); };
+    if (root.classList.contains('intro-on')) new MutationObserver(function (ms, mo) { if (!root.classList.contains('intro-on')) { mo.disconnect(); watch(); } }).observe(root, { attributes: true, attributeFilter: ['class'] });
+    else watch();
   })();
   // a row's story opens under it
   var setOpen = function (row, on) { row.classList.toggle('open', on); var b = row.querySelector('.pf-tg'); if (b) b.setAttribute('aria-expanded', String(on)); };
