@@ -17,15 +17,25 @@ document.body.dataset.state = 'loading';
 { const c = document.getElementById('gate-count'); if (c) c.textContent = DISCOVERY_TOTAL; }// #site is the plain website: it opens at once, over the loading screen, so a shared link needs no 3D
 if (location.hash === '#site') openSite();
 
+// when the desk cannot start, the loader says so and hands over the ways on (a reload when another try may work, the plain portfolio, the CV)
+function startFailed(label, why, retry) {
+  const el = document.getElementById('loading'); if (!el) return;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  el.innerHTML = `<div class="loading-inner loading-fail"><div class="loading-label">${label}</div>${why ? `<div class="loading-percent loading-why">${esc(why)}</div>` : ''}<div class="loading-actions">${retry ? '<button type="button" class="loading-out" data-reload>reload the desk</button>' : ''}<a class="loading-out" href="/">read the portfolio instead →</a><a class="loading-out" href="/cv/">read the CV →</a></div></div>`;
+  el.querySelector('[data-reload]')?.addEventListener('click', () => location.reload());
+  const first = el.querySelector('.loading-out');
+  if (first && (!document.activeElement || document.activeElement === document.body)) first.focus({ preventScroll: true });
+}
+
 async function boot() {
   const canvas = document.getElementById('canvas');
   let xp;
   try {
     xp = new Experience(canvas);
   } catch (err) {
-    // no WebGL2 here: say so, and hand the visitor the plain portfolio (the same work, no 3D)
-    const msg = String(err.message || err).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-    document.getElementById('loading').innerHTML = `<div class="loading-inner"><div class="loading-label">this desk needs WebGL2</div><div class="loading-percent" style="margin-top:12px">${msg}</div><a class="loading-out" href="/">read the portfolio instead →</a></div>`;
+    // no WebGL2 here: say so, and hand the visitor the plain portfolio (the same work, no 3D) and the CV
+    const msg = String(err?.message || err);
+    startFailed('this desk needs WebGL2', msg.slice(0, 160), false);
     window.nvTrack?.('3d_unsupported', { reason: msg.slice(0, 80) });
     return;
   }
@@ -34,7 +44,7 @@ async function boot() {
   // fonts first so canvas legends render with the right typeface
   ui.loading.set(0.05);
   try { await Promise.race([document.fonts.ready, new Promise((r) => setTimeout(r, 1800))]); } catch {}
-  await xp.init((p) => ui.loading.set(0.05 + p * 0.95));
+  try { await xp.init((p) => ui.loading.set(0.05 + p * 0.95)); } catch (err) { console.error(err); startFailed('this desk could not load', '', true); window.nvTrack?.('3d_unsupported', { reason: ('init: ' + String(err?.message || err)).slice(0, 80) }); return; }
   const wait = Math.max(0, 900 - (performance.now() - t0));
   await new Promise((r) => setTimeout(r, wait));
   ui.loading.done();
