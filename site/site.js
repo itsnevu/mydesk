@@ -66,7 +66,7 @@
   const ease = (t) => 1 - Math.pow(1 - t, 3);
   let vh = innerHeight;
   addEventListener('resize', () => {
-    vh = innerHeight; dirty = true;
+    vh = innerHeight; dirty = true; wake();
     if (root.style.getPropertyValue('--k') || wantScale() > 1.02) { const k = wantScale(); if (Math.abs(k - zk) > 0.01) setScale(k); }
   });
 
@@ -169,7 +169,7 @@
       count.textContent = '100';
       root.classList.add('intro-out'); release();
       try { sessionStorage.setItem('nv-intro', '1'); } catch {}
-      setTimeout(() => { root.classList.remove('intro-on', 'intro-out', 'intro-choose'); intro.remove(); locked = false; dirty = true; }, 1500);
+      setTimeout(() => { root.classList.remove('intro-on', 'intro-out', 'intro-choose'); intro.remove(); locked = false; dirty = true; wake(); }, 1500);
     };
     // the gate: once the name has played, two doors (this page, Simple, or the story at /full/) until a reading has been chosen once;
     // the choice is remembered (nv-view), the header's switch changes it. Skip, Escape and a click outside the doors mean Simple.
@@ -340,7 +340,7 @@
   if ('IntersectionObserver' in window) {
     // a scene that comes near (or leaves) is recomputed on the next frame, even when the page has not moved since: after a jump
     // (a hash link, the End key, a reload half way down) the scene must not wait for the next scroll to catch up
-    const near = new IntersectionObserver((es) => es.forEach((en) => scenes.forEach((s) => { if (s.el === en.target && s.near !== en.isIntersecting) { s.near = en.isIntersecting; dirty = true; } })), { rootMargin: '60% 0px 60% 0px' });
+    const near = new IntersectionObserver((es) => es.forEach((en) => scenes.forEach((s) => { if (s.el === en.target && s.near !== en.isIntersecting) { s.near = en.isIntersecting; dirty = true; wake(); } })), { rootMargin: '60% 0px 60% 0px' });
     scenes.forEach((s) => near.observe(s.el));
   }
 
@@ -348,15 +348,18 @@
   const loops = reduce ? [] : [...document.querySelectorAll('.mq')].map((el) => ({ el, tracks: [...el.querySelectorAll('.mq-t')], dir: Number(el.dataset.mq) || 1, speed: Number(el.dataset.speed) || 40, x: 0, w: 0, hover: false, near: true, lean: !!el.closest('.bigq') }));
   loops.forEach((l) => {
     l.el.addEventListener('mouseenter', () => { l.hover = true; });
-    l.el.addEventListener('mouseleave', () => { l.hover = false; });
-    if ('IntersectionObserver' in window) new IntersectionObserver((es) => { l.near = es[0].isIntersecting; }, { rootMargin: '20% 0px' }).observe(l.el);
+    l.el.addEventListener('mouseleave', () => { l.hover = false; wake(); });
+    if ('IntersectionObserver' in window) new IntersectionObserver((es) => { l.near = es[0].isIntersecting; if (l.near) wake(); }, { rootMargin: '20% 0px' }).observe(l.el);
   });
-  const measure = () => loops.forEach((l) => { l.w = l.tracks[0]?.offsetWidth || 0; });
-  measure(); addEventListener('resize', measure); addEventListener('load', measure);
+  const measureLoops = () => loops.forEach((l) => { l.w = l.tracks[0]?.offsetWidth || 0; });
+  const measure = () => { measureLoops(); wake(); };
+  measureLoops(); addEventListener('resize', measure); addEventListener('load', measure);
   document.fonts?.ready.then(measure);
 
   // ---------- one frame loop for everything that follows the scroll
-  let lastY = -1, dirty = true, vel = 0, flow = 1, prevT = performance.now();
+  let lastY = -1, dirty = true, vel = 0, flow = 1, prevT = performance.now(), running = false;
+  function wake() { if (running) return; running = true; prevT = performance.now(); requestAnimationFrame(frame); }
+  addEventListener('scroll', wake, { passive: true });
   const bar = document.querySelector('meta[name="theme-color"]'), barBase = bar?.content || '#0e0c09';
   let barNow = barBase;
   const paintBar = () => {
@@ -424,9 +427,11 @@
       const sk = l.lean ? ` skewX(${clamp(-vel * 0.28, -12, 12).toFixed(2)}deg)` : '';
       for (const t of l.tracks) t.style.transform = `translate3d(${l.x.toFixed(2)}px,0,0)${sk}`;
     }
-    requestAnimationFrame(frame);
+    // (asleep once the page is still: the scroll has settled, nothing is dirty and no loop of names is running on screen)
+    const loopsRun = loops.some((l) => l.near && l.w && !l.hover);
+    if (loopsRun || dirty || Math.abs(vel) > 0.02 || scrollY !== lastY) requestAnimationFrame(frame); else running = false;
   };
-  requestAnimationFrame(frame);
+  wake();
 
   // ---------- the index: a screenshot follows the pointer over a row (mouse only)
   const prev = document.querySelector('.ix-preview');

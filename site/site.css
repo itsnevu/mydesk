@@ -70,14 +70,14 @@ a:hover .ar-r, a:focus-visible .ar-r, button:hover .ar-r { transform: translateX
 .js [data-split].in .wd > span { transform: none; }
 
 /* ---------- reveals (with JS only; without it everything is simply there) */
-.js [data-reveal] { opacity: 0; transform: translate3d(0, 40px, 0); transition: opacity 1s var(--ease), transform 1.2s var(--ease), clip-path 1.4s var(--ease); }
+.js [data-reveal] { opacity: 0.001; transform: translate3d(0, 40px, 0); transition: opacity 1s var(--ease), transform 1.2s var(--ease), clip-path 1.4s var(--ease); }
 .js [data-reveal="left"] { transform: translate3d(-70px, 0, 0); }
 .js [data-reveal="right"] { transform: translate3d(70px, 0, 0); }
 .js [data-reveal="scale"] { transform: scale(0.92); }
 .js [data-reveal="clip"] { opacity: 1; transform: none; clip-path: inset(22% 6% 0 6% round 6px); }
 .js [data-reveal].in { opacity: 1; transform: none; }
 .js [data-reveal="clip"].in { clip-path: inset(-30% -30% -30% -30% round 0); }
-.js [data-stagger] > * { opacity: 0; transform: translate3d(0, 36px, 0); transition: opacity 0.9s var(--ease), transform 1.1s var(--ease); transition-delay: calc(min(var(--i, 0), 9) * 65ms); }
+.js [data-stagger] > * { opacity: 0.001; transform: translate3d(0, 36px, 0); transition: opacity 0.9s var(--ease), transform 1.1s var(--ease); transition-delay: calc(min(var(--i, 0), 9) * 65ms); }
 .js [data-stagger].in > * { opacity: 1; transform: none; }
 
 /* ---------- rolling letters: the word slips up and the same word follows from below, letter by letter */
