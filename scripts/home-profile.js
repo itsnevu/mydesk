@@ -41,6 +41,7 @@ export const WORDS = {
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
     featured: 'Unggulan', localTime: 'Waktu setempat', fab: 'Chat',
+    services: 'Yang saya bangun', processT: 'Cara kerjanya', nowIs: 'Kini {n}',
     ring: 'Terbuka untuk freelance & full-time', enter3d: 'Masuk ke desk 3D', expandAll: 'Buka semua', collapseAll: 'Tutup semua',
     rail: { me: 'Profil', worlds: 'Dunia 3D', contact: 'Kontak' }, railLabel: 'Bagian halaman', hl: ['sistem ERP', 'Dua puluh tiga situs klien'], stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
     reelOpen: 'Buka di Labs', reelAll: 'Jelajahi {n} dunia', reelHint: 'Arahkan ke gambar kecil untuk ganti dunia', reelHintTouch: 'Ketuk gambar kecil untuk ganti dunia', reelAlt: 'Satu frame dari dunia 3D {n}',
@@ -61,6 +62,7 @@ WORDS.en = {
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
   featured: 'Featured', localTime: 'Local time', fab: 'Chat',
+  services: 'What I build', processT: 'How it works', nowIs: 'Now {n}',
   ring: 'Open to freelance & full-time', enter3d: 'Step into the 3D desk', expandAll: 'Expand all', collapseAll: 'Collapse all',
   rail: { me: 'Profile', worlds: '3D worlds', contact: 'Contact' }, railLabel: 'Sections', hl: ['ERP systems', 'Twenty-three client sites'], stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
   reelOpen: 'Open in Labs', reelAll: 'Explore {n} worlds', reelHint: 'Point at a small frame to change the world', reelHintTouch: 'Tap a small frame to change the world', reelAlt: 'A frame of the 3D world {n}',
@@ -80,6 +82,7 @@ WORDS.zh = {
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
   featured: '精选', localTime: '当地时间', fab: '聊天',
+  services: '我做什么', processT: '合作流程', nowIs: '现为 {n}',
   ring: '接受自由职业与全职工作', enter3d: '进入 3D 书桌', expandAll: '全部展开', collapseAll: '全部收起',
   rail: { me: '简介', worlds: '3D 世界', contact: '联系' }, railLabel: '页面章节', hl: ['ERP 系统', '二十三个客户网站'], stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
   reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
@@ -116,7 +119,7 @@ const SOCIAL = [['WhatsApp', 'whatsapp'], ['Email', 'gmail'], ['LinkedIn', 'link
 
 /** The page's <main>. `path` and `stackNames` are the language's rows from i18n; `worlds` the Labs worlds; `clients` [{key, name, word?}];
  * `gh` the GitHub snapshot (scripts/github-stats.json) the stack counts from. */
-export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, now = new Date() }) {
+export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [], clients, gh, services: svc = [], process: steps = [], exists, img, u = (p) => p, tp = (p, f) => p[f], projectMedia, now = new Date() }) {
   const W = WORDS[lang] || WORDS.id;
   const chip = (t) => { const s = TOOL_MARK[t]; return `<span class="pf-chip">${s && exists(`site/tools/${s}.svg`) ? mark(s) : ''}${esc(CHIP_T[lang]?.[t] ?? t)}</span>`; };
   const dur = (m) => {
@@ -148,15 +151,16 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   const counted = D.PROJECTS.filter((p) => p.key !== 'client-websites');
   const clientSites = D.PROJECTS.filter((p) => p.url && p.date !== 'previous design').length;
-  const status = (p) => W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
+  const status = (p) => p.now ? W.nowIs.replace('{n}', p.now.name) : W.year[p.key] || (p.year ? String(p.year) : p.date === 'previous design' ? W.status.first : p.date === 'live' ? W.status.live : p.date);
   const stat = (p) => status(p) === W.status.live ? `<span class="pf-live"><i aria-hidden="true"></i>${esc(status(p))}</span>` : `<span>${esc(status(p))}</span>`;
   const stk = (p) => (p.stack || '').split(' · ').slice(0, 2).join(' · ');
   const rowProject = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-row pf-pj" style="--i:${i % 8}"${i >= 5 ? ' hidden data-more' : ''}><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile" data-name="${esc(p.title)}">
       <span class="pf-th">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="64" height="40">` : I.folder}</span>
       <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span></span>
       <span class="pf-pj-st">${esc(stk(p))}</span><span class="pf-go">${I.out}</span></a></li>`; };
+  const hostOf = (url) => { try { return new URL(url).host.replace(/^www\./, ''); } catch (x) { return ''; } };
   const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}">
-      <span class="pf-feat-pic">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="640" height="400">` : I.folder}</span>
+      <span class="pf-feat-pic"><span class="pf-feat-bar" aria-hidden="true"><i></i><i></i><i></i>${p.url ? `<span>${esc(hostOf(p.url))}</span>` : ''}</span>${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="640" height="400">` : I.folder}</span>
       <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i>${stat(p)}</span>${(tp(p, 'did') || [])[0] ? `<span class="pf-feat-did">${esc((tp(p, 'did') || [])[0])}</span>` : ''}</span>
       <span class="pf-go">${I.out}</span></a></li>`; };
   const featured = counted.slice(0, 3).map(feat).join('');
@@ -178,6 +182,26 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   const stack = stackSection({ M: stackModel({ D, gh }), lang, layers: stackNames, name: (t) => CHIP_T[lang]?.[t] ?? t, icon: toolIcon, u, worlds: worlds.length,
     sec: (n) => sec(W.stack, n, gh?.user ? `<a class="pf-all" href="https://github.com/${esc(gh.user)}" target="_blank" rel="noopener" data-track="contact_click" data-channel="GitHub">GitHub ${I.out}</a>` : '', 'pf-st') });
   const hatch = '<div class="pf-hatch" aria-hidden="true"></div>';
+  // what I build: the five kinds of work (i18n CONTENT.territories), each with the projects that prove it (site.js TERRITORIES)
+  const services = svc.length ? `
+  <section class="pf-sec pf-svc" aria-labelledby="pf-svc">
+    ${sec(W.services, svc.length, '', 'pf-svc')}
+    <ol class="pf-svc-g" data-stagger>${svc.map((s, i) => `<li class="pf-svc-c${i === svc.length - 1 && svc.length % 2 ? ' is-wide' : ''}" style="--i:${i}">
+      <span class="pf-svc-n">${pad(i + 1)}</span>
+      <h3>${esc(s.title)}</h3>
+      <p>${esc(s.body)}</p>
+      ${(s.items || []).length ? `<div class="pf-chips">${s.items.map(chip).join('')}</div>` : ''}
+      ${(s.proof || []).length || s.also ? `<div class="pf-svc-p">${(s.proof || []).map((x) => `<a href="${u(`/work/${x.key}/`)}" data-track="project_open" data-project="${x.key}" data-from="profile-services">${esc(x.title)} ${I.out}</a>`).join('')}${s.also ? `<a href="${s.also}" data-track="3d_cta_click" data-from="profile-services">${esc(W.tabs.desk)} ${I.out}</a>` : ''}</div>` : ''}
+    </li>`).join('')}</ol>
+  </section>
+  ${hatch}` : '';
+  // how it works: the four steps (i18n CONTENT.process), a line through them
+  const proc = steps.length ? `
+  <section class="pf-sec pf-proc" aria-labelledby="pf-proc">
+    ${sec(W.processT, steps.length, '', 'pf-proc')}
+    <ol class="pf-proc-l" data-stagger>${steps.map((s, i) => `<li style="--i:${i}"><span class="pf-proc-n">${pad(i + 1)}</span><b>${esc(s.step)}</b><p>${esc(s.body)}</p></li>`).join('')}</ol>
+  </section>
+  ${hatch}` : '';
   const more = (label) => `<button type="button" class="pf-more" data-more-btn data-less="${esc(W.less)}"><span>${esc(label)}</span>${I.chev}</button>`;
   // the reel: the 3D worlds of the Labs page (scripts/labs-worlds.js) as one stage over a strip of their frames, the last section
   // before the closing banner (Navy: "paling bawah"). The page script walks the stage through the worlds and brings up the frame pointed
@@ -211,7 +235,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 
   const bio = (W.hl || []).reduce((h, ph) => h.replace(esc(ph), `<mark class="pf-hl">${esc(ph)}</mark>`), esc(W.bio));
   const ringText = `${W.ring} · ${W.ring} · `;
-  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ['pf-contact', W.rail.contact]]
+  const rail = [['pf-me', W.rail.me], ...(reel ? [['pf-reel', W.rail.worlds]] : []), ['pf-exp', W.exp], ...(svc.length ? [['pf-svc', W.services]] : []), ['pf-pj', W.projects], ['pf-cl', W.clients], ['pf-st', W.stack], ...(steps.length ? [['pf-proc', W.processT]] : []), ['pf-contact', W.rail.contact]]
     .map(([id, label], i) => `<li><a href="#${id}" data-rail="${id}"><b>${pad(i)}</b><span>${esc(label)}</span></a></li>`).join('');
   return `<main id="main" tabindex="-1">
 <div class="pf">
@@ -250,7 +274,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
     <ol class="pf-list pf-tl" data-stagger>${edu}</ol>
   </section>
-  ${hatch}
+  ${hatch}${services}
   <section class="pf-sec pf-sec--pj" aria-labelledby="pf-pj">
     <span class="pf-note pf-note--2" aria-hidden="true">${esc(W.notes[1])}</span>
     ${sec(W.projects, counted.length, `<a class="pf-all" href="${u('/work/')}">${esc(W.viewAll)} ${I.out}</a>`, 'pf-pj')}
@@ -267,7 +291,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
   </section>
   ${hatch}
   ${stack}
-  ${hatch}
+  ${hatch}${proc}
   <section class="pf-cta" id="pf-contact" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
@@ -405,6 +429,31 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-feat-pic { display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden; color: var(--dim); background: var(--bg-3); }
 .pf-feat-pic img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: saturate(0.9); transform: scale(1.001); transition: transform 1.4s var(--ease); } .pf-feat-pic svg { width: 24px; height: 24px; }
 .pf-feat a:hover .pf-feat-pic img { transform: scale(1.06); }
+.pf-feat-pic { position: relative; padding-top: 22px; place-items: stretch; }
+.pf-feat-pic > svg { margin: auto; }
+.pf-feat-bar { position: absolute; left: 0; right: 0; top: 0; z-index: 1; display: flex; align-items: center; gap: 5px; height: 22px; padding: 0 10px; background: rgba(14, 12, 9, 0.92); border-bottom: 1px solid var(--line); }
+.pf-feat-bar i { width: 6px; height: 6px; border-radius: 50%; background: rgba(241, 234, 219, 0.22); }
+.pf-feat-bar span { margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 9.5px var(--cond); letter-spacing: 0.1em; color: var(--faint); }
+/* what I build: the kinds of work as cards, the last one across when they are odd; each ends with the projects that prove it */
+.pf-svc-g { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pf-svc-c { display: grid; align-content: start; gap: 10px; padding: 20px 20px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(241, 234, 219, 0.02); transition: border-color 0.3s, background 0.3s, transform 0.5s var(--ease); }
+.pf-svc-c:hover { border-color: var(--line-2); background: rgba(241, 234, 219, 0.04); transform: translateY(-3px); }
+.pf-svc-c.is-wide { grid-column: 1 / -1; }
+.pf-svc-n { font: 700 11px var(--cond); letter-spacing: 0.18em; color: var(--accent); }
+.pf-svc-c h3 { font: 700 19px/1.15 var(--cond); text-transform: uppercase; letter-spacing: 0.01em; }
+.pf-svc-c > p { font-size: 15px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
+.pf-svc-c .pf-chips { margin-top: 0; }
+.pf-svc-p { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 2px; padding-top: 10px; border-top: 1px solid var(--line); }
+.pf-svc-p a { display: inline-flex; align-items: center; gap: 5px; font: 600 11.5px var(--cond); letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); transition: color 0.3s; }
+.pf-svc-p a:hover, .pf-svc-p a:focus-visible { color: var(--accent-2); } .pf-svc-p .ar { width: 0.8em; height: 0.8em; }
+/* how it works: four steps on one line */
+.pf-proc-l { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.pf-proc-l::before { content: ""; position: absolute; left: 14px; right: 14px; top: 14px; height: 1px; background: linear-gradient(90deg, var(--accent), var(--line-2) 45%, var(--line)); }
+.pf-proc-l li { position: relative; display: grid; align-content: start; gap: 6px; }
+.pf-proc-n { display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 6px; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 1px var(--line-2); font: 700 10.5px var(--cond); letter-spacing: 0.06em; color: var(--accent-2); }
+.pf-proc-l li:first-child .pf-proc-n { background: var(--accent); box-shadow: none; color: #140f09; }
+.pf-proc-l b { font: 700 16px/1.2 var(--cond); text-transform: uppercase; letter-spacing: 0.02em; }
+.pf-proc-l p { font-size: 14.5px; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
 .pf-feat-body { display: grid; align-content: start; gap: 4px; padding: 12px 14px 14px; }
 .pf-feat-did { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; color: var(--faint); }
 /* the cards lean toward the pointer (the script sets --rx/--ry on a fine pointer), and a soft light follows it across them */
@@ -447,7 +496,7 @@ body:has(.head.away) .pf-tabs--pin { top: 0; }
 .pf-hx .pf-h h2 sup { transition-delay: 0.25s; }
 .pf-hx .pf-h:not(.in) h2 em { transform: translateY(0.45em); opacity: 0; } .pf-hx .pf-h:not(.in) h2 sup { opacity: 0; }
 /* the targets of the rail land under the pinned tabs */
-#pf-me, #pf-reel, #pf-exp, #pf-pj, #pf-cl, #pf-st, #pf-contact { scroll-margin-top: calc(var(--head-h) + 70px); }
+#pf-me, #pf-reel, #pf-exp, #pf-svc, #pf-pj, #pf-cl, #pf-st, #pf-proc, #pf-contact { scroll-margin-top: calc(var(--head-h) + 70px); }
 /* the chapter rail: the sections as numbers in the left margin, the one in view lit, its name on hover (a wide screen with a mouse) */
 .pf-rail { display: none; }
 @media (min-width: 1360px) and (hover: hover) {
@@ -574,7 +623,9 @@ body.home-profile .foot { position: relative; background: var(--bg); } .pf-cta-m
   .pf-marq-i { width: 88px; height: 26px; margin-right: 32px; } .pf-card, .pf-cta { border-radius: 0; }
   .pf-logos { grid-template-columns: repeat(3, 1fr); }
   .pf-st { grid-template-columns: 1fr; row-gap: 8px; } .pf-td { margin-top: -8px; }
-  .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-pj-st { display: none; } .pf-banner-go span { display: none; } .pf-banner-go { padding: 0 11px; } .pf-th { width: 72px; height: 45px; }
+  .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-pj-st { display: none; }
+  .pf-svc-g { grid-template-columns: 1fr; } .pf-svc-c.is-wide { grid-column: auto; }
+  .pf-proc-l { grid-template-columns: 1fr 1fr; row-gap: 22px; } .pf-proc-l::before { display: none; } .pf-banner-go span { display: none; } .pf-banner-go { padding: 0 11px; } .pf-th { width: 72px; height: 45px; }
   .pf-feats { grid-template-columns: 1fr 1fr; } .pf-feat:nth-child(3) { display: none; }
   .pf-nums { gap: 8px; } .pf-num { padding: 12px; }
   .pf-stage { border-radius: 10px; } .pf-stage-top { left: 14px; right: 14px; top: 14px; } .pf-stage-text { left: 14px; right: 14px; bottom: 14px; gap: 5px; }

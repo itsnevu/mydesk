@@ -712,6 +712,27 @@ function archSection(p) {
 }
 
 // ---------- one project
+// "More like this": the three closest projects by kind and by the tools and industry words they share (as a share of all their
+// words, so a long stack does not win by length), less a little for every page a project is already on, so every client site
+// gets seen instead of the same few. Worked out once for the whole list, in the order the pages are walked.
+const RELATED = new Map();
+function relatedOf(list, p) {
+  if (!RELATED.size) {
+    const toks = (x) => new Set((x.stack || '').toLowerCase().split(' · ').filter(Boolean).concat((x.industry || '').toLowerCase().split(/[\s&,]+/).filter((w) => w.length > 3)));
+    const pool = list.filter((x) => x.key !== 'client-websites' && x.date !== 'previous design'), used = {};
+    for (const q of list) {
+      const br = list.filter((x) => !isHub(x) || x.key === q.key), bi = br.indexOf(q), nx = br[(bi + 1) % br.length];
+      const mine = toks(q), kind = kindOf(q);
+      const pick = pool.filter((x) => x.key !== q.key && x.key !== nx.key)
+        .map((x, k) => { const tx = toks(x), shared = [...tx].filter((w) => mine.has(w)).length, all = new Set([...tx, ...mine]).size; return { x, k, score: (kindOf(x) === kind ? 1 : 0) + (all ? (shared / all) * 2 : 0) - (used[x.key] || 0) * 0.35 }; })
+        .sort((a, b) => b.score - a.score || a.k - b.k).slice(0, 3).map((r) => r.x);
+      pick.forEach((x) => { used[x.key] = (used[x.key] || 0) + 1; });
+      RELATED.set(q.key, pick);
+    }
+  }
+  return RELATED.get(p.key) || [];
+}
+
 function projectPage(D, ctx, p) {
   const list = workOrder(D.PROJECTS);
   // the arrows and "next project" walk the twenty-six projects (all three Gajah Terbang sites among them; the hub only from itself)
@@ -759,15 +780,20 @@ function projectPage(D, ctx, p) {
   const desc = strip(tp(p, 'description'));
   // (a project that is now something else says so in its "Today" note: the opening paragraph leaves that sentence to it)
   const lead = p.now ? desc.split(/(?<=[.。])\s*/).filter((x) => x && !/^RameinAja (is now|kini|现已)/.test(x)).join(LANG === 'zh' ? '' : ' ') : desc;
-  const toks = (x) => new Set(x.stack.toLowerCase().split(' · ').concat(x.industry.toLowerCase().split(/[\s&,]+/).filter((w) => w.length > 3)));
-  const mine = toks(p), myKind = kindOf(p);
-  const related = list.filter((x) => x.key !== p.key && x.key !== next.key && x.key !== 'client-websites' && x.date !== 'previous design')
-    .map((x, k) => ({ x, k, score: (kindOf(x) === myKind ? 3 : 0) + [...toks(x)].filter((w) => mine.has(w)).length }))
-    .sort((a, b) => b.score - a.score || a.k - b.k).slice(0, 3).map((r) => r.x);
+  const related = relatedOf(list, p);
   const more = related.length ? `<section class="more wrap" aria-labelledby="more-h">
       <div class="more-head" data-reveal>${kick(t('moreLike'))}<h2 class="sr" id="more-h">${esc(t('moreLike'))}</h2></div>
       <ul class="more-list" data-stagger>${related.map((x, k) => moreCard(D, x, k, 'related')).join('')}</ul>
     </section>` : '';
+  // the invitation before "Next project": the status, "want something like this?", WhatsApp pre-filled with this project, the email
+  const band = isHub(p) ? '' : `<section class="p-wa wrap" aria-labelledby="pwa-h">
+    <div class="p-wa-in" data-reveal>
+      <span class="p-wa-k"><span class="dot dot--open" aria-hidden="true"></span>${esc(t('status'))}</span>
+      <h2 class="p-wa-t" id="pwa-h">${esc(t('pwaTitle', { t: p.title }))}</h2>
+      <p class="p-wa-l">${esc(t('pwaLine'))}</p>
+      <div class="p-wa-row"><a class="btn btn-fill" href="${esc(wa(D.SITE.whatsapp, t('waSimilar', { t: p.title })))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-project="${p.key}" data-from="project-band" data-magnet>${exists('site/avatar.webp') ? '<img class="btn-av" src="/site/avatar.webp" alt="" width="40" height="40" decoding="async">' : ''}${roll(t('chat'))} ${arrowR}</a>${D.SITE.email ? `<button class="btn p-wa-mail" type="button" data-copy="${esc(D.SITE.email)}" data-track="contact_click" data-channel="Email" data-from="project-band">${esc(D.SITE.email)}</button>` : ''}</div>
+    </div>
+  </section>`;
   const pathname = `/work/${p.key}/`;
 
   const ld = { '@context': 'https://schema.org', '@type': 'CreativeWork', name: p.title, description: desc, url: `${ORIGIN}${u(pathname)}`, inLanguage: L.html, creator: { '@type': 'Person', name: 'Navy Gibran', url: `${ORIGIN}${u('/')}` }, keywords: p.stack.split(' · ').join(', '), ...(p.url && !p.now ? { sameAs: p.url } : {}), ...(m.cover ? { image: `${ORIGIN}/${m.cover}` } : {}) };
@@ -817,6 +843,7 @@ ${header('work', pathname)}
     ${gallery}
   </article>
   ${more}
+  ${band}
   <nav class="p-next wrap" aria-label="${esc(t('nextLbl'))}" data-scene="pnext">
     <a ${pAttrs(next)} data-cursor="${esc(t('cursorNext'))}" style="--nbg:${tint(next).bg}"${projectMedia(D, next).cover ? ` data-preview="/${projectMedia(D, next).cover}"` : ''}><span class="lbl">${esc(t('nextLbl'))}</span><span class="p-next-t">${esc(next.title)} ${arrowR}</span><span class="ind">${esc(tp(next, 'industry'))}</span></a>
   </nav>
@@ -1009,7 +1036,9 @@ function introHtml(D) {
 function simplePage(D, ctx) {
   const Cn = C();
   const clients = CLIENTS.map((c) => ({ key: c.key, name: c.name, word: c.word || null }));
-  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia });
+  const main = homeProfileMain({ D: { ...D, PROJECTS: workOrder(D.PROJECTS) }, lang: LANG, path: Cn.path || CONTENT.en.path, stackNames: Cn.stack || CONTENT.en.stack, worlds: worldsFor(LANG), clients, gh: GH, exists, img, u, tp, projectMedia,
+    services: (Cn.territories || CONTENT.en.territories).map((x, i) => ({ title: x.title, body: x.body, items: x.items || [], also: TERRITORIES[i]?.also || '', proof: (TERRITORIES[i]?.proof || []).map((k) => D.PROJECTS.find((q) => q.key === k)).filter(Boolean).map((q) => ({ key: q.key, title: q.title })) })),
+    process: Cn.process || CONTENT.en.process });
   const preload = ['site/desk-wide-800.webp', 'site/portrait.webp'].filter(exists).map((f) => `<link rel="preload" as="image" href="/${f}" fetchpriority="high">`).join('\n');
   return head({ title: t('t_home'), description: t('d_simple'), pathname: '/', css: ctx.css + HOME_PROFILE_CSS, intro: true, viewForward: true, imageAlt: t('ogHomeAlt'), extra: preload + '\n' }) + `
 <body class="home home-profile">
