@@ -32,7 +32,7 @@ const mark = (slug, cls = '') => `<i class="pf-m${cls ? ' ' + cls : ''}" style="
 export const WORDS = {
   id: {
     handle: '@itsnevu', role: 'Full-stack developer', where: 'Indonesia', site: 'navygibran.dev', open: 'Menerima proyek baru',
-    bio: 'Full-stack developer dari Indonesia. Saya membangun sistem ERP dengan Go dan Next.js, serta website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Dua puluh tiga situs klien online hari ini.',
+    bio: 'Saya membangun website untuk bisnis: profil perusahaan, toko online, dan aplikasi custom. Dua puluh tiga situs klien online hari ini. Saya juga membangun sistem ERP dengan Go dan Next.js.',
     live: 'situs live', tabs: { home: 'Beranda', work: 'Karya', labs: 'Labs', cv: 'CV', desk: 'Desk 3D' },
     exp: 'Pengalaman', edu: 'Pendidikan', projects: 'Proyek', clients: 'Klien', stack: 'Stack',
     viewAll: 'Lihat semua', more: 'Tampilkan lebih banyak', less: 'Tampilkan lebih sedikit', open_: 'Buka', close_: 'Tutup',
@@ -58,7 +58,7 @@ export const WORDS = {
 WORDS.en = {
   ...WORDS.id,
   role: 'Full-stack developer', where: 'Indonesia', open: 'Taking new projects',
-  bio: 'Full-stack developer from Indonesia. I build ERP systems in Go and Next.js, and websites for businesses: company profiles, online stores and custom applications. Twenty-three client sites are live today.',
+  bio: 'I build websites for businesses: company profiles, online stores and custom applications. Twenty-three client sites are live today. I also build ERP systems in Go and Next.js.',
   live: 'live sites', tabs: { home: 'Home', work: 'Work', labs: 'Labs', cv: 'CV', desk: '3D desk' },
   exp: 'Experience', edu: 'Education', projects: 'Projects', clients: 'Clients', stack: 'Stack',
   viewAll: 'View all', more: 'Show more', less: 'Show less', open_: 'Open', close_: 'Close',
@@ -81,7 +81,7 @@ WORDS.en = {
 WORDS.zh = {
   ...WORDS.en,
   role: '全栈开发者', where: '印度尼西亚', open: '接新项目',
-  bio: '来自印度尼西亚的全栈开发者。我用 Go 和 Next.js 做 ERP 系统，也为企业做网站：企业官网、网上商店和定制应用。如今有二十三个客户网站在线运行。',
+  bio: '我为企业做网站：企业官网、网上商店和定制应用。如今有二十三个客户网站在线运行。我也用 Go 和 Next.js 做 ERP 系统。',
   live: '个上线网站', tabs: { home: '首页', work: '作品', labs: '实验室', cv: '简历', desk: '3D 桌面' },
   exp: '经历', edu: '教育', projects: '项目', clients: '客户', stack: '技术栈',
   viewAll: '查看全部', more: '显示更多', less: '收起', open_: '展开', close_: '收起',
