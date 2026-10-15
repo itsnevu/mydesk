@@ -209,22 +209,25 @@ export function cone(radius = 1, height = 1, radial = 4) {
 
 /** Merge multiple geometries with per-part transforms [{geo, m4}] */
 export function merge(parts) {
-  const pos = [], nor = [], uv = [], idx = [];
-  let offset = 0;
+  // sized first, then written in place: the same values as pushing into arrays and copying them, without the growing arrays
+  let np = 0, nu = 0, ni = 0;
+  for (const { geo } of parts) { np += geo.positions.length; nu += geo.uvs.length; ni += geo.indices.length; }
+  const pos = new Float32Array(np), nor = new Float32Array(np), uv = new Float32Array(nu), idx = new Uint32Array(ni);
+  let offset = 0, o = 0, ou = 0, oi = 0;
   for (const { geo, m, n } of parts) {
     const p = geo.positions, nn = geo.normals;
-    for (let i = 0; i < p.length; i += 3) {
+    for (let i = 0; i < p.length; i += 3, o += 3) {
       const x = p[i], y = p[i + 1], z = p[i + 2];
       if (m) {
-        pos.push(m[0] * x + m[4] * y + m[8] * z + m[12], m[1] * x + m[5] * y + m[9] * z + m[13], m[2] * x + m[6] * y + m[10] * z + m[14]);
+        pos[o] = m[0] * x + m[4] * y + m[8] * z + m[12]; pos[o + 1] = m[1] * x + m[5] * y + m[9] * z + m[13]; pos[o + 2] = m[2] * x + m[6] * y + m[10] * z + m[14];
         const nx = nn[i], ny = nn[i + 1], nz = nn[i + 2];
         const ox = n[0] * nx + n[3] * ny + n[6] * nz, oy = n[1] * nx + n[4] * ny + n[7] * nz, oz = n[2] * nx + n[5] * ny + n[8] * nz;
-        const l = Math.hypot(ox, oy, oz) || 1; nor.push(ox / l, oy / l, oz / l);
-      } else { pos.push(x, y, z); nor.push(nn[i], nn[i + 1], nn[i + 2]); }
+        const l = Math.hypot(ox, oy, oz) || 1; nor[o] = ox / l; nor[o + 1] = oy / l; nor[o + 2] = oz / l;
+      } else { pos[o] = x; pos[o + 1] = y; pos[o + 2] = z; nor[o] = nn[i]; nor[o + 1] = nn[i + 1]; nor[o + 2] = nn[i + 2]; }
     }
-    for (let i = 0; i < geo.uvs.length; i++) uv.push(geo.uvs[i]);
-    for (let i = 0; i < geo.indices.length; i++) idx.push(geo.indices[i] + offset);
-    offset += p.length / 3;
+    uv.set(geo.uvs, ou); ou += geo.uvs.length;
+    const I = geo.indices; for (let i = 0; i < I.length; i++) idx[oi + i] = I[i] + offset;
+    oi += I.length; offset += p.length / 3;
   }
   return finish(pos, nor, uv, idx);
 }
