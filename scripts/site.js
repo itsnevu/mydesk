@@ -1001,7 +1001,7 @@ ${header('cv', '/cv/')}
     <p class="cv-role" data-reveal>${esc(t('role'))} · ${esc(t('where'))} · <span class="dot dot--open" aria-hidden="true"></span> ${esc(t('status'))}</p>
     <p class="cv-lead" data-reveal>${esc(t('cv_lead'))}</p>
     <ul class="hero-facts cv-facts" data-reveal>${facts.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
-    <div class="cv-actions" data-reveal>${pdf ? `<a class="btn btn-fill" href="${esc(pdf)}" download="Navy-Gibran-CV.pdf" data-track="contact_click" data-channel="Résumé" data-from="cv-button" data-magnet>${roll(t('cv_download'))} ${arrowD}</a>` : ''}<a class="btn" href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="cv" data-magnet>${roll(t('chat'))} ${arrow}</a></div>
+    <div class="cv-actions" data-reveal>${pdf ? `<a class="btn btn-fill" href="${esc(pdf)}" download="${esc(pdf.split('/').pop())}" data-track="contact_click" data-channel="Résumé" data-from="cv-button" data-magnet>${roll(t('cv_download'))} ${arrowD}</a>` : ''}<a class="btn" href="${esc(wa(D.SITE.whatsapp, t('waHello')))}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="cv" data-magnet>${roll(t('chat'))} ${arrow}</a></div>
   </header>
   <div class="cv-grid">
     <section class="cv-main">
@@ -1189,7 +1189,7 @@ export async function renderSite() {
   for (const lang of LANG_ORDER) {
     setLang(lang);
     // (the projects under the names this language gives them: only a few have one, the hub's "Client Websites" first)
-    const DL = { ...D0, PROJECTS: D0.PROJECTS.map((p) => (PROJECTS_T[lang]?.[p.key]?.title ? { ...p, title: PROJECTS_T[lang][p.key].title } : p)) };
+    const DL = { ...D0, PROJECTS: D0.PROJECTS.map((p) => (PROJECTS_T[lang]?.[p.key]?.title ? { ...p, title: PROJECTS_T[lang][p.key].title } : p)), SITE: { ...D0.SITE, links: D0.SITE.links.map((l) => { const pdf = l.label === 'Résumé' && l.href.replace(/\.pdf$/, `-${lang}.pdf`); return pdf && lang !== DEFAULT_LANG && exists(pdf.slice(1)) ? { ...l, href: pdf } : l; }) } };
     const D = DL;
     const ctx = { css: cssAll, js: jsSrc };
     // (this language's data for the page script: the desk's old targets, the projects, the index the search reads, the words)
