@@ -39,6 +39,7 @@ export const WORDS = {
     waText: 'Halo Navy, saya lihat portofolio Anda dan ingin membicarakan sebuah proyek.',
     altBanner: 'Meja kerja Navy Gibran di malam hari', altPortrait: 'Navy Gibran',
     reel: '3D web interactive design', reelLine: '{n} dunia 3D yang dijelajahi dengan scroll: tiap dunia satu cerita, satu produk, dan satu aplikasi yang benar-benar jalan di browser. Dibuat dengan three.js.',
+    featured: 'Unggulan', stats: { live: 'situs live', projects: 'proyek', worlds: 'dunia 3D' },
     reelOpen: 'Buka di Labs', reelAll: 'Jelajahi {n} dunia', reelHint: 'Arahkan ke gambar kecil untuk ganti dunia', reelHintTouch: 'Ketuk gambar kecil untuk ganti dunia', reelAlt: 'Satu frame dari dunia 3D {n}',
   },
 };
@@ -56,6 +57,7 @@ WORDS.en = {
   chat: 'Chat on WhatsApp', see3d: 'See the 3D version', cvBtn: 'Download CV', email: 'Email',
   waText: "Hi Navy, I saw your portfolio and I'd like to talk about a project.", altBanner: "Navy Gibran's desk at night", altPortrait: 'Navy Gibran',
   reel: '3D web interactive design', reelLine: '{n} worlds in 3D you scroll through: each one a story, a product and a working app that really runs in the browser. Built with three.js.',
+  featured: 'Featured', stats: { live: 'live sites', projects: 'projects', worlds: '3D worlds' },
   reelOpen: 'Open in Labs', reelAll: 'Explore {n} worlds', reelHint: 'Point at a small frame to change the world', reelHintTouch: 'Tap a small frame to change the world', reelAlt: 'A frame of the 3D world {n}',
 };
 WORDS.zh = {
@@ -72,6 +74,7 @@ WORDS.zh = {
   chat: '用 WhatsApp 聊', see3d: '看 3D 版本', cvBtn: '下载简历', email: '邮箱',
   waText: 'Hi Navy! 我看了你的作品集，想聊一个项目。', altBanner: 'Navy Gibran 夜里的书桌', altPortrait: 'Navy Gibran',
   reel: '3D 网页交互设计', reelLine: '{n} 个可以滚动穿行的 3D 世界：每个都是一个故事、一个产品，以及一个真正在浏览器里运行的应用。用 three.js 构建。',
+  featured: '精选', stats: { live: '个上线网站', projects: '个项目', worlds: '个 3D 世界' },
   reelOpen: '在实验室打开', reelAll: '探索 {n} 个世界', reelHint: '指向小图即可切换世界', reelHintTouch: '轻点小图即可切换世界', reelAlt: '3D 世界 {n} 的一帧',
 };
 // the chips that are words rather than tool names, in the page's language (the tool names stay as they are written)
@@ -143,7 +146,12 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <span class="pf-th">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="64" height="40">` : I.folder}</span>
       <span class="pf-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i><span>${esc(status(p))}</span></span></span>
       <span class="pf-go">${I.out}</span></a></li>`; };
-  const projects = counted.map(rowProject).join('');
+  const feat = (p, i) => { const m = projectMedia(D, p); return `<li class="pf-feat" style="--i:${i}"><a href="${u(`/work/${p.key}/`)}" data-track="project_open" data-project="${p.key}" data-from="profile-featured" data-name="${esc(p.title)}">
+      <span class="pf-feat-pic">${m.cover ? `<img src="/${m.cover}" alt="" loading="lazy" decoding="async" width="640" height="400">` : I.folder}</span>
+      <span class="pf-feat-body"><b>${esc(p.title)}</b><span class="pf-meta"><span>${esc(tp(p, 'industry'))}</span><i>·</i><span>${esc(status(p))}</span></span></span>
+      <span class="pf-go">${I.out}</span></a></li>`; };
+  const featured = counted.slice(0, 3).map(feat).join('');
+  const projects = counted.slice(3).map(rowProject).join('');
 
   const logo = (c) => c.word || !exists(`site/logos/${c.key}.webp`)
     ? `<a class="pf-logo pf-logo--w" href="${u(`/work/${c.key}/`)}" title="${esc(c.name)}"><span>${esc(c.word ? c.word.join(' ') : c.name)}</span></a>`
@@ -191,16 +199,21 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
 <div class="pf">
   <aside class="pf-notes" aria-hidden="true"><span class="pf-note pf-note--1">${esc(W.notes[0])}</span><span class="pf-note pf-note--3">${esc(W.notes[2])}</span></aside>
   <section class="pf-card" aria-label="Navy Gibran">
-    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}</div>
+    <div class="pf-banner">${img('site/desk-wide.webp', W.altBanner, { eager: true, sizes: '(min-width: 800px) 760px, 100vw' })}${exists('site/desk-loop.webm') || exists('site/desk-loop.mp4') ? `<video class="pf-banner-v" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1">${exists('site/desk-loop.webm') ? '<source src="/site/desk-loop.webm" type="video/webm">' : ''}${exists('site/desk-loop.mp4') ? '<source src="/site/desk-loop.mp4" type="video/mp4">' : ''}</video>` : ''}</div>
     <div class="pf-card-in">
       <div class="pf-id">
         <figure class="pf-face">${img('site/portrait.webp', W.altPortrait, { eager: true, sizes: '120px' })}</figure>
-        <a class="pf-stat" href="${u('/work/client-websites/')}"><b data-count="${clientSites}">${clientSites}</b> ${esc(W.live)}</a>
+        <a class="btn btn-fill pf-hero-wa" href="${wa}" target="_blank" rel="noopener" data-track="contact_click" data-channel="WhatsApp" data-from="profile-hero" data-magnet>${esc(W.chat)} ${I.out}</a>
       </div>
       <h1 class="pf-name">Navy Gibran <span class="pf-verified" title="navygibran.dev">${I.link}</span></h1>
       <span class="pf-handle">${esc(W.handle)}</span>
       <p class="pf-bio">${esc(W.bio)}</p>
       <ul class="pf-facts"><li>${I.work}${esc(W.role)}</li><li>${I.pin}${esc(W.where)}</li><li>${I.link}${esc(W.site)}</li><li class="pf-open"><span class="dot dot--open" aria-hidden="true"></span>${esc(W.open)}</li></ul>
+      <div class="pf-nums" data-stagger>
+        <a class="pf-num" href="${u('/work/client-websites/')}" style="--i:0"><b data-count="${clientSites}">${clientSites}</b><span>${esc(W.stats.live)}</span></a>
+        <a class="pf-num" href="${u('/work/')}" style="--i:1"><b data-count="${counted.length}">${counted.length}</b><span>${esc(W.stats.projects)}</span></a>
+        ${shots.length ? `<a class="pf-num" href="${u('/labs/')}" style="--i:2"><b data-count="${shots.length}">${shots.length}</b><span>${esc(W.stats.worlds)}</span></a>` : ''}
+      </div>
       <div class="pf-socials">${social}</div>
     </div>
     <nav class="pf-tabs" aria-label="Site">
@@ -211,22 +224,23 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
       <a href="/3d/" data-track="3d_cta_click" data-from="profile-tab">${I.cube}<span>${esc(W.tabs.desk)}</span></a>
     </nav>
   </section>
-  ${hatch}
+  ${hatch}${reel}
   <section class="pf-sec" aria-labelledby="pf-exp">
     ${sec(W.exp, expRows.length)}
-    <ol class="pf-list" data-stagger>${exp}</ol>
+    <ol class="pf-list pf-tl" data-stagger>${exp}</ol>
     <div class="pf-h pf-h--sub"><h3>${I.cap}${esc(W.edu)}<sup>(${eduRows.length})</sup></h3></div>
-    <ol class="pf-list" data-stagger>${edu}</ol>
+    <ol class="pf-list pf-tl" data-stagger>${edu}</ol>
   </section>
   ${hatch}
   <section class="pf-sec pf-sec--pj" aria-labelledby="pf-pj">
     <span class="pf-note pf-note--2" aria-hidden="true">${esc(W.notes[1])}</span>
     ${sec(W.projects, counted.length, `<a class="pf-all" href="${u('/work/')}">${esc(W.viewAll)} ${I.out}</a>`)}
+    <ol class="pf-feats" data-stagger aria-label="${esc(W.featured)}">${featured}</ol>
     <ol class="pf-list" data-stagger data-fold>${projects}</ol>
     ${more(W.more)}
   </section>
   ${hatch}
-  <section class="pf-sec pf-sec--cl" aria-labelledby="pf-cl">
+  <section class="pf-sec pf-sec--cl pf-sec--cream" aria-labelledby="pf-cl">
     ${sec(W.clients, clientSites, `<a class="pf-all" href="${u('/work/client-websites/')}">${esc(W.viewAll)} ${I.out}</a>`)}
     <div class="pf-logos" data-stagger>${clients.map(logo).join('')}</div>
     <span class="pf-note pf-note--cl" aria-hidden="true">${esc(W.thanks)}</span>
@@ -236,7 +250,7 @@ export function homeProfileMain({ D, lang = 'id', path, stackNames, worlds = [],
     ${sec(W.stack, STACK.reduce((n, s) => n + s.length, 0))}
     <div class="pf-stack" data-stagger>${stack}</div>
   </section>
-  ${hatch}${reel}
+  ${hatch}
   <section class="pf-cta" aria-label="${esc(W.ctaTitle)}" data-reveal>
     ${img('site/desk-wide.webp', '', { sizes: '(min-width: 800px) 760px, 100vw' })}
     <div class="pf-cta-in">
@@ -266,6 +280,8 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-card { overflow: hidden; border-top: 1px solid var(--line); border-radius: 14px 14px 0 0; }
 .pf-banner { position: relative; height: clamp(150px, 26vw, 230px); overflow: hidden; }
 .pf-banner img { width: 100%; height: 100%; object-fit: cover; object-position: 60% 45%; filter: brightness(0.7) saturate(0.85); transform: translate3d(calc(var(--mx, 0) * -10px), calc(var(--my, 0) * -8px), 0) scale(1.08); transition: transform 0.6s var(--ease); }
+.pf-banner-v { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 60% 45%; filter: brightness(0.7) saturate(0.85); opacity: 0; transition: opacity 1.2s; pointer-events: none; }
+.pf-banner-v.on { opacity: 1; }
 .pf-banner::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg) 0%, transparent 45%); }
 .pf-card-in { padding: 0 clamp(18px, 3vw, 30px) clamp(18px, 3vw, 26px); }
 .pf-id { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: -58px; }
@@ -278,6 +294,13 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-stat { display: inline-flex; align-items: baseline; gap: 6px; margin-bottom: 10px; padding: 8px 12px; border: 1px solid var(--line-2); border-radius: 999px; font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; color: var(--dim); transition: border-color 0.3s, color 0.3s; }
 .pf-stat b { font: 400 20px/1 var(--serif); letter-spacing: 0; color: var(--ink); }
 .pf-stat:hover { border-color: var(--ink); color: var(--ink); }
+.pf-hero-wa { height: 46px; padding: 0 20px; margin-bottom: 10px; font-size: 13px; }
+/* three numbers under the facts: the proof at a glance, counted up as they arrive */
+.pf-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+.pf-num { display: grid; gap: 2px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; color: var(--dim); background: rgba(241, 234, 219, 0.025); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease), background 0.3s; }
+.pf-num b { font: 400 clamp(30px, 3.6vw, 40px)/1 var(--serif); color: var(--ink); font-variant-numeric: tabular-nums; }
+.pf-num span { font: 600 11px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; }
+.pf-num:hover { border-color: var(--line-2); color: var(--ink); transform: translateY(-3px); background: rgba(241, 234, 219, 0.05); }
 .pf-name { display: flex; align-items: center; gap: 10px; margin-top: 14px; font: 700 clamp(28px, 3.4vw, 40px)/1 var(--cond); text-transform: uppercase; letter-spacing: -0.01em; }
 .pf-verified { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #140f09; } .pf-verified svg { width: 13px; height: 13px; }
 .pf-handle { display: block; margin-top: 6px; font: 600 13px var(--cond); letter-spacing: 0.14em; color: var(--faint); }
@@ -327,16 +350,39 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
 .pf-fold { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease); }
 .pf-fold > p { overflow: hidden; margin: 0; font-size: 16px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
 .pf-exp.open .pf-fold { grid-template-rows: 1fr; } .pf-exp.open .pf-fold > p { padding-top: 6px; }
+/* the experience as a timeline: a line down the avatar column, each stop a ring on it */
+.pf-tl { position: relative; }
+.pf-tl::before { content: ""; position: absolute; left: 21px; top: 24px; bottom: 24px; width: 1px; background: linear-gradient(var(--line-2), var(--line) 70%, transparent); }
+.pf-tl .pf-row { position: relative; }
+.pf-tl .pf-av { position: relative; z-index: 1; background: var(--bg); box-shadow: 0 0 0 1px var(--line-2); }
+.pf-tl .pf-av--m { background: var(--ink); box-shadow: none; outline: 6px solid var(--bg); }
+/* the first three projects as picture cards; the rest keep the list, with a bigger thumbnail */
+.pf-feats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+.pf-feat a { display: grid; gap: 0; height: 100%; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-2); transition: border-color 0.3s, transform 0.6s var(--ease), box-shadow 0.4s; }
+.pf-feat a:hover { border-color: var(--line-2); transform: translateY(-4px); box-shadow: 0 24px 40px -28px rgba(0, 0, 0, 0.9); }
+.pf-feat-pic { display: grid; place-items: center; aspect-ratio: 16 / 10; overflow: hidden; color: var(--dim); background: var(--bg-3); }
+.pf-feat-pic img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: saturate(0.9); transform: scale(1.001); transition: transform 1.4s var(--ease); } .pf-feat-pic svg { width: 24px; height: 24px; }
+.pf-feat a:hover .pf-feat-pic img { transform: scale(1.06); }
+.pf-feat-body { display: grid; gap: 4px; padding: 12px 14px 14px; }
+.pf-feat b { font: 700 15.5px/1.2 var(--cond); text-transform: uppercase; letter-spacing: 0.01em; }
+.pf-feat .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 13.5px var(--text); color: var(--dim); }
+.pf-feat .pf-go { position: absolute; } .pf-feat { position: relative; } .pf-feat .pf-go { right: 12px; top: 12px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: rgba(9, 8, 10, 0.6); color: var(--ink); opacity: 0; transform: translateY(4px); }
+.pf-feat a:hover .pf-go { opacity: 1; transform: none; }
 .pf-pj { display: block; padding: 0; } .pf-pj[hidden] { display: none; }
-.pf-pj a { display: grid; grid-template-columns: 64px 1fr 24px; align-items: center; column-gap: 14px; padding: 12px 0; transition: padding 0.4s var(--ease), color 0.3s; }
+.pf-pj a { display: grid; grid-template-columns: 96px 1fr 24px; align-items: center; column-gap: 14px; padding: 12px 0; transition: padding 0.4s var(--ease), color 0.3s; }
 .pf-pj a:hover { color: var(--accent-2); padding-left: 8px; }
-.pf-th { display: grid; place-items: center; width: 64px; height: 40px; overflow: hidden; border-radius: 6px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--dim); }
+.pf-th { display: grid; place-items: center; width: 96px; height: 60px; overflow: hidden; border-radius: 6px; background: var(--bg-2); box-shadow: 0 0 0 1px var(--line); color: var(--dim); }
 .pf-th img { width: 100%; height: 100%; object-fit: cover; object-position: top; filter: grayscale(0.15) brightness(0.95); } .pf-th svg { width: 20px; height: 20px; }
 .pf-pj b { font: 700 clamp(17px, 1.6vw, 20px)/1.2 var(--cond); text-transform: uppercase; }
 .pf-pj .pf-meta { text-transform: none; letter-spacing: 0.02em; font: 400 14.5px var(--text); color: var(--dim); }
 .pf-go { color: var(--faint); transition: color 0.3s, transform 0.4s var(--ease); } .pf-go .ar { width: 14px; height: 14px; } .pf-pj a:hover .pf-go { color: var(--accent-2); transform: translate(2px, -2px); }
 .pf-more { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: none; color: var(--dim); font: 600 12px var(--cond); letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: border-color 0.3s, color 0.3s; }
 .pf-more svg { width: 14px; height: 14px; transition: transform 0.4s var(--ease); } .pf-more:hover { border-color: var(--ink); color: var(--ink); } .pf-more.open svg { transform: rotate(180deg); }
+/* the clients on cream: one light room in the dark column */
+.pf-sec--cream { background: var(--cream); color: var(--cream-ink); border-color: var(--cream-line); }
+.pf-sec--cream .pf-h h2 em { color: var(--cream-ink); } .pf-sec--cream .pf-h sup, .pf-sec--cream .pf-all { color: var(--cream-dim); } .pf-sec--cream .pf-all:hover { color: var(--cream-ink); }
+.pf-sec--cream .pf-logo { border-color: var(--cream-line); color: var(--cream-dim); } .pf-sec--cream .pf-logo:hover { border-color: var(--cream-ink); color: var(--cream-ink); background: rgba(23, 18, 12, 0.04); }
+.pf-sec--cream .pf-note--cl { color: var(--accent-2); }
 .pf-logos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
 .pf-logo { display: grid; place-items: center; height: 68px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--dim); transition: border-color 0.3s, color 0.3s, transform 0.5s var(--ease); }
 /* the logo in one colour: the mask is the client's own silhouette, the hidden <img> only gives it its width */
@@ -418,15 +464,17 @@ canvas.pf-field { display: block; width: 100%; height: 100%; }
   .pf-card, .pf-sec, .pf-cta, .pf-hatch { border-left: 0; border-right: 0; } .pf-card, .pf-cta { border-radius: 0; }
   .pf-logos { grid-template-columns: repeat(3, 1fr); }
   .pf-st { grid-template-columns: 1fr; row-gap: 8px; }
-  .pf-pj a { grid-template-columns: 56px 1fr 20px; } .pf-th { width: 56px; height: 36px; }
+  .pf-pj a { grid-template-columns: 72px 1fr 20px; } .pf-th { width: 72px; height: 45px; }
+  .pf-feats { grid-template-columns: 1fr 1fr; } .pf-feat:nth-child(3) { display: none; }
+  .pf-nums { gap: 8px; } .pf-num { padding: 12px; }
   .pf-stage { border-radius: 10px; } .pf-stage-top { left: 14px; right: 14px; top: 14px; } .pf-stage-text { left: 14px; right: 14px; bottom: 14px; gap: 5px; }
   .pf-stage-marks { inset: 9px; } .pf-stage-marks i { width: 11px; height: 11px; }
   .pf-thumb { width: 104px; } .pf-reel-row .btn { width: 100%; }
   .pf-tabs a { min-width: 0; padding: 0 6px; gap: 6px; font-size: 10.5px; letter-spacing: 0.08em; } .pf-tabs a svg { width: 14px; height: 14px; }
   body.home-profile .side-3d, body.home-profile .side-3d-nav { display: none; }
 }
-@media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-stat { margin: 10px 0 0; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
-@media (prefers-reduced-motion: reduce) { .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
+@media (max-width: 480px) { .pf-id { flex-direction: column; align-items: flex-start; } .pf-hero-wa { margin: 10px 0 0; } .pf-feats { grid-template-columns: 1fr; } .pf-feat:nth-child(3) { display: grid; } .pf-nums { grid-template-columns: 1fr 1fr 1fr; } .pf-num b { font-size: 26px; } .pf-face { width: 100px; height: 100px; } .pf-id { margin-top: -50px; } }
+@media (prefers-reduced-motion: reduce) { .pf-banner-v { display: none; } .pf-hatch { animation: none; } .pf-banner img { transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .pf-stage-pics, .pf-stage-pic.is-on { transform: none; } .pf-reel.is-swap .pf-stage-text { animation: none; } .pf-stage-bar { display: none; } }
 .motion-off .pf-stage-pics, .motion-off .pf-stage-pic.is-on { transform: none; } .motion-off .pf-reel.is-swap .pf-stage-text { animation: none; } .motion-off .pf-stage-bar { display: none; }
 `;
@@ -437,6 +485,9 @@ export const HOME_PROFILE_JS = DITHER_JS + `
   // the banner drifts a little toward the pointer
   var card = document.querySelector('.pf-card'), bimg = document.querySelector('.pf-banner img');
   if (card && bimg && fine && !reduce) card.addEventListener('pointermove', function (e) { var r = card.getBoundingClientRect(); bimg.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5).toFixed(3)); bimg.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5).toFixed(3)); });
+  // the banner's loop of the desk, on a desktop that is not saving data (the still stays under it, and for everyone else)
+  var bv = document.querySelector('.pf-banner-v');
+  if (bv && fine && !reduce && !(navigator.connection && navigator.connection.saveData)) { bv.addEventListener('playing', function () { bv.classList.add('on'); }, { once: true }); bv.load(); var pl = bv.play(); if (pl && pl.catch) pl.catch(function () {}); }
   // a row's story opens under it
   document.querySelectorAll('.pf-exp').forEach(function (row) { var b = row.querySelector('.pf-tg'); if (!b) return; var open = function () { var on = !row.classList.contains('open'); row.classList.toggle('open', on); b.setAttribute('aria-expanded', String(on)); }; b.addEventListener('click', open); row.querySelector('.pf-top b').addEventListener('click', open); });
   // the lists fold after a few rows
